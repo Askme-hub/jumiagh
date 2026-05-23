@@ -85,8 +85,15 @@ function Home() {
 
       <div className="mt-3 overflow-x-auto scrollbar-none">
         <div className="flex gap-3 px-3 pb-2">
-          {products.slice(0, 5).map((p: Product) => <ProductCard key={p.id} product={p} />)}
-        </div>
+  {products.slice(0, 5).map((p: Product) => (
+    <div
+      key={p.id}
+      className="min-w-[180px] max-w-[220px]"
+    >
+      <ProductCard product={p} />
+    </div>
+  ))}
+</div>
       </div>
 
       <div className="px-3 mt-5 grid grid-cols-4 gap-2">
@@ -99,11 +106,16 @@ function Home() {
       </div>
 
       <h2 className="px-3 mt-6 text-base font-bold">Recommended For You</h2>
-      <div className="px-3 mt-2 grid grid-cols-2 gap-3">
-        {products.slice(3).map((p: Product) => (
-          <div key={p.id} className="w-full">
-            <ProductCard product={p} />
-          </div>
+     <div className="flex gap-3 px-3 pb-2">
+  {products.slice(0, 5).map((p: Product) => (
+    <div
+      key={p.id}
+      className="min-w-[180px] max-w-[220px]"
+    >
+      <ProductCard product={p} />
+    </div>
+  ))}
+</div>
         ))}
       </div>
       <div className="h-6" />

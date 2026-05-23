@@ -54,6 +54,12 @@ export const initiatePaystackCheckout = createServerFn({ method: "POST" })
         item_count: itemCount,
         status: "pending_payment",
         payment_status: "pending",
+        delivery_name: data.delivery.name,
+        delivery_phone: data.delivery.phone,
+        delivery_region: data.delivery.region,
+        delivery_city: data.delivery.city,
+        delivery_address: data.delivery.address,
+        delivery_notes: data.delivery.notes || null,
       })
       .select()
       .single();

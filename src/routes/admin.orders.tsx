@@ -7,6 +7,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/admin/orders")({ component: AdminOrders });
 
 const STATUSES = [
+  "pending_payment",
   "placed",
   "pending_confirmation",
   "waiting_to_be_shipped",

@@ -15,6 +15,7 @@ export const Route = createFileRoute("/orders")({
 });
 
 const statusLabel: Record<string, { text: string; tone: string }> = {
+  pending_payment: { text: "AWAITING PAYMENT", tone: "bg-secondary text-foreground" },
   placed: { text: "ORDER PLACED", tone: "bg-secondary text-foreground" },
   pending_confirmation: { text: "PENDING", tone: "bg-secondary text-foreground" },
   waiting_to_be_shipped: { text: "PROCESSING", tone: "bg-secondary text-foreground" },

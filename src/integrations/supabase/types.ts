@@ -126,28 +126,40 @@ export type Database = {
       }
       orders: {
         Row: {
+          amount_paid: number | null
           created_at: string
           id: string
           item_count: number
           order_number: string
+          payment_reference: string | null
+          payment_status: string
+          paystack_access_code: string | null
           status: string
           total: number
           user_id: string
         }
         Insert: {
+          amount_paid?: number | null
           created_at?: string
           id?: string
           item_count: number
           order_number?: string
+          payment_reference?: string | null
+          payment_status?: string
+          paystack_access_code?: string | null
           status?: string
           total: number
           user_id: string
         }
         Update: {
+          amount_paid?: number | null
           created_at?: string
           id?: string
           item_count?: number
           order_number?: string
+          payment_reference?: string | null
+          payment_status?: string
+          paystack_access_code?: string | null
           status?: string
           total?: number
           user_id?: string

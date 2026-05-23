@@ -119,8 +119,8 @@ function Cart() {
           <button className="border-2 border-primary rounded-md w-14 flex items-center justify-center text-primary" aria-label="Call">
             <Phone size={20} />
           </button>
-          <button onClick={checkout} disabled={placing} className="flex-1 bg-primary text-primary-foreground font-bold py-3.5 rounded-md disabled:opacity-60">
-            {placing ? "Redirecting…" : `Pay with Paystack (${formatGHC(total)})`}
+          <button onClick={checkout} disabled={going} className="flex-1 bg-primary text-primary-foreground font-bold py-3.5 rounded-md disabled:opacity-60">
+            {going ? "Loading…" : `Checkout (${formatGHC(total)})`}
           </button>
         </div>
       )}

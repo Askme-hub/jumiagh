@@ -1,9 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { Phone, Minus, Plus, CheckCircle2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
-import { formatGHC, useShop } from "@/lib/store";
-import { products } from "@/lib/products";
+import { formatGHC, useShop, type Product } from "@/lib/store";
+import { useProducts } from "@/lib/products";
 import { ProductCard } from "@/components/ProductCard";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useState } from "react";
 
 export const Route = createFileRoute("/cart")({
   component: Cart,
@@ -11,10 +14,53 @@ export const Route = createFileRoute("/cart")({
 });
 
 function Cart() {
+  const router = useRouter();
   const cart = useShop((s) => s.cart);
   const updateQty = useShop((s) => s.updateQty);
   const removeFromCart = useShop((s) => s.removeFromCart);
+  const clearCart = useShop((s) => s.clearCart);
   const total = useShop((s) => s.cartTotal());
+  const { data: products = [] } = useProducts();
+  const [placing, setPlacing] = useState(false);
+
+  const checkout = async () => {
+    const { data: sess } = await supabase.auth.getSession();
+    if (!sess.session) {
+      toast.error("Please log in to checkout");
+      router.navigate({ to: "/login" });
+      return;
+    }
+    setPlacing(true);
+    try {
+      const itemCount = cart.reduce((a, c) => a + c.qty, 0);
+      const { data: order, error } = await supabase
+        .from("orders")
+        .insert({ user_id: sess.session.user.id, total, item_count: itemCount, status: "placed" })
+        .select()
+        .single();
+      if (error) throw error;
+      const items = cart.map((c) => ({
+        order_id: order.id,
+        product_id: c.product.id,
+        name: c.product.name,
+        price: c.product.price,
+        old_price: c.product.oldPrice ?? null,
+        image_url: c.product.image,
+        qty: c.qty,
+      }));
+      const { error: e2 } = await supabase.from("order_items").insert(items);
+      if (e2) throw e2;
+      clearCart();
+      toast.success("Order placed!");
+      router.navigate({ to: "/orders/$id", params: { id: order.id } });
+    } catch (e: any) {
+      toast.error(e.message ?? "Checkout failed");
+    } finally {
+      setPlacing(false);
+    }
+  };
+
+
 
   return (
     <div>
@@ -98,8 +144,8 @@ function Cart() {
           <button className="border-2 border-primary rounded-md w-14 flex items-center justify-center text-primary" aria-label="Call">
             <Phone size={20} />
           </button>
-          <button className="flex-1 bg-primary text-primary-foreground font-bold py-3.5 rounded-md">
-            Checkout ({formatGHC(total)})
+          <button onClick={checkout} disabled={placing} className="flex-1 bg-primary text-primary-foreground font-bold py-3.5 rounded-md disabled:opacity-60">
+            {placing ? "Placing…" : `Checkout (${formatGHC(total)})`}
           </button>
         </div>
       )}
@@ -110,7 +156,7 @@ function Cart() {
       </div>
       <div className="overflow-x-auto scrollbar-none">
         <div className="flex gap-3 px-3 py-3">
-          {products.slice(3, 6).map((p) => <ProductCard key={p.id} product={p} />)}
+          {products.slice(3, 6).map((p: Product) => <ProductCard key={p.id} product={p} />)}
         </div>
       </div>
       <div className="h-6" />

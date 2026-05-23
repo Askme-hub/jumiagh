@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { Zap } from "lucide-react";
 import { SearchBar } from "@/components/SearchBar";
 import { ProductCard } from "@/components/ProductCard";
-import { products } from "@/lib/products";
+import { useProducts } from "@/lib/products";
+import type { Product } from "@/lib/store";
 import banner from "@/assets/banner-anniversary.jpg";
 
 export const Route = createFileRoute("/")({
@@ -37,6 +38,7 @@ function Countdown() {
 }
 
 function Home() {
+  const { data: products = [] } = useProducts();
   const tiles = [
     { label: "Anniversary", bg: "bg-primary", fg: "text-primary-foreground", sub: "14 Years" },
     { label: "Delivery", bg: "bg-success", fg: "text-white", sub: "Fast Ship" },
@@ -83,7 +85,7 @@ function Home() {
 
       <div className="mt-3 overflow-x-auto scrollbar-none">
         <div className="flex gap-3 px-3 pb-2">
-          {products.slice(0, 5).map((p) => <ProductCard key={p.id} product={p} />)}
+          {products.slice(0, 5).map((p: Product) => <ProductCard key={p.id} product={p} />)}
         </div>
       </div>
 
@@ -98,7 +100,7 @@ function Home() {
 
       <h2 className="px-3 mt-6 text-base font-bold">Recommended For You</h2>
       <div className="px-3 mt-2 grid grid-cols-2 gap-3">
-        {products.slice(3).map((p) => (
+        {products.slice(3).map((p: Product) => (
           <div key={p.id} className="w-full">
             <ProductCard product={p} />
           </div>

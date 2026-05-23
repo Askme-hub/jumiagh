@@ -11,56 +11,52 @@ export function ProductCard({
 }: {
   product: Product;
 }) {
-  const add = useShop((s) => s.addToCart);
-
-  const stockPct = product.stock
-    ? Math.min(100, (product.stock / 30) * 100)
-    : 0;
+  const addToCart = useShop((s) => s.addToCart);
 
   const oldPrice = product.discount
     ? product.price + (product.price * product.discount) / 100
     : null;
 
   return (
-    <div className="bg-card rounded-xl overflow-hidden border border-border/40 shadow-sm hover:shadow-lg transition-all duration-300 active:scale-[0.98] group">
+    <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group w-full">
       
       {/* IMAGE */}
-      <div className="relative bg-muted aspect-square p-3">
+      <div className="relative bg-gray-50 aspect-square overflow-hidden">
         <img
           src={product.image}
           alt={product.name}
           loading="lazy"
-          className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+          className="w-full h-full object-contain p-4 transition-transform duration-300 group-hover:scale-105"
         />
 
         {/* DISCOUNT */}
         {product.discount && (
-          <span className="absolute top-2 left-2 bg-primary text-white text-[11px] font-bold px-2 py-1 rounded-md shadow">
+          <div className="absolute top-2 left-2 bg-orange-500 text-white text-[11px] font-bold px-2 py-1 rounded-md">
             -{product.discount}%
-          </span>
+          </div>
         )}
 
         {/* FAVORITE */}
-        <button className="absolute top-2 right-2 bg-background/90 backdrop-blur rounded-full p-1.5 shadow">
+        <button className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-sm">
           <Heart size={16} />
         </button>
       </div>
 
       {/* CONTENT */}
       <div className="p-3">
-        {/* NAME */}
-        <p className="text-sm line-clamp-2 leading-tight min-h-[2.5rem]">
+        {/* PRODUCT NAME */}
+        <h3 className="text-sm font-medium leading-5 line-clamp-2 min-h-[40px]">
           {product.name}
-        </p>
+        </h3>
 
         {/* PRICE */}
         <div className="mt-2">
-          <p className="font-bold text-base">
+          <p className="text-lg font-bold text-gray-900">
             {formatGHC(product.price)}
           </p>
 
           {oldPrice && (
-            <p className="text-xs text-muted-foreground line-through">
+            <p className="text-xs text-gray-400 line-through">
               {formatGHC(oldPrice)}
             </p>
           )}
@@ -68,57 +64,34 @@ export function ProductCard({
 
         {/* RATING */}
         <div className="flex items-center gap-1 mt-2">
-          <div className="flex text-yellow-500">
+          <div className="flex text-yellow-400">
             {[1, 2, 3, 4, 5].map((i) => (
               <Star
                 key={i}
-                size={12}
+                size={13}
                 fill="currentColor"
+                strokeWidth={0}
               />
             ))}
           </div>
 
-          <span className="text-[11px] text-muted-foreground">
-            (124)
+          <span className="text-xs text-gray-500">
+            (4.8)
           </span>
         </div>
 
         {/* DELIVERY */}
-        <p className="text-[11px] text-green-600 font-medium mt-1">
+        <p className="text-xs text-green-600 font-medium mt-1">
           Free Delivery
         </p>
-
-        {/* STOCK */}
-        {product.stock != null && (
-          <div className="mt-3">
-            <div className="flex justify-between text-[11px] mb-1">
-              <span className="text-muted-foreground">
-                Stock Left
-              </span>
-
-              <span className="font-medium">
-                {product.stock}
-              </span>
-            </div>
-
-            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary transition-all"
-                style={{
-                  width: `${stockPct}%`,
-                }}
-              />
-            </div>
-          </div>
-        )}
 
         {/* BUTTON */}
         <button
           onClick={() => {
-            add(product);
+            addToCart(product);
             toast.success("Added to cart");
           }}
-          className="mt-4 w-full bg-primary text-primary-foreground rounded-lg py-2 text-sm font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition"
+          className="w-full mt-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg py-2.5 text-sm font-semibold flex items-center justify-center gap-2 transition"
         >
           <ShoppingCart size={16} />
           Add to Cart

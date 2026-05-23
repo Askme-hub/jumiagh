@@ -142,7 +142,7 @@ function Cart() {
             <Phone size={20} />
           </button>
           <button onClick={checkout} disabled={placing} className="flex-1 bg-primary text-primary-foreground font-bold py-3.5 rounded-md disabled:opacity-60">
-            {placing ? "Placing…" : `Checkout (${formatGHC(total)})`}
+            {placing ? "Redirecting…" : `Pay with Paystack (${formatGHC(total)})`}
           </button>
         </div>
       )}

@@ -1,0 +1,98 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+  MessageCircle, MessageSquare, Info, Package, Mail, Star,
+  Ticket, Heart, Store, History, Search as SearchIcon, ChevronRight, Wallet,
+} from "lucide-react";
+import { SearchBar } from "@/components/SearchBar";
+
+export const Route = createFileRoute("/account")({
+  component: Account,
+  head: () => ({ meta: [{ title: "Account – Jumia Ghana" }] }),
+});
+
+const accountItems = [
+  { icon: Package, label: "Orders" },
+  { icon: Mail, label: "Inbox" },
+  { icon: Star, label: "Ratings & Reviews" },
+  { icon: Ticket, label: "Vouchers" },
+  { icon: Heart, label: "Wishlist", to: "/wishlist" as const },
+  { icon: Store, label: "Follow Seller" },
+  { icon: History, label: "Recently Viewed" },
+  { icon: SearchIcon, label: "Recently Searched" },
+];
+
+const settingsItems = [
+  "Payment Settings", "Address Book", "Account Management",
+  "Close Account", "Notification Preferences",
+];
+
+function Account() {
+  return (
+    <div>
+      <SearchBar />
+      <div className="px-4 py-4 border-t border-border">
+        <h1 className="text-2xl font-bold">Welcome Nicky!</h1>
+        <p className="text-primary mt-1">adunicholas35@gmail.com</p>
+        <div className="flex items-center gap-2 mt-3">
+          <Wallet size={22} className="text-[#1d4ed8]" />
+          <p className="text-[#1d4ed8] font-semibold">Jumia store credit balance: GH₵ 0</p>
+        </div>
+      </div>
+
+      <div className="bg-muted px-4 py-3 flex gap-2">
+        <button className="flex-1 bg-primary text-primary-foreground font-bold py-3 rounded-md flex items-center justify-center gap-2">
+          <MessageSquare size={18} /> Live Chat
+        </button>
+        <button className="flex-1 bg-background border-2 border-success text-success font-bold py-3 rounded-md flex items-center justify-center gap-2">
+          <MessageCircle size={18} /> WhatsApp
+        </button>
+      </div>
+
+      <Section title="Need Assistance?">
+        <Row icon={Info} label="Help & Support" />
+      </Section>
+
+      <Section title="My Jumia Account">
+        {accountItems.map((it) => (
+          <Row key={it.label} icon={it.icon} label={it.label} to={it.to} />
+        ))}
+      </Section>
+
+      <Section title="My Settings">
+        {settingsItems.map((label) => (
+          <Row key={label} label={label} />
+        ))}
+      </Section>
+
+      <div className="mx-0 mt-2 bg-muted">
+        <Link
+          to="/login"
+          className="block text-center py-4 text-primary font-bold"
+        >
+          Logout
+        </Link>
+      </div>
+      <div className="h-6" />
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="mt-2">
+      <p className="px-4 py-2 text-sm text-muted-foreground font-semibold border-b border-border">{title}</p>
+      {children}
+    </div>
+  );
+}
+
+function Row({ icon: Icon, label, to }: { icon?: any; label: string; to?: "/wishlist" }) {
+  const content = (
+    <div className="flex items-center gap-4 px-4 py-4 border-b border-border bg-card">
+      {Icon && <Icon size={20} className="text-foreground/80" />}
+      <span className="flex-1">{label}</span>
+      <ChevronRight size={20} className="text-muted-foreground" />
+    </div>
+  );
+  return to ? <Link to={to}>{content}</Link> : <button className="w-full text-left">{content}</button>;
+}

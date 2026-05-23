@@ -7,8 +7,11 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { BottomNav } from "@/components/BottomNav";
+import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
+
 
 function NotFoundComponent() {
   return (
@@ -113,7 +116,12 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <div className="max-w-md mx-auto min-h-screen bg-background relative pb-16 shadow-xl">
+        <Outlet />
+        <BottomNav />
+      </div>
+      <Toaster position="top-center" />
     </QueryClientProvider>
   );
 }
+

@@ -17,6 +17,7 @@ type Store = {
   addToCart: (p: Product) => void;
   removeFromCart: (id: string) => void;
   updateQty: (id: string, qty: number) => void;
+  clearCart: () => void;
   toggleWishlist: (p: Product) => void;
   isWishlisted: (id: string) => boolean;
   cartCount: () => number;
@@ -48,6 +49,7 @@ export const useShop = create<Store>()(
               ? s.cart.filter((c) => c.product.id !== id)
               : s.cart.map((c) => (c.product.id === id ? { ...c, qty } : c)),
         })),
+      clearCart: () => set({ cart: [] }),
       toggleWishlist: (p) =>
         set((s) => ({
           wishlist: s.wishlist.find((w) => w.id === p.id)
@@ -64,4 +66,4 @@ export const useShop = create<Store>()(
 );
 
 export const formatGHC = (n: number) =>
-  `GH₵ ${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+  `GH₵ ${Number(n).toLocaleString("en-US", { maximumFractionDigits: 0 })}`;

@@ -1,10 +1,6 @@
 import { Product, formatGHC, useShop } from "@/lib/store";
+import { Heart, Star } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Heart,
-  ShoppingCart,
-  Star,
-} from "lucide-react";
 
 export function ProductCard({
   product,
@@ -18,72 +14,74 @@ export function ProductCard({
     : null;
 
   return (
-    <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group w-full">
+    <div className="bg-white rounded-lg overflow-hidden border border-gray-200 hover:shadow-md transition-all duration-200 w-full">
       
       {/* IMAGE */}
-      <div className="relative bg-gray-50 aspect-square overflow-hidden">
+      <div className="relative bg-gray-50 aspect-square">
         <img
           src={product.image}
           alt={product.name}
-          loading="lazy"
-          className="w-full h-full object-contain p-4 transition-transform duration-300 group-hover:scale-105"
+          className="w-full h-full object-contain p-2"
         />
 
         {/* DISCOUNT */}
         {product.discount && (
-          <div className="absolute top-2 left-2 bg-orange-500 text-white text-[11px] font-bold px-2 py-1 rounded-md">
+          <div className="absolute top-2 left-2 bg-orange-100 text-orange-600 text-[10px] font-bold px-1.5 py-0.5 rounded">
             -{product.discount}%
           </div>
         )}
 
-        {/* FAVORITE */}
-        <button className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-sm">
-          <Heart size={16} />
+        {/* HEART */}
+        <button className="absolute top-2 right-2 bg-white shadow-sm rounded-full p-1">
+          <Heart size={14} />
         </button>
       </div>
 
       {/* CONTENT */}
-      <div className="p-3">
-        {/* PRODUCT NAME */}
-        <h3 className="text-sm font-medium leading-5 line-clamp-2 min-h-[40px]">
+      <div className="p-2">
+        
+        {/* NAME */}
+        <h3 className="text-[13px] leading-4 line-clamp-2 min-h-[32px] text-gray-800">
           {product.name}
         </h3>
 
         {/* PRICE */}
-        <div className="mt-2">
-          <p className="text-lg font-bold text-gray-900">
+        <div className="mt-1">
+          <p className="font-bold text-[15px] text-black">
             {formatGHC(product.price)}
           </p>
 
           {oldPrice && (
-            <p className="text-xs text-gray-400 line-through">
+            <p className="text-[11px] text-gray-400 line-through">
               {formatGHC(oldPrice)}
             </p>
           )}
         </div>
 
         {/* RATING */}
-        <div className="flex items-center gap-1 mt-2">
+        <div className="flex items-center gap-1 mt-1">
           <div className="flex text-yellow-400">
             {[1, 2, 3, 4, 5].map((i) => (
               <Star
                 key={i}
-                size={13}
+                size={10}
                 fill="currentColor"
                 strokeWidth={0}
               />
             ))}
           </div>
 
-          <span className="text-xs text-gray-500">
-            (4.8)
+          <span className="text-[10px] text-gray-500">
+            (24)
           </span>
         </div>
 
-        {/* DELIVERY */}
-        <p className="text-xs text-green-600 font-medium mt-1">
-          Free Delivery
-        </p>
+        {/* STOCK */}
+        {product.stock && (
+          <p className="text-[10px] text-orange-600 mt-1">
+            Only {product.stock} left
+          </p>
+        )}
 
         {/* BUTTON */}
         <button
@@ -91,9 +89,8 @@ export function ProductCard({
             addToCart(product);
             toast.success("Added to cart");
           }}
-          className="w-full mt-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg py-2.5 text-sm font-semibold flex items-center justify-center gap-2 transition"
+          className="w-full mt-2 border border-orange-500 text-orange-500 rounded-md py-1.5 text-[12px] font-semibold hover:bg-orange-500 hover:text-white transition"
         >
-          <ShoppingCart size={16} />
           Add to Cart
         </button>
       </div>

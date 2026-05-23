@@ -128,6 +128,12 @@ export type Database = {
         Row: {
           amount_paid: number | null
           created_at: string
+          delivery_address: string | null
+          delivery_city: string | null
+          delivery_name: string | null
+          delivery_notes: string | null
+          delivery_phone: string | null
+          delivery_region: string | null
           id: string
           item_count: number
           order_number: string
@@ -141,6 +147,12 @@ export type Database = {
         Insert: {
           amount_paid?: number | null
           created_at?: string
+          delivery_address?: string | null
+          delivery_city?: string | null
+          delivery_name?: string | null
+          delivery_notes?: string | null
+          delivery_phone?: string | null
+          delivery_region?: string | null
           id?: string
           item_count: number
           order_number?: string
@@ -154,6 +166,12 @@ export type Database = {
         Update: {
           amount_paid?: number | null
           created_at?: string
+          delivery_address?: string | null
+          delivery_city?: string | null
+          delivery_name?: string | null
+          delivery_notes?: string | null
+          delivery_phone?: string | null
+          delivery_region?: string | null
           id?: string
           item_count?: number
           order_number?: string

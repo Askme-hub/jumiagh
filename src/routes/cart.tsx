@@ -1,10 +1,12 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { Phone, Minus, Plus, CheckCircle2 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { PageHeader } from "@/components/PageHeader";
 import { formatGHC, useShop, type Product } from "@/lib/store";
 import { useProducts } from "@/lib/products";
 import { ProductCard } from "@/components/ProductCard";
 import { supabase } from "@/integrations/supabase/client";
+import { initiatePaystackCheckout } from "@/lib/paystack.functions";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -22,6 +24,7 @@ function Cart() {
   const total = useShop((s) => s.cartTotal());
   const { data: products = [] } = useProducts();
   const [placing, setPlacing] = useState(false);
+  const initCheckout = useServerFn(initiatePaystackCheckout);
 
   const checkout = async () => {
     const { data: sess } = await supabase.auth.getSession();
@@ -30,32 +33,26 @@ function Cart() {
       router.navigate({ to: "/login" });
       return;
     }
+    if (cart.length === 0) return;
     setPlacing(true);
     try {
-      const itemCount = cart.reduce((a, c) => a + c.qty, 0);
-      const { data: order, error } = await supabase
-        .from("orders")
-        .insert({ user_id: sess.session.user.id, total, item_count: itemCount, status: "placed" })
-        .select()
-        .single();
-      if (error) throw error;
-      const items = cart.map((c) => ({
-        order_id: order.id,
-        product_id: c.product.id,
-        name: c.product.name,
-        price: c.product.price,
-        old_price: c.product.oldPrice ?? null,
-        image_url: c.product.image,
-        qty: c.qty,
-      }));
-      const { error: e2 } = await supabase.from("order_items").insert(items);
-      if (e2) throw e2;
+      const res = await initCheckout({
+        data: {
+          callbackOrigin: window.location.origin,
+          items: cart.map((c) => ({
+            product_id: c.product.id,
+            name: c.product.name,
+            price: Number(c.product.price),
+            old_price: c.product.oldPrice ?? null,
+            image_url: c.product.image ?? null,
+            qty: c.qty,
+          })),
+        },
+      });
       clearCart();
-      toast.success("Order placed!");
-      router.navigate({ to: "/orders/$id", params: { id: order.id } });
+      window.location.href = res.authorization_url;
     } catch (e: any) {
       toast.error(e.message ?? "Checkout failed");
-    } finally {
       setPlacing(false);
     }
   };

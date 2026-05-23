@@ -13,7 +13,7 @@ const items = [
 export function BottomNav() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const count = useShop((s) => s.cartCount());
-  if (path === "/login") return null;
+  if (path === "/login" || path.startsWith("/admin")) return null;
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-40 bg-background border-t border-border max-w-md mx-auto">

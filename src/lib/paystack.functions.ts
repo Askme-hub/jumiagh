@@ -12,12 +12,22 @@ const ItemSchema = z.object({
   qty: z.number().int().min(1).max(99),
 });
 
+const DeliverySchema = z.object({
+  name: z.string().trim().min(2).max(100),
+  phone: z.string().trim().min(7).max(20).regex(/^[0-9+\-\s()]+$/),
+  region: z.string().trim().min(2).max(80),
+  city: z.string().trim().min(2).max(80),
+  address: z.string().trim().min(5).max(500),
+  notes: z.string().trim().max(500).optional().or(z.literal("")),
+});
+
 export const initiatePaystackCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
     z.object({
       items: z.array(ItemSchema).min(1).max(100),
       callbackOrigin: z.string().url(),
+      delivery: DeliverySchema,
     }).parse(input)
   )
   .handler(async ({ data, context }) => {
@@ -44,6 +54,12 @@ export const initiatePaystackCheckout = createServerFn({ method: "POST" })
         item_count: itemCount,
         status: "pending_payment",
         payment_status: "pending",
+        delivery_name: data.delivery.name,
+        delivery_phone: data.delivery.phone,
+        delivery_region: data.delivery.region,
+        delivery_city: data.delivery.city,
+        delivery_address: data.delivery.address,
+        delivery_notes: data.delivery.notes || null,
       })
       .select()
       .single();

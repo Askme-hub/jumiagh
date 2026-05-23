@@ -1,12 +1,10 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { Phone, Minus, Plus, CheckCircle2 } from "lucide-react";
-import { useServerFn } from "@tanstack/react-start";
 import { PageHeader } from "@/components/PageHeader";
 import { formatGHC, useShop, type Product } from "@/lib/store";
 import { useProducts } from "@/lib/products";
 import { ProductCard } from "@/components/ProductCard";
 import { supabase } from "@/integrations/supabase/client";
-import { initiatePaystackCheckout } from "@/lib/paystack.functions";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -20,41 +18,21 @@ function Cart() {
   const cart = useShop((s) => s.cart);
   const updateQty = useShop((s) => s.updateQty);
   const removeFromCart = useShop((s) => s.removeFromCart);
-  const clearCart = useShop((s) => s.clearCart);
   const total = useShop((s) => s.cartTotal());
   const { data: products = [] } = useProducts();
-  const [placing, setPlacing] = useState(false);
-  const initCheckout = useServerFn(initiatePaystackCheckout);
+  const [going, setGoing] = useState(false);
 
   const checkout = async () => {
+    if (cart.length === 0) return;
+    setGoing(true);
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) {
       toast.error("Please log in to checkout");
       router.navigate({ to: "/login" });
+      setGoing(false);
       return;
     }
-    if (cart.length === 0) return;
-    setPlacing(true);
-    try {
-      const res = await initCheckout({
-        data: {
-          callbackOrigin: window.location.origin,
-          items: cart.map((c) => ({
-            product_id: c.product.id,
-            name: c.product.name,
-            price: Number(c.product.price),
-            old_price: c.product.oldPrice ?? null,
-            image_url: c.product.image ?? null,
-            qty: c.qty,
-          })),
-        },
-      });
-      clearCart();
-      window.location.href = res.authorization_url;
-    } catch (e: any) {
-      toast.error(e.message ?? "Checkout failed");
-      setPlacing(false);
-    }
+    router.navigate({ to: "/checkout" });
   };
 
 
@@ -141,8 +119,8 @@ function Cart() {
           <button className="border-2 border-primary rounded-md w-14 flex items-center justify-center text-primary" aria-label="Call">
             <Phone size={20} />
           </button>
-          <button onClick={checkout} disabled={placing} className="flex-1 bg-primary text-primary-foreground font-bold py-3.5 rounded-md disabled:opacity-60">
-            {placing ? "Redirecting…" : `Pay with Paystack (${formatGHC(total)})`}
+          <button onClick={checkout} disabled={going} className="flex-1 bg-primary text-primary-foreground font-bold py-3.5 rounded-md disabled:opacity-60">
+            {going ? "Loading…" : `Checkout (${formatGHC(total)})`}
           </button>
         </div>
       )}

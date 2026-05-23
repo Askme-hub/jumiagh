@@ -15,6 +15,7 @@ export const Route = createFileRoute("/orders/$id")({
 });
 
 const STATUS_NAMES: Record<string, string> = {
+  pending_payment: "Awaiting Payment",
   placed: "Placed",
   pending_confirmation: "Pending Confirmation",
   waiting_to_be_shipped: "Waiting to be Shipped",

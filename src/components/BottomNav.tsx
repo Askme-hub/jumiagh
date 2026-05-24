@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Home, LayoutGrid, ShoppingCart, Heart, UserCircle2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useShop } from "@/lib/store";
 
 const items = [
@@ -13,6 +14,8 @@ const items = [
 export function BottomNav() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const count = useShop((s) => s.cartCount());
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   if (path === "/login" || path.startsWith("/admin")) return null;
 
   return (

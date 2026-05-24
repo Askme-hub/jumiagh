@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WishlistRouteImport } from './routes/wishlist'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InboxRouteImport } from './routes/inbox'
@@ -31,6 +32,11 @@ import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/publi
 const WishlistRoute = WishlistRouteImport.update({
   id: '/wishlist',
   path: '/wishlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrdersRoute = OrdersRouteImport.update({
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/inbox': typeof InboxRoute
   '/login': typeof LoginRoute
   '/orders': typeof OrdersRouteWithChildren
+  '/search': typeof SearchRoute
   '/wishlist': typeof WishlistRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/orders': typeof AdminOrdersRoute
@@ -149,6 +156,7 @@ export interface FileRoutesByTo {
   '/inbox': typeof InboxRoute
   '/login': typeof LoginRoute
   '/orders': typeof OrdersRouteWithChildren
+  '/search': typeof SearchRoute
   '/wishlist': typeof WishlistRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/orders': typeof AdminOrdersRoute
@@ -170,6 +178,7 @@ export interface FileRoutesById {
   '/inbox': typeof InboxRoute
   '/login': typeof LoginRoute
   '/orders': typeof OrdersRouteWithChildren
+  '/search': typeof SearchRoute
   '/wishlist': typeof WishlistRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/orders': typeof AdminOrdersRoute
@@ -192,6 +201,7 @@ export interface FileRouteTypes {
     | '/inbox'
     | '/login'
     | '/orders'
+    | '/search'
     | '/wishlist'
     | '/admin/messages'
     | '/admin/orders'
@@ -211,6 +221,7 @@ export interface FileRouteTypes {
     | '/inbox'
     | '/login'
     | '/orders'
+    | '/search'
     | '/wishlist'
     | '/admin/messages'
     | '/admin/orders'
@@ -231,6 +242,7 @@ export interface FileRouteTypes {
     | '/inbox'
     | '/login'
     | '/orders'
+    | '/search'
     | '/wishlist'
     | '/admin/messages'
     | '/admin/orders'
@@ -252,6 +264,7 @@ export interface RootRouteChildren {
   InboxRoute: typeof InboxRoute
   LoginRoute: typeof LoginRoute
   OrdersRoute: typeof OrdersRouteWithChildren
+  SearchRoute: typeof SearchRoute
   WishlistRoute: typeof WishlistRoute
   PaymentCallbackRoute: typeof PaymentCallbackRoute
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
@@ -264,6 +277,13 @@ declare module '@tanstack/react-router' {
       path: '/wishlist'
       fullPath: '/wishlist'
       preLoaderRoute: typeof WishlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/orders': {
@@ -437,6 +457,7 @@ const rootRouteChildren: RootRouteChildren = {
   InboxRoute: InboxRoute,
   LoginRoute: LoginRoute,
   OrdersRoute: OrdersRouteWithChildren,
+  SearchRoute: SearchRoute,
   WishlistRoute: WishlistRoute,
   PaymentCallbackRoute: PaymentCallbackRoute,
   ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,

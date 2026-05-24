@@ -127,14 +127,24 @@ function OrderDetails() {
       {data.delivery_name && (
         <div className="bg-card mt-2">
           <div className="px-4 py-3 border-b border-border flex items-center gap-2 font-bold">
-            <MapPin size={16} className="text-primary" /> Delivery Address
+            <MapPin size={16} className="text-primary" />
+            {data.delivery_type === "pickup" ? "Pickup Station" : "Door Delivery Address"}
           </div>
           <div className="px-4 py-3 text-sm space-y-0.5">
             <p className="font-semibold">{data.delivery_name}</p>
             <p>{data.delivery_phone}</p>
+            {data.delivery_type === "pickup" && data.pickup_station && (
+              <p className="font-semibold text-primary mt-1">{data.pickup_station}</p>
+            )}
             <p className="text-muted-foreground">{data.delivery_address}</p>
             <p className="text-muted-foreground">{data.delivery_city}, {data.delivery_region}</p>
             {data.delivery_notes && <p className="text-muted-foreground italic mt-1">Note: {data.delivery_notes}</p>}
+          </div>
+          <div className="px-4 py-3 border-t border-border text-sm space-y-1">
+            <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatGHC(Number(data.total) - Number(data.shipping_fee ?? 0) + Number(data.discount ?? 0))}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{Number(data.shipping_fee ?? 0) === 0 ? "FREE" : formatGHC(Number(data.shipping_fee))}</span></div>
+            {Number(data.discount ?? 0) > 0 && <div className="flex justify-between text-success font-semibold"><span>Prepaid discount</span><span>-{formatGHC(Number(data.discount))}</span></div>}
+            <div className="flex justify-between font-bold pt-1 border-t border-border"><span>Total paid</span><span>{formatGHC(Number(data.total))}</span></div>
           </div>
         </div>
       )}

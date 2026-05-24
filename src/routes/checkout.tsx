@@ -1,8 +1,8 @@
 import { createFileRoute, Link, redirect, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
-import { ChevronRight, MapPin, CreditCard, ShieldCheck } from "lucide-react";
+import { ChevronRight, MapPin, CreditCard, ShieldCheck, Truck, Store } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { formatGHC, useShop } from "@/lib/store";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +24,15 @@ const GH_REGIONS = [
   "Bono East", "Ahafo", "Western North", "Oti", "Savannah", "North East",
 ];
 
+const PICKUP_STATIONS: Record<string, string[]> = {
+  "Greater Accra": ["Jumia Pickup Station Accra Central", "Jumia Pickup Station East Legon", "Jumia Pickup Station Tema"],
+  "Ashanti": ["Jumia Pickup Station Adum", "Jumia Pickup Station Abuakwa", "Jumia Pickup Station KNUST"],
+  "Western": ["Jumia Pickup Station Takoradi"],
+  "Central": ["Jumia Pickup Station Cape Coast"],
+  "Eastern": ["Jumia Pickup Station Koforidua"],
+  "Northern": ["Jumia Pickup Station Tamale"],
+};
+
 const Schema = z.object({
   name: z.string().trim().min(2, "Enter your full name").max(100),
   phone: z.string().trim().min(7, "Enter a valid phone").max(20).regex(/^[0-9+\-\s()]+$/, "Digits only"),
@@ -31,25 +40,33 @@ const Schema = z.object({
   city: z.string().trim().min(2, "Enter a city").max(80),
   address: z.string().trim().min(5, "Enter a delivery address").max(500),
   notes: z.string().trim().max(500).optional(),
+  delivery_type: z.enum(["door", "pickup"]),
+  pickup_station: z.string().optional(),
 });
 
-const STORAGE_KEY = "jm_delivery_v1";
+const STORAGE_KEY = "jm_delivery_v2";
 
 function Checkout() {
   const router = useRouter();
   const cart = useShop((s) => s.cart);
   const clearCart = useShop((s) => s.clearCart);
-  const total = useShop((s) => s.cartTotal());
+  const itemsTotal = useShop((s) => s.cartTotal());
   const itemCount = cart.reduce((a, c) => a + c.qty, 0);
-  const shipping = total >= 150 ? 0 : 15;
-  const grand = total + shipping;
   const initCheckout = useServerFn(initiatePaystackCheckout);
 
   const [form, setForm] = useState({
     name: "", phone: "", region: "Greater Accra", city: "", address: "", notes: "",
+    delivery_type: "door" as "door" | "pickup",
+    pickup_station: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [paying, setPaying] = useState(false);
+
+  const { shipping, discount, grand } = useMemo(() => {
+    const ship = form.delivery_type === "pickup" ? 10 : (itemsTotal >= 150 ? 0 : 25);
+    const disc = form.delivery_type === "pickup" && itemsTotal >= 150 ? 10 : 0;
+    return { shipping: ship, discount: disc, grand: Math.max(0, itemsTotal + ship - disc) };
+  }, [form.delivery_type, itemsTotal]);
 
   useEffect(() => {
     try {
@@ -59,13 +76,17 @@ function Checkout() {
   }, []);
 
   useEffect(() => {
-    if (cart.length === 0 && !paying) {
-      router.navigate({ to: "/cart" });
-    }
+    if (cart.length === 0 && !paying) router.navigate({ to: "/cart" });
   }, [cart.length, paying, router]);
 
+  const stations = PICKUP_STATIONS[form.region] ?? [];
+
   const set = (k: keyof typeof form, v: string) => {
-    setForm((f) => ({ ...f, [k]: v }));
+    setForm((f) => {
+      const next = { ...f, [k]: v };
+      if (k === "region" && f.delivery_type === "pickup") next.pickup_station = "";
+      return next;
+    });
     setErrors((e) => ({ ...e, [k]: "" }));
   };
 
@@ -78,13 +99,24 @@ function Checkout() {
       toast.error("Please complete delivery details");
       return;
     }
+    if (form.delivery_type === "pickup" && !form.pickup_station) {
+      setErrors((e) => ({ ...e, pickup_station: "Select a pickup station" }));
+      toast.error("Select a pickup station");
+      return;
+    }
     setPaying(true);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed.data));
       const res = await initCheckout({
         data: {
           callbackOrigin: window.location.origin,
-          delivery: parsed.data,
+          delivery: {
+            ...parsed.data,
+            notes: parsed.data.notes ?? "",
+            pickup_station: form.pickup_station,
+            shipping_fee: shipping,
+            discount,
+          },
           items: cart.map((c) => ({
             product_id: c.product.id,
             name: c.product.name,
@@ -115,10 +147,37 @@ function Checkout() {
         <li className="text-muted-foreground">3. Confirmation</li>
       </ol>
 
+      {/* Delivery type */}
+      <section className="bg-card mt-2">
+        <div className="px-4 py-3 border-b border-border">
+          <h2 className="font-bold">Delivery Method</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">Get delivery for less! Save up to GH₵ 10 on pickup orders over GH₵ 150</p>
+        </div>
+        <div className="p-3 grid grid-cols-2 gap-2">
+          <button
+            onClick={() => set("delivery_type", "door")}
+            className={`p-3 rounded border-2 text-left ${form.delivery_type === "door" ? "border-primary bg-primary/5" : "border-border"}`}
+          >
+            <Truck size={18} className="text-primary mb-1" />
+            <p className="font-bold text-sm">Door Delivery</p>
+            <p className="text-xs text-muted-foreground">3–7 business days</p>
+          </button>
+          <button
+            onClick={() => set("delivery_type", "pickup")}
+            className={`p-3 rounded border-2 text-left ${form.delivery_type === "pickup" ? "border-primary bg-primary/5" : "border-border"}`}
+          >
+            <Store size={18} className="text-primary mb-1" />
+            <p className="font-bold text-sm">Pickup Station</p>
+            <p className="text-xs text-success font-semibold">Save GH₵ 10</p>
+          </button>
+        </div>
+      </section>
+
+      {/* Customer address */}
       <section className="bg-card mt-2">
         <div className="px-4 py-3 flex items-center gap-2 border-b border-border">
           <MapPin size={18} className="text-primary" />
-          <h2 className="font-bold">Delivery Address</h2>
+          <h2 className="font-bold">Customer Address</h2>
         </div>
         <div className="p-4 space-y-3">
           <Field label="Full name" value={form.name} onChange={(v) => set("name", v)} error={errors.name} placeholder="Kwame Mensah" />
@@ -132,7 +191,6 @@ function Checkout() {
             >
               {GH_REGIONS.map((r) => <option key={r}>{r}</option>)}
             </select>
-            {errors.region && <p className="text-destructive text-xs mt-1">{errors.region}</p>}
           </div>
           <Field label="City / Town" value={form.city} onChange={(v) => set("city", v)} error={errors.city} placeholder="Accra" />
           <Field label="Delivery address" value={form.address} onChange={(v) => set("address", v)} error={errors.address} placeholder="House no., street, landmark" textarea />
@@ -140,28 +198,62 @@ function Checkout() {
         </div>
       </section>
 
+      {/* Pickup station picker */}
+      {form.delivery_type === "pickup" && (
+        <section className="bg-card mt-2">
+          <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+            <Store size={18} className="text-primary" />
+            <h2 className="font-bold">Pickup Station</h2>
+          </div>
+          <div className="p-4 space-y-2">
+            {stations.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No pickup stations in {form.region}. Choose another region or use Door Delivery.</p>
+            ) : stations.map((s) => (
+              <button
+                key={s}
+                onClick={() => { setForm((f) => ({ ...f, pickup_station: s })); setErrors((e) => ({ ...e, pickup_station: "" })); }}
+                className={`w-full text-left p-3 rounded border ${form.pickup_station === s ? "border-primary bg-primary/5" : "border-border"}`}
+              >
+                <div className="flex items-center justify-between">
+                  <p className="font-semibold text-sm">{s}</p>
+                  <span className="text-xs font-bold bg-secondary px-2 py-0.5 rounded">GH₵ 10</span>
+                </div>
+              </button>
+            ))}
+            {errors.pickup_station && <p className="text-destructive text-xs">{errors.pickup_station}</p>}
+          </div>
+        </section>
+      )}
+
+      {/* Payment method */}
       <section className="bg-card mt-2">
         <div className="px-4 py-3 flex items-center gap-2 border-b border-border">
           <CreditCard size={18} className="text-primary" />
           <h2 className="font-bold">Payment Method</h2>
         </div>
-        <div className="px-4 py-3 flex items-center justify-between">
-          <div>
-            <p className="font-semibold text-sm">Paystack</p>
-            <p className="text-xs text-muted-foreground">Card, Mobile Money, Bank — secured by Paystack</p>
+        <div className="p-3 space-y-2">
+          <div className="p-3 border-2 border-primary rounded bg-primary/5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-bold text-sm">Pay Online (Paystack)</p>
+                <p className="text-xs text-muted-foreground">Card · MTN MoMo · Vodafone Cash · AirtelTigo · Bank</p>
+              </div>
+              <span className="text-xs font-bold bg-success/10 text-success px-2 py-1 rounded">SELECTED</span>
+            </div>
           </div>
-          <span className="text-xs font-bold bg-success/10 text-success px-2 py-1 rounded">SELECTED</span>
         </div>
       </section>
 
+      {/* Order summary */}
       <section className="bg-card mt-2">
         <div className="px-4 py-3 border-b border-border flex items-center justify-between">
           <h2 className="font-bold">Order Summary</h2>
-          <Link to="/cart" className="text-xs text-primary font-semibold">Edit</Link>
+          <Link to="/cart" className="text-xs text-primary font-semibold">Modify cart</Link>
         </div>
         <div className="px-4 py-3 space-y-2 text-sm">
-          <Row label={`Items (${itemCount})`} value={formatGHC(total)} />
-          <Row label="Delivery fee" value={shipping === 0 ? "FREE" : formatGHC(shipping)} />
+          <Row label={`Item's total (${itemCount})`} value={formatGHC(itemsTotal)} />
+          <Row label="Shipping fees" value={shipping === 0 ? "FREE" : formatGHC(shipping)} />
+          {discount > 0 && <Row label="Prepaid Delivery Discount" value={`-${formatGHC(discount)}`} valueClass="text-success font-bold" />}
           <div className="border-t border-border pt-2 flex justify-between font-bold text-base">
             <span>Total</span><span>{formatGHC(grand)}</span>
           </div>
@@ -183,15 +275,15 @@ function Checkout() {
           disabled={paying || cart.length === 0}
           className="w-full bg-primary text-primary-foreground font-bold py-3.5 rounded-md disabled:opacity-60"
         >
-          {paying ? "Redirecting to Paystack…" : `Pay ${formatGHC(grand)}`}
+          {paying ? "Redirecting to Paystack…" : `Confirm order · ${formatGHC(grand)}`}
         </button>
       </div>
     </div>
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
-  return <div className="flex justify-between"><span className="text-muted-foreground">{label}</span><span className="font-semibold">{value}</span></div>;
+function Row({ label, value, valueClass }: { label: string; value: string; valueClass?: string }) {
+  return <div className="flex justify-between"><span className="text-muted-foreground">{label}</span><span className={valueClass ?? "font-semibold"}>{value}</span></div>;
 }
 
 function Field({

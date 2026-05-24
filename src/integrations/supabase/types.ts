@@ -134,12 +134,16 @@ export type Database = {
           delivery_notes: string | null
           delivery_phone: string | null
           delivery_region: string | null
+          delivery_type: string
+          discount: number
           id: string
           item_count: number
           order_number: string
           payment_reference: string | null
           payment_status: string
           paystack_access_code: string | null
+          pickup_station: string | null
+          shipping_fee: number
           status: string
           total: number
           user_id: string
@@ -153,12 +157,16 @@ export type Database = {
           delivery_notes?: string | null
           delivery_phone?: string | null
           delivery_region?: string | null
+          delivery_type?: string
+          discount?: number
           id?: string
           item_count: number
           order_number?: string
           payment_reference?: string | null
           payment_status?: string
           paystack_access_code?: string | null
+          pickup_station?: string | null
+          shipping_fee?: number
           status?: string
           total: number
           user_id: string
@@ -172,12 +180,16 @@ export type Database = {
           delivery_notes?: string | null
           delivery_phone?: string | null
           delivery_region?: string | null
+          delivery_type?: string
+          discount?: number
           id?: string
           item_count?: number
           order_number?: string
           payment_reference?: string | null
           payment_status?: string
           paystack_access_code?: string | null
+          pickup_station?: string | null
+          shipping_fee?: number
           status?: string
           total?: number
           user_id?: string

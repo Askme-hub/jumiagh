@@ -19,6 +19,10 @@ const DeliverySchema = z.object({
   city: z.string().trim().min(2).max(80),
   address: z.string().trim().min(5).max(500),
   notes: z.string().trim().max(500).optional().or(z.literal("")),
+  delivery_type: z.enum(["door", "pickup"]).default("door"),
+  pickup_station: z.string().trim().max(200).optional().or(z.literal("")),
+  shipping_fee: z.number().min(0).max(10000),
+  discount: z.number().min(0).max(10000),
 });
 
 export const initiatePaystackCheckout = createServerFn({ method: "POST" })
@@ -36,8 +40,11 @@ export const initiatePaystackCheckout = createServerFn({ method: "POST" })
     if (!secret) throw new Error("Paystack not configured");
 
     // server-side total (don't trust client)
-    const total = data.items.reduce((a, i) => a + i.price * i.qty, 0);
+    const itemsTotal = data.items.reduce((a, i) => a + i.price * i.qty, 0);
     const itemCount = data.items.reduce((a, i) => a + i.qty, 0);
+    const shipping = data.delivery.delivery_type === "pickup" ? 10 : (itemsTotal >= 150 ? 0 : 25);
+    const discount = data.delivery.delivery_type === "pickup" && itemsTotal >= 150 ? 10 : 0;
+    const total = Math.max(0, itemsTotal + shipping - discount);
     if (total <= 0) throw new Error("Invalid cart total");
 
     // fetch user email
@@ -60,6 +67,10 @@ export const initiatePaystackCheckout = createServerFn({ method: "POST" })
         delivery_city: data.delivery.city,
         delivery_address: data.delivery.address,
         delivery_notes: data.delivery.notes || null,
+        delivery_type: data.delivery.delivery_type,
+        pickup_station: data.delivery.pickup_station || null,
+        shipping_fee: shipping,
+        discount,
       })
       .select()
       .single();

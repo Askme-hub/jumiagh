@@ -97,7 +97,11 @@ function Checkout() {
   }, [deliveryType, itemsTotal]);
 
   useEffect(() => {
-    if (cart.length === 0 && !paying) router.navigate({ to: "/cart" });
+    // Wait for zustand persist hydration before redirecting on empty cart
+    const id = setTimeout(() => {
+      if (useShop.getState().cart.length === 0 && !paying) router.navigate({ to: "/cart" });
+    }, 300);
+    return () => clearTimeout(id);
   }, [cart.length, paying, router]);
 
   const set = (k: keyof typeof form, v: string) => {

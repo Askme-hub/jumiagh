@@ -25,8 +25,8 @@ function Cart() {
   const checkout = async () => {
     if (cart.length === 0) return;
     setGoing(true);
-    const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) {
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) {
       toast.error("Please log in to checkout");
       router.navigate({ to: "/login" });
       setGoing(false);

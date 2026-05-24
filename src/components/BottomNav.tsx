@@ -37,7 +37,7 @@ export function BottomNav() {
                     className={active ? "fill-primary/15" : ""}
                     strokeWidth={active ? 2.2 : 1.8}
                   />
-                  {to === "/cart" && count > 0 && (
+                  {to === "/cart" && mounted && count > 0 && (
                     <span className="absolute -top-1.5 -right-2 bg-primary text-primary-foreground text-[10px] leading-none rounded-full w-4 h-4 flex items-center justify-center font-bold">
                       {count}
                     </span>

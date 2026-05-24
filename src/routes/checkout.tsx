@@ -2,19 +2,21 @@ import { createFileRoute, Link, redirect, useRouter } from "@tanstack/react-rout
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
-import { ChevronRight, MapPin, CreditCard, ShieldCheck, Truck, Store } from "lucide-react";
+import { ChevronRight, MapPin, CreditCard, ShieldCheck, Truck, Store, Plus, Check, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { formatGHC, useShop } from "@/lib/store";
 import { supabase } from "@/integrations/supabase/client";
 import { initiatePaystackCheckout } from "@/lib/paystack.functions";
+import { useAddresses, useSaveAddress, useDeleteAddress, type Address } from "@/lib/addresses";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/checkout")({
   component: Checkout,
   head: () => ({ meta: [{ title: "Checkout – Jumia Ghana" }] }),
   beforeLoad: async () => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) throw redirect({ to: "/login" });
+    if (typeof window === "undefined") return;
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) throw redirect({ to: "/login" });
   },
 });
 
@@ -34,17 +36,14 @@ const PICKUP_STATIONS: Record<string, string[]> = {
 };
 
 const Schema = z.object({
-  name: z.string().trim().min(2, "Enter your full name").max(100),
+  full_name: z.string().trim().min(2, "Enter your full name").max(100),
   phone: z.string().trim().min(7, "Enter a valid phone").max(20).regex(/^[0-9+\-\s()]+$/, "Digits only"),
   region: z.string().min(2, "Select a region"),
   city: z.string().trim().min(2, "Enter a city").max(80),
   address: z.string().trim().min(5, "Enter a delivery address").max(500),
   notes: z.string().trim().max(500).optional(),
-  delivery_type: z.enum(["door", "pickup"]),
-  pickup_station: z.string().optional(),
+  label: z.string().trim().max(40).optional(),
 });
-
-const STORAGE_KEY = "jm_delivery_v2";
 
 function Checkout() {
   const router = useRouter();
@@ -54,66 +53,105 @@ function Checkout() {
   const itemCount = cart.reduce((a, c) => a + c.qty, 0);
   const initCheckout = useServerFn(initiatePaystackCheckout);
 
+  const { data: addresses = [], isLoading: loadingAddrs } = useAddresses();
+  const saveAddress = useSaveAddress();
+  const deleteAddress = useDeleteAddress();
+
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [deliveryType, setDeliveryType] = useState<"door" | "pickup">("door");
+  const [pickupStation, setPickupStation] = useState("");
+
   const [form, setForm] = useState({
-    name: "", phone: "", region: "Greater Accra", city: "", address: "", notes: "",
-    delivery_type: "door" as "door" | "pickup",
-    pickup_station: "",
+    label: "Home", full_name: "", phone: "", region: "Greater Accra",
+    city: "", address: "", notes: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saveAsDefault, setSaveAsDefault] = useState(true);
   const [paying, setPaying] = useState(false);
 
-  const { shipping, discount, grand } = useMemo(() => {
-    const ship = form.delivery_type === "pickup" ? 10 : (itemsTotal >= 150 ? 0 : 25);
-    const disc = form.delivery_type === "pickup" && itemsTotal >= 150 ? 10 : 0;
-    return { shipping: ship, discount: disc, grand: Math.max(0, itemsTotal + ship - disc) };
-  }, [form.delivery_type, itemsTotal]);
-
+  // Pick default address once loaded
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) setForm((f) => ({ ...f, ...JSON.parse(saved) }));
-    } catch {}
-  }, []);
+    if (selectedId || addresses.length === 0) {
+      if (addresses.length === 0 && !loadingAddrs) setShowForm(true);
+      return;
+    }
+    const def = addresses.find((a) => a.is_default) ?? addresses[0];
+    setSelectedId(def.id);
+    setDeliveryType((def.delivery_type as "door" | "pickup") ?? "door");
+    setPickupStation(def.pickup_station ?? "");
+  }, [addresses, selectedId, loadingAddrs]);
+
+  const selected = useMemo(
+    () => addresses.find((a) => a.id === selectedId) ?? null,
+    [addresses, selectedId]
+  );
+
+  const activeRegion = selected?.region ?? form.region;
+  const stations = PICKUP_STATIONS[activeRegion] ?? [];
+
+  const { shipping, discount, grand } = useMemo(() => {
+    const ship = deliveryType === "pickup" ? 10 : (itemsTotal >= 150 ? 0 : 25);
+    const disc = deliveryType === "pickup" && itemsTotal >= 150 ? 10 : 0;
+    return { shipping: ship, discount: disc, grand: Math.max(0, itemsTotal + ship - disc) };
+  }, [deliveryType, itemsTotal]);
 
   useEffect(() => {
     if (cart.length === 0 && !paying) router.navigate({ to: "/cart" });
   }, [cart.length, paying, router]);
 
-  const stations = PICKUP_STATIONS[form.region] ?? [];
-
   const set = (k: keyof typeof form, v: string) => {
-    setForm((f) => {
-      const next = { ...f, [k]: v };
-      if (k === "region" && f.delivery_type === "pickup") next.pickup_station = "";
-      return next;
-    });
+    setForm((f) => ({ ...f, [k]: v }));
     setErrors((e) => ({ ...e, [k]: "" }));
   };
 
-  const pay = async () => {
+  const submitNewAddress = async () => {
     const parsed = Schema.safeParse(form);
     if (!parsed.success) {
       const errs: Record<string, string> = {};
       parsed.error.issues.forEach((i) => { errs[i.path[0] as string] = i.message; });
       setErrors(errs);
-      toast.error("Please complete delivery details");
+      toast.error("Please complete address");
       return;
     }
-    if (form.delivery_type === "pickup" && !form.pickup_station) {
-      setErrors((e) => ({ ...e, pickup_station: "Select a pickup station" }));
-      toast.error("Select a pickup station");
-      return;
+    try {
+      const saved = await saveAddress.mutateAsync({
+        label: parsed.data.label ?? "Home",
+        full_name: parsed.data.full_name,
+        phone: parsed.data.phone,
+        region: parsed.data.region,
+        city: parsed.data.city,
+        address: parsed.data.address,
+        notes: parsed.data.notes ?? null,
+        delivery_type: "door",
+        pickup_station: null,
+        is_default: saveAsDefault || addresses.length === 0,
+      });
+      setSelectedId(saved.id);
+      setShowForm(false);
+      toast.success("Address saved");
+    } catch (e: any) {
+      toast.error(e.message ?? "Could not save");
     }
+  };
+
+  const pay = async () => {
+    if (!selected) { toast.error("Add a delivery address"); setShowForm(true); return; }
+    if (deliveryType === "pickup" && !pickupStation) { toast.error("Pick a pickup station"); return; }
     setPaying(true);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed.data));
       const res = await initCheckout({
         data: {
           callbackOrigin: window.location.origin,
           delivery: {
-            ...parsed.data,
-            notes: parsed.data.notes ?? "",
-            pickup_station: form.pickup_station,
+            name: selected.full_name,
+            phone: selected.phone,
+            region: selected.region,
+            city: selected.city,
+            address: selected.address,
+            notes: selected.notes ?? "",
+            delivery_type: deliveryType,
+            pickup_station: deliveryType === "pickup" ? pickupStation : "",
             shipping_fee: shipping,
             discount,
           },
@@ -147,81 +185,113 @@ function Checkout() {
         <li className="text-muted-foreground">3. Confirmation</li>
       </ol>
 
-      {/* Delivery type */}
+      {/* Saved addresses */}
       <section className="bg-card mt-2">
-        <div className="px-4 py-3 border-b border-border">
-          <h2 className="font-bold">Delivery Method</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">Get delivery for less! Save up to GH₵ 10 on pickup orders over GH₵ 150</p>
-        </div>
-        <div className="p-3 grid grid-cols-2 gap-2">
-          <button
-            onClick={() => set("delivery_type", "door")}
-            className={`p-3 rounded border-2 text-left ${form.delivery_type === "door" ? "border-primary bg-primary/5" : "border-border"}`}
-          >
-            <Truck size={18} className="text-primary mb-1" />
-            <p className="font-bold text-sm">Door Delivery</p>
-            <p className="text-xs text-muted-foreground">3–7 business days</p>
-          </button>
-          <button
-            onClick={() => set("delivery_type", "pickup")}
-            className={`p-3 rounded border-2 text-left ${form.delivery_type === "pickup" ? "border-primary bg-primary/5" : "border-border"}`}
-          >
-            <Store size={18} className="text-primary mb-1" />
-            <p className="font-bold text-sm">Pickup Station</p>
-            <p className="text-xs text-success font-semibold">Save GH₵ 10</p>
-          </button>
-        </div>
-      </section>
-
-      {/* Customer address */}
-      <section className="bg-card mt-2">
-        <div className="px-4 py-3 flex items-center gap-2 border-b border-border">
+        <div className="px-4 py-3 border-b border-border flex items-center gap-2">
           <MapPin size={18} className="text-primary" />
-          <h2 className="font-bold">Customer Address</h2>
+          <h2 className="font-bold flex-1">Delivery Address</h2>
+          {addresses.length > 0 && (
+            <button onClick={() => setShowForm((s) => !s)} className="text-primary text-xs font-bold flex items-center gap-1">
+              <Plus size={14} /> {showForm ? "Cancel" : "Add new"}
+            </button>
+          )}
         </div>
-        <div className="p-4 space-y-3">
-          <Field label="Full name" value={form.name} onChange={(v) => set("name", v)} error={errors.name} placeholder="Kwame Mensah" />
-          <Field label="Phone number" value={form.phone} onChange={(v) => set("phone", v)} error={errors.phone} placeholder="024 000 0000" type="tel" inputMode="tel" />
-          <div>
-            <label className="block text-xs font-semibold text-muted-foreground mb-1">Region</label>
-            <select
-              value={form.region}
-              onChange={(e) => set("region", e.target.value)}
-              className="w-full border border-border rounded px-3 py-2.5 bg-background text-sm"
-            >
-              {GH_REGIONS.map((r) => <option key={r}>{r}</option>)}
-            </select>
+
+        {loadingAddrs && <div className="p-4 text-sm text-muted-foreground">Loading saved addresses…</div>}
+
+        {!loadingAddrs && addresses.length > 0 && (
+          <div className="p-3 space-y-2">
+            {addresses.map((a) => (
+              <AddressCard
+                key={a.id}
+                a={a}
+                selected={selectedId === a.id}
+                onSelect={() => { setSelectedId(a.id); setShowForm(false); }}
+                onDelete={() => {
+                  if (confirm("Delete this address?")) {
+                    deleteAddress.mutate(a.id, {
+                      onSuccess: () => { if (selectedId === a.id) setSelectedId(null); toast.success("Deleted"); },
+                    });
+                  }
+                }}
+              />
+            ))}
           </div>
-          <Field label="City / Town" value={form.city} onChange={(v) => set("city", v)} error={errors.city} placeholder="Accra" />
-          <Field label="Delivery address" value={form.address} onChange={(v) => set("address", v)} error={errors.address} placeholder="House no., street, landmark" textarea />
-          <Field label="Additional notes (optional)" value={form.notes} onChange={(v) => set("notes", v)} error={errors.notes} placeholder="Gate code, time window…" textarea />
-        </div>
+        )}
+
+        {(showForm || addresses.length === 0) && (
+          <div className="p-4 space-y-3 border-t border-border">
+            <p className="text-xs font-bold uppercase text-muted-foreground">New Address</p>
+            <Field label="Address label (e.g. Home, Work)" value={form.label} onChange={(v) => set("label", v)} error={errors.label} placeholder="Home" />
+            <Field label="Full name" value={form.full_name} onChange={(v) => set("full_name", v)} error={errors.full_name} placeholder="Kwame Mensah" />
+            <Field label="Phone number" value={form.phone} onChange={(v) => set("phone", v)} error={errors.phone} placeholder="024 000 0000" type="tel" inputMode="tel" />
+            <div>
+              <label className="block text-xs font-semibold text-muted-foreground mb-1">Region</label>
+              <select value={form.region} onChange={(e) => set("region", e.target.value)} className="w-full border border-border rounded px-3 py-2.5 bg-background text-sm">
+                {GH_REGIONS.map((r) => <option key={r}>{r}</option>)}
+              </select>
+            </div>
+            <Field label="City / Town" value={form.city} onChange={(v) => set("city", v)} error={errors.city} placeholder="Accra" />
+            <Field label="Delivery address" value={form.address} onChange={(v) => set("address", v)} error={errors.address} placeholder="House no., street, landmark" textarea />
+            <Field label="Additional notes (optional)" value={form.notes} onChange={(v) => set("notes", v)} placeholder="Gate code, time window…" textarea />
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={saveAsDefault} onChange={(e) => setSaveAsDefault(e.target.checked)} />
+              Set as default address
+            </label>
+            <button
+              onClick={submitNewAddress}
+              disabled={saveAddress.isPending}
+              className="w-full bg-foreground text-background font-bold py-3 rounded-md disabled:opacity-60"
+            >
+              {saveAddress.isPending ? "Saving…" : "Save address"}
+            </button>
+          </div>
+        )}
       </section>
 
-      {/* Pickup station picker */}
-      {form.delivery_type === "pickup" && (
+      {/* Delivery method */}
+      {selected && (
         <section className="bg-card mt-2">
-          <div className="px-4 py-3 border-b border-border flex items-center gap-2">
-            <Store size={18} className="text-primary" />
-            <h2 className="font-bold">Pickup Station</h2>
+          <div className="px-4 py-3 border-b border-border">
+            <h2 className="font-bold">Delivery Method</h2>
           </div>
-          <div className="p-4 space-y-2">
-            {stations.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No pickup stations in {form.region}. Choose another region or use Door Delivery.</p>
-            ) : stations.map((s) => (
-              <button
-                key={s}
-                onClick={() => { setForm((f) => ({ ...f, pickup_station: s })); setErrors((e) => ({ ...e, pickup_station: "" })); }}
-                className={`w-full text-left p-3 rounded border ${form.pickup_station === s ? "border-primary bg-primary/5" : "border-border"}`}
-              >
-                <div className="flex items-center justify-between">
-                  <p className="font-semibold text-sm">{s}</p>
-                  <span className="text-xs font-bold bg-secondary px-2 py-0.5 rounded">GH₵ 10</span>
-                </div>
-              </button>
-            ))}
-            {errors.pickup_station && <p className="text-destructive text-xs">{errors.pickup_station}</p>}
+          <div className="p-3 grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setDeliveryType("door")}
+              className={`p-3 rounded border-2 text-left ${deliveryType === "door" ? "border-primary bg-primary/5" : "border-border"}`}
+            >
+              <Truck size={18} className="text-primary mb-1" />
+              <p className="font-bold text-sm">Door Delivery</p>
+              <p className="text-xs text-muted-foreground">3–7 business days</p>
+            </button>
+            <button
+              onClick={() => setDeliveryType("pickup")}
+              className={`p-3 rounded border-2 text-left ${deliveryType === "pickup" ? "border-primary bg-primary/5" : "border-border"}`}
+            >
+              <Store size={18} className="text-primary mb-1" />
+              <p className="font-bold text-sm">Pickup Station</p>
+              <p className="text-xs text-success font-semibold">Save GH₵ 10</p>
+            </button>
           </div>
+
+          {deliveryType === "pickup" && (
+            <div className="p-3 pt-0 space-y-2">
+              {stations.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No pickup stations in {activeRegion}. Use Door Delivery.</p>
+              ) : stations.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setPickupStation(s)}
+                  className={`w-full text-left p-3 rounded border ${pickupStation === s ? "border-primary bg-primary/5" : "border-border"}`}
+                >
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold text-sm">{s}</p>
+                    <span className="text-xs font-bold bg-secondary px-2 py-0.5 rounded">GH₵ 10</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </section>
       )}
 
@@ -231,7 +301,7 @@ function Checkout() {
           <CreditCard size={18} className="text-primary" />
           <h2 className="font-bold">Payment Method</h2>
         </div>
-        <div className="p-3 space-y-2">
+        <div className="p-3">
           <div className="p-3 border-2 border-primary rounded bg-primary/5">
             <div className="flex items-center justify-between">
               <div>
@@ -272,10 +342,41 @@ function Checkout() {
         </div>
         <button
           onClick={pay}
-          disabled={paying || cart.length === 0}
+          disabled={paying || cart.length === 0 || !selected}
           className="w-full bg-primary text-primary-foreground font-bold py-3.5 rounded-md disabled:opacity-60"
         >
           {paying ? "Redirecting to Paystack…" : `Confirm order · ${formatGHC(grand)}`}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function AddressCard({ a, selected, onSelect, onDelete }: {
+  a: Address; selected: boolean; onSelect: () => void; onDelete: () => void;
+}) {
+  return (
+    <div className={`p-3 rounded border-2 ${selected ? "border-primary bg-primary/5" : "border-border"}`}>
+      <button onClick={onSelect} className="w-full text-left flex gap-2">
+        <div className="mt-0.5">
+          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${selected ? "border-primary bg-primary" : "border-border"}`}>
+            {selected && <Check size={10} className="text-primary-foreground" />}
+          </div>
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="font-bold text-sm">{a.full_name}</p>
+            {a.label && <span className="text-[10px] bg-secondary px-1.5 py-0.5 rounded font-semibold uppercase">{a.label}</span>}
+            {a.is_default && <span className="text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded font-semibold uppercase">Default</span>}
+          </div>
+          <p className="text-xs text-muted-foreground mt-0.5">{a.phone}</p>
+          <p className="text-sm mt-1">{a.address}</p>
+          <p className="text-xs text-muted-foreground">{a.city}, {a.region}</p>
+        </div>
+      </button>
+      <div className="flex justify-end mt-2">
+        <button onClick={onDelete} className="text-destructive text-xs font-semibold flex items-center gap-1">
+          <Trash2 size={12} /> Remove
         </button>
       </div>
     </div>

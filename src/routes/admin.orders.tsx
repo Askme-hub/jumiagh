@@ -61,7 +61,15 @@ function AdminOrders() {
 
           {o.delivery_name && (
             <div className="mt-2 p-2 bg-muted rounded text-xs space-y-0.5">
-              <p className="font-semibold">{o.delivery_name} · {o.delivery_phone}</p>
+              <p className="font-semibold">
+                {o.delivery_name} · {o.delivery_phone}
+                <span className="ml-2 text-[10px] uppercase font-bold text-primary">
+                  {o.delivery_type === "pickup" ? "PICKUP" : "DOOR"}
+                </span>
+              </p>
+              {o.delivery_type === "pickup" && o.pickup_station && (
+                <p className="text-primary font-semibold">→ {o.pickup_station}</p>
+              )}
               <p className="text-muted-foreground">{o.delivery_address}, {o.delivery_city}, {o.delivery_region}</p>
               {o.delivery_notes && <p className="italic text-muted-foreground">Note: {o.delivery_notes}</p>}
             </div>

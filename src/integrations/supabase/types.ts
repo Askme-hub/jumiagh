@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      addresses: {
+        Row: {
+          address: string
+          city: string
+          created_at: string
+          delivery_type: string
+          full_name: string
+          id: string
+          is_default: boolean
+          label: string | null
+          notes: string | null
+          phone: string
+          pickup_station: string | null
+          region: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          city: string
+          created_at?: string
+          delivery_type?: string
+          full_name: string
+          id?: string
+          is_default?: boolean
+          label?: string | null
+          notes?: string | null
+          phone: string
+          pickup_station?: string | null
+          region: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          city?: string
+          created_at?: string
+          delivery_type?: string
+          full_name?: string
+          id?: string
+          is_default?: boolean
+          label?: string | null
+          notes?: string | null
+          phone?: string
+          pickup_station?: string | null
+          region?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       inbox_messages: {
         Row: {
           body: string

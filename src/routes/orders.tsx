@@ -69,7 +69,7 @@ function Orders() {
           const first = o.order_items?.[0];
           const lab = statusLabel[o.status] ?? statusLabel.placed;
           return (
-           <Link
+        <Link
   key={o.id}
   to="/orders/$id/status"
   params={{ id: String(o.id) }}

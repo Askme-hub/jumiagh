@@ -16,7 +16,7 @@ export function BottomNav() {
   const count = useShop((s) => s.cartCount());
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  if (path === "/login" || path.startsWith("/admin")) return null;
+  if (path === "/login" || path.startsWith("/admin") || path.startsWith("/products/") || path.startsWith("/checkout")) return null;
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-40 bg-background border-t border-border max-w-md mx-auto">

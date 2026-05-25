@@ -18,7 +18,7 @@ export function ProductCard({
     <div className="bg-white rounded-lg overflow-hidden border border-gray-200 hover:shadow-md transition-all duration-200 w-full">
       
       {/* IMAGE */}
-      <div className="relative bg-gray-50 aspect-square">
+      <Link to="/products/$id" params={{ id: product.id }} className="relative bg-gray-50 aspect-square block">
         <img
           src={product.image}
           alt={product.name}

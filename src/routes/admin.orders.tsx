@@ -24,7 +24,7 @@ function AdminOrders() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
-        .select("*, profiles(email, display_name), order_items(name, qty)")
+        .select("*, profiles!orders_user_id_profiles_fkey(email, display_name), order_items(name, qty)")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];

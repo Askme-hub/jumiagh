@@ -7,10 +7,7 @@ import { PageHeader } from "@/components/PageHeader";
 export const Route = createFileRoute("/orders/$id/status")({
   component: ItemStatus,
   head: () => ({ meta: [{ title: "Item Status – Jumia Ghana" }] }),
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) throw redirect({ to: "/login" });
-  },
+ 
 });
 
 const LABELS: Record<string, string> = {

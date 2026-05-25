@@ -1,5 +1,6 @@
 import { Product, formatGHC, useShop } from "@/lib/store";
 import { Heart, Star } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 export function ProductCard({
@@ -17,7 +18,7 @@ export function ProductCard({
     <div className="bg-white rounded-lg overflow-hidden border border-gray-200 hover:shadow-md transition-all duration-200 w-full">
       
       {/* IMAGE */}
-      <div className="relative bg-gray-50 aspect-square">
+      <Link to="/products/$id" params={{ id: product.id }} className="relative bg-gray-50 aspect-square block">
         <img
           src={product.image}
           alt={product.name}
@@ -32,10 +33,10 @@ export function ProductCard({
         )}
 
         {/* HEART */}
-        <button className="absolute top-2 right-2 bg-white shadow-sm rounded-full p-1">
+        <span className="absolute top-2 right-2 bg-white shadow-sm rounded-full p-1">
           <Heart size={14} />
-        </button>
-      </div>
+        </span>
+      </Link>
 
       {/* CONTENT */}
       <div className="p-2">

@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,8 +6,9 @@ import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/orders/$id/status")({
   component: ItemStatus,
-  head: () => ({ meta: [{ title: "Item Status – Jumia Ghana" }] }),
- 
+  head: () => ({
+    meta: [{ title: "Item Status – Jumia Ghana" }],
+  }),
 });
 
 const LABELS: Record<string, string> = {
@@ -29,13 +30,18 @@ function ItemStatus() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("order_status_history")
-        .select("status, created_at")
-        .eq("order_id", id)
+        .select("*")
+        .eq("order_id", String(id))
         .order("created_at", { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error(error);
+        throw error;
+      }
+
       return data ?? [];
     },
+    enabled: !!id,
   });
 
   if (isLoading) {
@@ -65,19 +71,26 @@ function ItemStatus() {
     <div>
       <PageHeader title="Item Status" />
 
-      <h1 className="px-4 py-3 text-2xl font-bold">Item Status</h1>
+      <h1 className="px-4 py-3 text-2xl font-bold">
+        Item Status
+      </h1>
 
       <div className="px-4 py-6 bg-card">
         {history.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No status yet.</p>
+          <p className="text-sm text-muted-foreground">
+            No status yet.
+          </p>
         ) : (
           <ol className="relative pl-2">
             {history.map((h, i) => {
               const isLast = i === lastIdx;
-              const delivered = isLast && h.status === "delivered";
+              const delivered = h.status === "delivered";
 
               return (
-                <li key={i} className="relative pl-12 pb-8 last:pb-0">
+                <li
+                  key={i}
+                  className="relative pl-12 pb-8 last:pb-0"
+                >
                   {i !== lastIdx && (
                     <span className="absolute left-[15px] top-7 bottom-0 w-0.5 bg-[#94a3b8]" />
                   )}
@@ -86,17 +99,14 @@ function ItemStatus() {
                     className={`absolute left-0 top-0 w-8 h-8 rounded-full flex items-center justify-center ${
                       delivered
                         ? "bg-success"
-                        : isLast
-                        ? "border-4 border-success bg-background"
-                        : "bg-[#94c5d8] text-white"
+                        : "bg-[#94c5d8]"
                     }`}
                   >
-                    {!isLast && (
-                      <Check size={18} strokeWidth={3} className="text-white" />
-                    )}
-                    {delivered && (
-                      <Check size={18} strokeWidth={3} className="text-white" />
-                    )}
+                    <Check
+                      size={18}
+                      strokeWidth={3}
+                      className="text-white"
+                    />
                   </span>
 
                   <span
@@ -106,11 +116,14 @@ function ItemStatus() {
                         : "bg-[#94c5d8] text-white"
                     }`}
                   >
-                    {LABELS[h.status] ?? h.status.toUpperCase()}
+                    {LABELS[h.status] ??
+                      h.status.toUpperCase()}
                   </span>
 
                   <p className="mt-1 text-lg">
-                    {new Date(h.created_at).toLocaleDateString("en-GB")}
+                    {new Date(
+                      h.created_at
+                    ).toLocaleDateString("en-GB")}
                   </p>
 
                   {isLast && delivered && (

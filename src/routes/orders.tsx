@@ -8,10 +8,7 @@ import { formatGHC } from "@/lib/store";
 export const Route = createFileRoute("/orders")({
   component: Orders,
   head: () => ({ meta: [{ title: "Orders – Jumia Ghana" }] }),
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) throw redirect({ to: "/login" });
-  },
+ 
 });
 
 const statusLabel: Record<string, { text: string; tone: string }> = {

@@ -69,12 +69,12 @@ function Orders() {
           const first = o.order_items?.[0];
           const lab = statusLabel[o.status] ?? statusLabel.placed;
           return (
-            <Link
-              key={o.id}
-             to="/orders/$id/status"
-              params={{ id: o.id }}
-              className="flex gap-3 p-3 bg-card border-b border-border"
-            >
+           <Link
+  key={o.id}
+  to="/orders/$id/status"
+  params={{ id: String(o.id) }}
+  className="flex gap-3 p-3 bg-card border-b border-border"
+>
               <div className="w-20 h-20 bg-muted shrink-0 rounded">
                 {first?.image_url && (
                   <img src={first.image_url} alt="" loading="lazy" className="w-full h-full object-contain" />

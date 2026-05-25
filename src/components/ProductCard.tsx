@@ -33,10 +33,10 @@ export function ProductCard({
         )}
 
         {/* HEART */}
-        <button className="absolute top-2 right-2 bg-white shadow-sm rounded-full p-1">
+        <span className="absolute top-2 right-2 bg-white shadow-sm rounded-full p-1">
           <Heart size={14} />
-        </button>
-      </div>
+        </span>
+      </Link>
 
       {/* CONTENT */}
       <div className="p-2">

@@ -8,10 +8,7 @@ import { RefreshCw, MapPin, CheckCircle2, Circle, Clock } from "lucide-react";
 export const Route = createFileRoute("/orders/$id")({
   component: OrderDetails,
   head: () => ({ meta: [{ title: "Order Details – Jumia Ghana" }] }),
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) throw redirect({ to: "/login" });
-  },
+ 
 });
 
 const STATUS_FLOW = [

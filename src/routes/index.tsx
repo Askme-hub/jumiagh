@@ -119,7 +119,7 @@ function Home() {
 
       {/* CALL BAR */}
       <div className="bg-orange-500 py-2 text-center text-sm font-semibold text-white">
-        Call to Order: 030 274 0642
+        Call to Order: 025 757 3471
       </div>
 
       {/* HERO */}

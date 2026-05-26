@@ -125,7 +125,7 @@ function Login() {
       </button>
 
       <p className="mt-auto pt-8 text-center text-sm text-foreground/80">
-        Need help? Call <span className="font-semibold">0302 740 642</span>
+        Need help? Call <span className="font-semibold">0257 573 471</span>
       </p>
       <Link to="/" className="mt-3 text-center text-xs text-muted-foreground">Continue browsing</Link>
     </div>

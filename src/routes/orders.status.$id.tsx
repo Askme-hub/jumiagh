@@ -4,7 +4,7 @@ import { Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/PageHeader";
 
-export const Route = createFileRoute("/orders/$id/status")({
+export const Route = createFileRoute("/orders/status/$id")({
   component: ItemStatus,
   head: () => ({ meta: [{ title: "Item Status – Jumia Ghana" }] }),
  

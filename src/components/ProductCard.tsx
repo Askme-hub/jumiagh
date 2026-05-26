@@ -1,5 +1,5 @@
 import { Product, formatGHC, useShop } from "@/lib/store";
-import { Heart, Star } from "lucide-react";
+import { Heart, Star, Minus, Plus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
@@ -9,6 +9,10 @@ export function ProductCard({
   product: Product;
 }) {
   const addToCart = useShop((s) => s.addToCart);
+  const updateQty = useShop((s) => s.updateQty);
+  const cartItem = useShop((s) => s.cart.find((c) => c.product.id === product.id));
+  const qty = cartItem?.qty ?? 0;
+
 
   const oldPrice = product.discount
     ? product.price + (product.price * product.discount) / 100
@@ -84,16 +88,36 @@ export function ProductCard({
           </p>
         )}
 
-        {/* BUTTON */}
-        <button
-          onClick={() => {
-            addToCart(product);
-            toast.success("Added to cart");
-          }}
-          className="w-full mt-2 border border-orange-500 text-orange-500 rounded-md py-1.5 text-[12px] font-semibold hover:bg-orange-500 hover:text-white transition"
-        >
-          Add to Cart
-        </button>
+        {/* BUTTON / QTY STEPPER */}
+        {qty === 0 ? (
+          <button
+            onClick={() => {
+              addToCart(product);
+              toast.success("Added to cart");
+            }}
+            className="w-full mt-2 border border-orange-500 text-orange-500 rounded-md py-1.5 text-[12px] font-semibold hover:bg-orange-500 hover:text-white transition"
+          >
+            Add to Cart
+          </button>
+        ) : (
+          <div className="w-full mt-2 flex items-center justify-between border border-orange-500 rounded-md overflow-hidden">
+            <button
+              onClick={() => updateQty(product.id, qty - 1)}
+              className="w-8 h-8 flex items-center justify-center text-orange-500 hover:bg-orange-50"
+              aria-label="Decrease"
+            >
+              <Minus size={14} />
+            </button>
+            <span className="text-[13px] font-bold text-orange-600">{qty} in cart</span>
+            <button
+              onClick={() => updateQty(product.id, qty + 1)}
+              className="w-8 h-8 flex items-center justify-center text-orange-500 hover:bg-orange-50"
+              aria-label="Increase"
+            >
+              <Plus size={14} />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

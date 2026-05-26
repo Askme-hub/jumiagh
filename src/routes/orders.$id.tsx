@@ -179,7 +179,7 @@ function OrderDetails() {
       ))}
 
       <div className="px-4 py-3">
-        <Link to="/orders/$id/status" params={{ id: data.id }} className="block text-center py-3 text-primary font-bold border border-border rounded">
+        <Link to="/orders/status/$id" params={{ id: data.id }} className="block text-center py-3 text-primary font-bold border border-border rounded">
           See Full Status History
         </Link>
       </div>

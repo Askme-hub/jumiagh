@@ -27,7 +27,7 @@ import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminMessagesRouteImport } from './routes/admin.messages'
-import { Route as OrdersIdStatusRouteImport } from './routes/orders.$id.status'
+import { Route as OrdersStatusIdRouteImport } from './routes/orders.status.$id'
 import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/public/paystack-webhook'
 
 const WishlistRoute = WishlistRouteImport.update({
@@ -120,10 +120,10 @@ const AdminMessagesRoute = AdminMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => AdminRoute,
 } as any)
-const OrdersIdStatusRoute = OrdersIdStatusRouteImport.update({
-  id: '/status',
-  path: '/status',
-  getParentRoute: () => OrdersIdRoute,
+const OrdersStatusIdRoute = OrdersStatusIdRouteImport.update({
+  id: '/status/$id',
+  path: '/status/$id',
+  getParentRoute: () => OrdersRoute,
 } as any)
 const ApiPublicPaystackWebhookRoute =
   ApiPublicPaystackWebhookRouteImport.update({
@@ -147,12 +147,12 @@ export interface FileRoutesByFullPath {
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
-  '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/orders/$id': typeof OrdersIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
-  '/orders/$id/status': typeof OrdersIdStatusRoute
+  '/orders/status/$id': typeof OrdersStatusIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -168,12 +168,12 @@ export interface FileRoutesByTo {
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
-  '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/orders/$id': typeof OrdersIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
   '/admin': typeof AdminIndexRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
-  '/orders/$id/status': typeof OrdersIdStatusRoute
+  '/orders/status/$id': typeof OrdersStatusIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -191,12 +191,12 @@ export interface FileRoutesById {
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
-  '/orders/$id': typeof OrdersIdRouteWithChildren
+  '/orders/$id': typeof OrdersIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
-  '/orders/$id/status': typeof OrdersIdStatusRoute
+  '/orders/status/$id': typeof OrdersStatusIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -220,7 +220,7 @@ export interface FileRouteTypes {
     | '/products/$id'
     | '/admin/'
     | '/api/public/paystack-webhook'
-    | '/orders/$id/status'
+    | '/orders/status/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -241,7 +241,7 @@ export interface FileRouteTypes {
     | '/products/$id'
     | '/admin'
     | '/api/public/paystack-webhook'
-    | '/orders/$id/status'
+    | '/orders/status/$id'
   id:
     | '__root__'
     | '/'
@@ -263,7 +263,7 @@ export interface FileRouteTypes {
     | '/products/$id'
     | '/admin/'
     | '/api/public/paystack-webhook'
-    | '/orders/$id/status'
+    | '/orders/status/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -411,12 +411,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMessagesRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/orders/$id/status': {
-      id: '/orders/$id/status'
-      path: '/status'
-      fullPath: '/orders/$id/status'
-      preLoaderRoute: typeof OrdersIdStatusRouteImport
-      parentRoute: typeof OrdersIdRoute
+    '/orders/status/$id': {
+      id: '/orders/status/$id'
+      path: '/status/$id'
+      fullPath: '/orders/status/$id'
+      preLoaderRoute: typeof OrdersStatusIdRouteImport
+      parentRoute: typeof OrdersRoute
     }
     '/api/public/paystack-webhook': {
       id: '/api/public/paystack-webhook'
@@ -444,24 +444,14 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
-interface OrdersIdRouteChildren {
-  OrdersIdStatusRoute: typeof OrdersIdStatusRoute
-}
-
-const OrdersIdRouteChildren: OrdersIdRouteChildren = {
-  OrdersIdStatusRoute: OrdersIdStatusRoute,
-}
-
-const OrdersIdRouteWithChildren = OrdersIdRoute._addFileChildren(
-  OrdersIdRouteChildren,
-)
-
 interface OrdersRouteChildren {
-  OrdersIdRoute: typeof OrdersIdRouteWithChildren
+  OrdersIdRoute: typeof OrdersIdRoute
+  OrdersStatusIdRoute: typeof OrdersStatusIdRoute
 }
 
 const OrdersRouteChildren: OrdersRouteChildren = {
-  OrdersIdRoute: OrdersIdRouteWithChildren,
+  OrdersIdRoute: OrdersIdRoute,
+  OrdersStatusIdRoute: OrdersStatusIdRoute,
 }
 
 const OrdersRouteWithChildren =
@@ -486,3 +476,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

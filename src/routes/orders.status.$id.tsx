@@ -99,10 +99,7 @@ function ItemStatus() {
 
   return (
     <div className="pb-8">
-      <PageHeader
-        title="Status History"
-        backTo="/orders"
-      />
+      <PageHeader title="Status History" />
 
       {/* Summary card at top */}
       <div className="px-4 py-4 bg-card border-b border-border">

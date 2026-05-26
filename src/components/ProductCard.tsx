@@ -1,5 +1,5 @@
 import { Product, formatGHC, useShop } from "@/lib/store";
-import { Heart, Star } from "lucide-react";
+import { Heart, Star, Minus, Plus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
@@ -9,6 +9,10 @@ export function ProductCard({
   product: Product;
 }) {
   const addToCart = useShop((s) => s.addToCart);
+  const updateQty = useShop((s) => s.updateQty);
+  const cartItem = useShop((s) => s.cart.find((c) => c.product.id === product.id));
+  const qty = cartItem?.qty ?? 0;
+
 
   const oldPrice = product.discount
     ? product.price + (product.price * product.discount) / 100

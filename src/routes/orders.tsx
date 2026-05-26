@@ -71,7 +71,7 @@ function Orders() {
           return (
         <Link
   key={o.id}
-  to="/orders/$id/status"
+  to="/orders/$id"
   params={{ id: String(o.id) }}
   className="flex gap-3 p-3 bg-card border-b border-border"
 >

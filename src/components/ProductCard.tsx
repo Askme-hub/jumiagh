@@ -88,16 +88,36 @@ export function ProductCard({
           </p>
         )}
 
-        {/* BUTTON */}
-        <button
-          onClick={() => {
-            addToCart(product);
-            toast.success("Added to cart");
-          }}
-          className="w-full mt-2 border border-orange-500 text-orange-500 rounded-md py-1.5 text-[12px] font-semibold hover:bg-orange-500 hover:text-white transition"
-        >
-          Add to Cart
-        </button>
+        {/* BUTTON / QTY STEPPER */}
+        {qty === 0 ? (
+          <button
+            onClick={() => {
+              addToCart(product);
+              toast.success("Added to cart");
+            }}
+            className="w-full mt-2 border border-orange-500 text-orange-500 rounded-md py-1.5 text-[12px] font-semibold hover:bg-orange-500 hover:text-white transition"
+          >
+            Add to Cart
+          </button>
+        ) : (
+          <div className="w-full mt-2 flex items-center justify-between border border-orange-500 rounded-md overflow-hidden">
+            <button
+              onClick={() => updateQty(product.id, qty - 1)}
+              className="w-8 h-8 flex items-center justify-center text-orange-500 hover:bg-orange-50"
+              aria-label="Decrease"
+            >
+              <Minus size={14} />
+            </button>
+            <span className="text-[13px] font-bold text-orange-600">{qty} in cart</span>
+            <button
+              onClick={() => updateQty(product.id, qty + 1)}
+              className="w-8 h-8 flex items-center justify-center text-orange-500 hover:bg-orange-50"
+              aria-label="Increase"
+            >
+              <Plus size={14} />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

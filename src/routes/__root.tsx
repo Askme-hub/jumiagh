@@ -8,7 +8,9 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { BottomNav } from "@/components/BottomNav";
+import { Preloader } from "@/components/Preloader";
 import { Toaster } from "@/components/ui/sonner";
+import { useState } from "react";
 
 import appCss from "../styles.css?url";
 

@@ -17,13 +17,13 @@ export const Route = createFileRoute("/")({
     meta: [
       {
         title:
-          "Jumia Ghana – Online Shopping for Electronics, Fashion & More",
+          "Kivora Ghana – Everything You Need",
       },
 
       {
         name: "description",
         content:
-          "Shop the best deals on phones, electronics, fashion, groceries and more on Jumia Ghana. Fast delivery, easy returns.",
+          "Shop electronics, fashion, groceries, beauty products and more on Kivora Ghana. Fast delivery, secure payments and amazing deals.",
       },
     ],
   }),
@@ -83,31 +83,31 @@ function Home() {
 
   const tiles = [
     {
-      label: "Anniversary",
-      bg: "bg-primary",
-      fg: "text-primary-foreground",
-      sub: "14 Years",
+      label: "Kivora Deals",
+      bg: "bg-[#ff7a00]",
+      fg: "text-white",
+      sub: "Hot Offers",
     },
 
     {
-      label: "Delivery",
-      bg: "bg-green-500",
+      label: "Fast Delivery",
+      bg: "bg-black",
       fg: "text-white",
-      sub: "Fast Ship",
+      sub: "Express",
     },
 
     {
       label: "Help Center",
-      bg: "bg-secondary",
-      fg: "text-foreground",
+      bg: "bg-zinc-800",
+      fg: "text-white",
       sub: "24/7",
     },
 
     {
-      label: "Earn Cash",
-      bg: "bg-orange-500",
+      label: "Become Seller",
+      bg: "bg-orange-600",
       fg: "text-white",
-      sub: "Join Force",
+      sub: "Earn More",
     },
   ];
 
@@ -118,32 +118,32 @@ function Home() {
       <SearchBar />
 
       {/* CALL BAR */}
-      <div className="bg-orange-500 py-2 text-center text-sm font-semibold text-white">
-        Call to Order: 025 757 3471
+      <div className="bg-[#ff7a00] py-2 text-center text-sm font-semibold text-white">
+        Kivora Support: 025 757 3471
       </div>
 
       {/* HERO */}
       <div className="px-3 pt-3">
-        <div className="relative rounded-xl overflow-hidden shadow-sm">
+        <div className="relative rounded-2xl overflow-hidden shadow-lg">
           <img
             src={banner}
-            alt="Banner"
+            alt="Kivora Banner"
             className="w-full aspect-[2/1] object-cover"
           />
 
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent p-4 flex flex-col justify-center">
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent p-4 flex flex-col justify-center">
             <div className="text-white">
-              <p className="text-xs font-bold tracking-widest">
-                JUMIA 14 YEARS
+              <p className="text-xs font-bold tracking-[0.25em] uppercase text-orange-400">
+                KIVORA GHANA
               </p>
 
-              <h1 className="text-2xl font-bold mt-2 leading-tight">
-                We've been
+              <h1 className="text-3xl font-extrabold mt-2 leading-tight">
+                Everything
                 <br />
-                doing it
+                You Need
               </h1>
 
-              <span className="inline-block mt-3 bg-white text-black rounded-full px-4 py-1 text-xs font-bold">
+              <span className="inline-block mt-4 bg-[#ff7a00] text-white rounded-full px-5 py-2 text-xs font-bold shadow-lg">
                 UP TO 70% OFF
               </span>
             </div>
@@ -157,7 +157,7 @@ function Home() {
               key={i}
               className={`h-1.5 rounded-full transition-all ${
                 i === 1
-                  ? "w-5 bg-orange-500"
+                  ? "w-5 bg-[#ff7a00]"
                   : "w-1.5 bg-gray-300"
               }`}
             />
@@ -166,9 +166,9 @@ function Home() {
       </div>
 
       {/* FLASH SALES */}
-      <div className="mt-4 mx-3 bg-orange-500 text-white rounded-xl p-3 flex items-center justify-between shadow-sm">
+      <div className="mt-4 mx-3 bg-black text-white rounded-2xl p-4 flex items-center justify-between shadow-lg border border-orange-500/20">
         <div className="flex items-center gap-3">
-          <div className="bg-white/20 rounded-lg p-2">
+          <div className="bg-[#ff7a00] rounded-xl p-2 shadow-md">
             <Zap
               size={18}
               fill="currentColor"
@@ -177,10 +177,10 @@ function Home() {
 
           <div>
             <p className="font-bold text-lg leading-none">
-              Flash Sales
+              Kivora Flash Sales
             </p>
 
-            <p className="text-[11px] mt-1 opacity-90">
+            <p className="text-[11px] mt-1 opacity-90 text-orange-300">
               TIME LEFT: <Countdown />
             </p>
           </div>
@@ -188,7 +188,7 @@ function Home() {
 
         <Link
           to="/categories"
-          className="text-sm font-semibold"
+          className="text-sm font-semibold text-orange-400"
         >
           See All
         </Link>
@@ -213,10 +213,10 @@ function Home() {
         {tiles.map((t) => (
           <div
             key={t.label}
-            className={`${t.bg} ${t.fg} rounded-xl aspect-square p-2 flex flex-col justify-between shadow-sm`}
+            className={`${t.bg} ${t.fg} rounded-2xl aspect-square p-2 flex flex-col justify-between shadow-md`}
           >
             <p className="text-[10px] font-bold uppercase leading-tight">
-              JUMIA {t.sub}
+              {t.sub}
             </p>
 
             <p className="text-[11px] font-semibold">
@@ -227,7 +227,7 @@ function Home() {
       </div>
 
       {/* RECOMMENDED */}
-      <h2 className="px-3 mt-6 text-lg font-bold">
+      <h2 className="px-3 mt-6 text-xl font-bold text-black">
         Recommended For You
       </h2>
 

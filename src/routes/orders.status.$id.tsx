@@ -96,42 +96,69 @@ function ItemStatus() {
 
   const history = data ?? [];
 
+  const latest = history[history.length - 1];
+
   return (
     <div className="pb-8">
-      <PageHeader title="Status History" />
+      <PageHeader title="Order Tracking" />
 
-      {/* Summary card at top */}
-      <div className="px-4 py-4 bg-card border-b border-border">
-        <p className="text-xs text-muted-foreground uppercase tracking-wide">Order ID</p>
-        <p className="text-sm font-mono font-semibold mt-0.5">{id.slice(0, 8)}...</p>
-        <p className="text-xs text-muted-foreground mt-2">{history.length} status update{history.length !== 1 ? "s" : ""} tracked</p>
-      </div>
+      {/* Header summary */}
+      <header className="px-4 py-5 bg-card border-b border-border">
+        <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Tracking ID</p>
+        <p className="text-sm font-mono font-semibold mt-1 break-all" aria-label={`Order identifier ${id}`}>
+          {id}
+        </p>
+        {latest && (
+          <div className="mt-3 flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Current status:</span>
+            <span className="inline-block px-2.5 py-1 text-xs font-bold rounded-full bg-primary-soft text-primary">
+              {LABELS[latest.status] ?? latest.status.toUpperCase()}
+            </span>
+          </div>
+        )}
+        <p className="text-xs text-muted-foreground mt-2">
+          {history.length} status update{history.length !== 1 ? "s" : ""} tracked
+        </p>
+      </header>
 
-      <div className="px-4 py-4">
+      <section aria-label="Order status timeline" className="px-4 py-4">
+        <h2 className="sr-only">Status timeline</h2>
         {history.length === 0 ? (
-          <div className="text-center py-8">
-            <Clock size={40} className="text-muted-foreground/30 mx-auto mb-3" />
+          <div className="text-center py-8" role="status">
+            <Clock size={40} className="text-muted-foreground/30 mx-auto mb-3" aria-hidden="true" />
             <p className="text-sm text-muted-foreground">No status updates yet.</p>
             <p className="text-xs text-muted-foreground mt-1">Check back later for updates on your order.</p>
           </div>
         ) : (
-          <ol className="relative">
+          <ol className="relative" aria-label="Chronological status updates">
             {history.map((h, i) => {
               const isLast = i === history.length - 1;
               const isFirst = i === 0;
               const isDelivered = h.status === "delivered";
               const isCancelled = h.status === "cancelled";
+              const label = LABELS[h.status] ?? h.status.toUpperCase();
+              const dateObj = new Date(h.created_at);
+              const dateStr = dateObj.toLocaleDateString("en-GB", {
+                weekday: "short",
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              });
+              const timeStr = dateObj.toLocaleTimeString("en-GB", {
+                hour: "2-digit",
+                minute: "2-digit",
+              });
 
               return (
-                <li key={i} className="flex gap-4 relative">
+                <li
+                  key={i}
+                  className="flex gap-4 relative"
+                  aria-label={`${label} on ${dateStr} at ${timeStr}`}
+                  aria-current={isLast ? "step" : undefined}
+                >
                   {/* Timeline column */}
-                  <div className="flex flex-col items-center shrink-0">
-                    {/* Top connector */}
-                    {!isFirst && (
-                      <div className="w-0.5 h-3 bg-border" />
-                    )}
-
-                    {/* Icon */}
+                  <div className="flex flex-col items-center shrink-0" aria-hidden="true">
+                    {!isFirst && <div className="w-0.5 h-3 bg-border" />}
                     <div
                       className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors ${
                         isDelivered
@@ -149,8 +176,6 @@ function ItemStatus() {
                         <CheckCircle2 size={18} strokeWidth={2.5} />
                       )}
                     </div>
-
-                    {/* Bottom connector */}
                     {!isLast && (
                       <div className="w-0.5 flex-1 bg-border mt-1" style={{ minHeight: 24 }} />
                     )}
@@ -169,34 +194,27 @@ function ItemStatus() {
                           : "bg-muted text-muted-foreground"
                       }`}
                     >
-                      {LABELS[h.status] ?? h.status.toUpperCase()}
+                      {label}
                     </span>
 
                     <p className="text-sm text-foreground mt-1.5 font-medium">
                       {STATUS_DESCRIPTIONS[h.status] ?? "Status updated."}
                     </p>
 
-                    <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                      <Clock size={11} />
-                      {new Date(h.created_at).toLocaleDateString("en-GB", {
-                        weekday: "short",
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}{" "}
-                      at{" "}
-                      {new Date(h.created_at).toLocaleTimeString("en-GB", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
+                    <time
+                      dateTime={dateObj.toISOString()}
+                      className="text-xs text-muted-foreground mt-1 flex items-center gap-1"
+                    >
+                      <Clock size={11} aria-hidden="true" />
+                      <span>{dateStr} at {timeStr}</span>
+                    </time>
                   </div>
                 </li>
               );
             })}
           </ol>
         )}
-      </div>
+      </section>
 
       {/* Back link */}
       <div className="px-4 mt-2">
@@ -205,7 +223,7 @@ function ItemStatus() {
           params={{ id }}
           className="inline-flex items-center gap-1 text-sm text-primary font-semibold"
         >
-          <ChevronLeft size={16} /> Back to Order Details
+          <ChevronLeft size={16} aria-hidden="true" /> Back to Order Details
         </Link>
       </div>
     </div>

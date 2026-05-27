@@ -8,7 +8,9 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { BottomNav } from "@/components/BottomNav";
+import { Preloader } from "@/components/Preloader";
 import { Toaster } from "@/components/ui/sonner";
+import { useState } from "react";
 
 import appCss from "../styles.css?url";
 
@@ -117,9 +119,11 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [loading, setLoading] = useState(true);
 
   return (
     <QueryClientProvider client={queryClient}>
+      {loading && <Preloader onDone={() => setLoading(false)} />}
       <div className="max-w-md mx-auto min-h-screen bg-background relative pb-16 shadow-xl">
         <Outlet />
         <BottomNav />

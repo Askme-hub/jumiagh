@@ -33,7 +33,7 @@ export function BottomNav() {
     return null;
 
   return (
-    <nav className="fixed bottom-4 inset-x-0 z-40 max-w-md mx-auto px-4">
+    <nav className="md:hidden fixed bottom-4 inset-x-0 z-40 max-w-md mx-auto px-4">
       <div
         className="
           backdrop-blur-xl bg-white/80 dark:bg-black/40

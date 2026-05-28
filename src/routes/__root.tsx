@@ -8,6 +8,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { BottomNav } from "@/components/BottomNav";
+import { TopNav } from "@/components/TopNav";
 import { Preloader } from "@/components/Preloader";
 import { Toaster } from "@/components/ui/sonner";
 import { useState } from "react";
@@ -77,24 +78,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "jumia gh" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "jumia gh" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Kivora Ghana — Everything You Need" },
+      { name: "description", content: "Shop electronics, fashion, groceries and more on Kivora Ghana. Fast delivery, secure payments and amazing deals." },
+      { name: "author", content: "Kivora" },
+      { property: "og:title", content: "Kivora Ghana — Everything You Need" },
+      { property: "og:description", content: "Shop everything you need on Kivora Ghana." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "jumia gh" },
-      { name: "twitter:description", content: "Lovable Generated Project" },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bd9ae9d9-bf08-45d7-b03e-e6b0184fa536/id-preview-1c56a42d--7ead7f49-a03e-492d-8f25-988581215054.lovable.app-1779672648294.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bd9ae9d9-bf08-45d7-b03e-e6b0184fa536/id-preview-1c56a42d--7ead7f49-a03e-492d-8f25-988581215054.lovable.app-1779672648294.png" },
+      { name: "twitter:title", content: "Kivora Ghana — Everything You Need" },
+      { name: "twitter:description", content: "Shop everything you need on Kivora Ghana." },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+      { rel: "stylesheet", href: appCss },
+      { rel: "icon", href: "/favicon.ico" },
     ],
   }),
   shellComponent: RootShell,
@@ -124,12 +120,17 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {loading && <Preloader onDone={() => setLoading(false)} />}
-      <div className="max-w-md mx-auto min-h-screen bg-background relative pb-16 shadow-xl">
-        <Outlet />
+      <div className="min-h-screen bg-background pb-20 md:pb-0">
+        <TopNav />
+        <div className="md:hidden max-w-md mx-auto shadow-xl min-h-screen">
+          <Outlet />
+        </div>
+        <div className="hidden md:block">
+          <Outlet />
+        </div>
         <BottomNav />
       </div>
       <Toaster position="top-center" />
     </QueryClientProvider>
   );
 }
-

@@ -122,14 +122,12 @@ function RootComponent() {
       {loading && <Preloader onDone={() => setLoading(false)} />}
       <div className="min-h-screen bg-background pb-20 md:pb-0">
         <TopNav />
-        <div className="md:hidden max-w-md mx-auto shadow-xl min-h-screen">
+        <main className="max-w-md md:max-w-7xl mx-auto md:px-4">
           <Outlet />
-        </div>
-        <div className="hidden md:block">
-          <Outlet />
-        </div>
+        </main>
         <BottomNav />
       </div>
+
       <Toaster position="top-center" />
     </QueryClientProvider>
   );

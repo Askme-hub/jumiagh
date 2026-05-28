@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WishlistRouteImport } from './routes/wishlist'
+import { Route as SellerRouteImport } from './routes/seller'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as LoginRouteImport } from './routes/login'
@@ -20,20 +21,31 @@ import { Route as CartRouteImport } from './routes/cart'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as SellerProfileRouteImport } from './routes/seller.profile'
 import { Route as ProductsIdRouteImport } from './routes/products.$id'
 import { Route as PaymentCallbackRouteImport } from './routes/payment.callback'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
+import { Route as AdminSellersRouteImport } from './routes/admin.sellers'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminMessagesRouteImport } from './routes/admin.messages'
+import { Route as SellerProductsIndexRouteImport } from './routes/seller.products.index'
+import { Route as SellerProductsNewRouteImport } from './routes/seller.products.new'
+import { Route as SellerProductsIdRouteImport } from './routes/seller.products.$id'
 import { Route as OrdersStatusIdRouteImport } from './routes/orders.status.$id'
 import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/public/paystack-webhook'
 
 const WishlistRoute = WishlistRouteImport.update({
   id: '/wishlist',
   path: '/wishlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SellerRoute = SellerRouteImport.update({
+  id: '/seller',
+  path: '/seller',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SearchRoute = SearchRouteImport.update({
@@ -86,6 +98,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellerIndexRoute = SellerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SellerRoute,
+} as any)
 const OrdersIndexRoute = OrdersIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -95,6 +112,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const SellerProfileRoute = SellerProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => SellerRoute,
 } as any)
 const ProductsIdRoute = ProductsIdRouteImport.update({
   id: '/products/$id',
@@ -111,6 +133,11 @@ const OrdersIdRoute = OrdersIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => OrdersRoute,
 } as any)
+const AdminSellersRoute = AdminSellersRouteImport.update({
+  id: '/sellers',
+  path: '/sellers',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminProductsRoute = AdminProductsRouteImport.update({
   id: '/products',
   path: '/products',
@@ -125,6 +152,21 @@ const AdminMessagesRoute = AdminMessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
   getParentRoute: () => AdminRoute,
+} as any)
+const SellerProductsIndexRoute = SellerProductsIndexRouteImport.update({
+  id: '/products/',
+  path: '/products/',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerProductsNewRoute = SellerProductsNewRouteImport.update({
+  id: '/products/new',
+  path: '/products/new',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerProductsIdRoute = SellerProductsIdRouteImport.update({
+  id: '/products/$id',
+  path: '/products/$id',
+  getParentRoute: () => SellerRoute,
 } as any)
 const OrdersStatusIdRoute = OrdersStatusIdRouteImport.update({
   id: '/status/$id',
@@ -149,17 +191,24 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/orders': typeof OrdersRouteWithChildren
   '/search': typeof SearchRoute
+  '/seller': typeof SellerRouteWithChildren
   '/wishlist': typeof WishlistRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
+  '/admin/sellers': typeof AdminSellersRoute
   '/orders/$id': typeof OrdersIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
+  '/seller/profile': typeof SellerProfileRoute
   '/admin/': typeof AdminIndexRoute
   '/orders/': typeof OrdersIndexRoute
+  '/seller/': typeof SellerIndexRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/orders/status/$id': typeof OrdersStatusIdRoute
+  '/seller/products/$id': typeof SellerProductsIdRoute
+  '/seller/products/new': typeof SellerProductsNewRoute
+  '/seller/products/': typeof SellerProductsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -174,13 +223,19 @@ export interface FileRoutesByTo {
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
+  '/admin/sellers': typeof AdminSellersRoute
   '/orders/$id': typeof OrdersIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
+  '/seller/profile': typeof SellerProfileRoute
   '/admin': typeof AdminIndexRoute
   '/orders': typeof OrdersIndexRoute
+  '/seller': typeof SellerIndexRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/orders/status/$id': typeof OrdersStatusIdRoute
+  '/seller/products/$id': typeof SellerProductsIdRoute
+  '/seller/products/new': typeof SellerProductsNewRoute
+  '/seller/products': typeof SellerProductsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -194,17 +249,24 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/orders': typeof OrdersRouteWithChildren
   '/search': typeof SearchRoute
+  '/seller': typeof SellerRouteWithChildren
   '/wishlist': typeof WishlistRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
+  '/admin/sellers': typeof AdminSellersRoute
   '/orders/$id': typeof OrdersIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
+  '/seller/profile': typeof SellerProfileRoute
   '/admin/': typeof AdminIndexRoute
   '/orders/': typeof OrdersIndexRoute
+  '/seller/': typeof SellerIndexRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/orders/status/$id': typeof OrdersStatusIdRoute
+  '/seller/products/$id': typeof SellerProductsIdRoute
+  '/seller/products/new': typeof SellerProductsNewRoute
+  '/seller/products/': typeof SellerProductsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -219,17 +281,24 @@ export interface FileRouteTypes {
     | '/login'
     | '/orders'
     | '/search'
+    | '/seller'
     | '/wishlist'
     | '/admin/messages'
     | '/admin/orders'
     | '/admin/products'
+    | '/admin/sellers'
     | '/orders/$id'
     | '/payment/callback'
     | '/products/$id'
+    | '/seller/profile'
     | '/admin/'
     | '/orders/'
+    | '/seller/'
     | '/api/public/paystack-webhook'
     | '/orders/status/$id'
+    | '/seller/products/$id'
+    | '/seller/products/new'
+    | '/seller/products/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -244,13 +313,19 @@ export interface FileRouteTypes {
     | '/admin/messages'
     | '/admin/orders'
     | '/admin/products'
+    | '/admin/sellers'
     | '/orders/$id'
     | '/payment/callback'
     | '/products/$id'
+    | '/seller/profile'
     | '/admin'
     | '/orders'
+    | '/seller'
     | '/api/public/paystack-webhook'
     | '/orders/status/$id'
+    | '/seller/products/$id'
+    | '/seller/products/new'
+    | '/seller/products'
   id:
     | '__root__'
     | '/'
@@ -263,17 +338,24 @@ export interface FileRouteTypes {
     | '/login'
     | '/orders'
     | '/search'
+    | '/seller'
     | '/wishlist'
     | '/admin/messages'
     | '/admin/orders'
     | '/admin/products'
+    | '/admin/sellers'
     | '/orders/$id'
     | '/payment/callback'
     | '/products/$id'
+    | '/seller/profile'
     | '/admin/'
     | '/orders/'
+    | '/seller/'
     | '/api/public/paystack-webhook'
     | '/orders/status/$id'
+    | '/seller/products/$id'
+    | '/seller/products/new'
+    | '/seller/products/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -287,6 +369,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   OrdersRoute: typeof OrdersRouteWithChildren
   SearchRoute: typeof SearchRoute
+  SellerRoute: typeof SellerRouteWithChildren
   WishlistRoute: typeof WishlistRoute
   PaymentCallbackRoute: typeof PaymentCallbackRoute
   ProductsIdRoute: typeof ProductsIdRoute
@@ -300,6 +383,13 @@ declare module '@tanstack/react-router' {
       path: '/wishlist'
       fullPath: '/wishlist'
       preLoaderRoute: typeof WishlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seller': {
+      id: '/seller'
+      path: '/seller'
+      fullPath: '/seller'
+      preLoaderRoute: typeof SellerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search': {
@@ -372,6 +462,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/seller/': {
+      id: '/seller/'
+      path: '/'
+      fullPath: '/seller/'
+      preLoaderRoute: typeof SellerIndexRouteImport
+      parentRoute: typeof SellerRoute
+    }
     '/orders/': {
       id: '/orders/'
       path: '/'
@@ -385,6 +482,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/seller/profile': {
+      id: '/seller/profile'
+      path: '/profile'
+      fullPath: '/seller/profile'
+      preLoaderRoute: typeof SellerProfileRouteImport
+      parentRoute: typeof SellerRoute
     }
     '/products/$id': {
       id: '/products/$id'
@@ -407,6 +511,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrdersIdRouteImport
       parentRoute: typeof OrdersRoute
     }
+    '/admin/sellers': {
+      id: '/admin/sellers'
+      path: '/sellers'
+      fullPath: '/admin/sellers'
+      preLoaderRoute: typeof AdminSellersRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/products': {
       id: '/admin/products'
       path: '/products'
@@ -427,6 +538,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/messages'
       preLoaderRoute: typeof AdminMessagesRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/seller/products/': {
+      id: '/seller/products/'
+      path: '/products'
+      fullPath: '/seller/products/'
+      preLoaderRoute: typeof SellerProductsIndexRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/products/new': {
+      id: '/seller/products/new'
+      path: '/products/new'
+      fullPath: '/seller/products/new'
+      preLoaderRoute: typeof SellerProductsNewRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/products/$id': {
+      id: '/seller/products/$id'
+      path: '/products/$id'
+      fullPath: '/seller/products/$id'
+      preLoaderRoute: typeof SellerProductsIdRouteImport
+      parentRoute: typeof SellerRoute
     }
     '/orders/status/$id': {
       id: '/orders/status/$id'
@@ -449,6 +581,7 @@ interface AdminRouteChildren {
   AdminMessagesRoute: typeof AdminMessagesRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   AdminProductsRoute: typeof AdminProductsRoute
+  AdminSellersRoute: typeof AdminSellersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -456,6 +589,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMessagesRoute: AdminMessagesRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   AdminProductsRoute: AdminProductsRoute,
+  AdminSellersRoute: AdminSellersRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
@@ -476,6 +610,25 @@ const OrdersRouteChildren: OrdersRouteChildren = {
 const OrdersRouteWithChildren =
   OrdersRoute._addFileChildren(OrdersRouteChildren)
 
+interface SellerRouteChildren {
+  SellerProfileRoute: typeof SellerProfileRoute
+  SellerIndexRoute: typeof SellerIndexRoute
+  SellerProductsIdRoute: typeof SellerProductsIdRoute
+  SellerProductsNewRoute: typeof SellerProductsNewRoute
+  SellerProductsIndexRoute: typeof SellerProductsIndexRoute
+}
+
+const SellerRouteChildren: SellerRouteChildren = {
+  SellerProfileRoute: SellerProfileRoute,
+  SellerIndexRoute: SellerIndexRoute,
+  SellerProductsIdRoute: SellerProductsIdRoute,
+  SellerProductsNewRoute: SellerProductsNewRoute,
+  SellerProductsIndexRoute: SellerProductsIndexRoute,
+}
+
+const SellerRouteWithChildren =
+  SellerRoute._addFileChildren(SellerRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
@@ -487,6 +640,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   OrdersRoute: OrdersRouteWithChildren,
   SearchRoute: SearchRoute,
+  SellerRoute: SellerRouteWithChildren,
   WishlistRoute: WishlistRoute,
   PaymentCallbackRoute: PaymentCallbackRoute,
   ProductsIdRoute: ProductsIdRoute,

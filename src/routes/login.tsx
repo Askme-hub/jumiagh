@@ -1,14 +1,16 @@
 import { createFileRoute, useRouter, Link } from "@tanstack/react-router";
-import { ArrowLeft, Star } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
+import kivoraLogo from "@/assets/kivora-logo.png";
 
 export const Route = createFileRoute("/login")({
   component: Login,
-  head: () => ({ meta: [{ title: "Welcome to Jumia" }] }),
+  head: () => ({ meta: [{ title: "Welcome to Kivora" }] }),
 });
+
 
 function Login() {
   const router = useRouter();
@@ -32,7 +34,7 @@ function Login() {
           },
         });
         if (error) throw error;
-        toast.success("Welcome to Jumia!");
+        toast.success("Welcome to Kivora!");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -47,20 +49,19 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen px-6 pt-4 pb-10 flex flex-col">
+    <div className="min-h-screen px-6 pt-4 pb-10 flex flex-col max-w-md mx-auto">
       <button onClick={() => router.history.back()} aria-label="Back" className="w-8 h-8 flex items-center">
         <ArrowLeft size={22} />
       </button>
 
       <div className="mt-4 flex flex-col items-center">
-        <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
-          <Star size={32} className="text-primary-foreground fill-primary-foreground" />
-        </div>
-        <h1 className="mt-4 text-2xl font-bold">Welcome to Jumia</h1>
+        <img src={kivoraLogo} alt="Kivora" className="h-20 object-contain" />
+        <h1 className="mt-2 text-2xl font-bold">Welcome to Kivora</h1>
         <p className="mt-1 text-muted-foreground text-center text-sm">
           {mode === "login" ? "Log in to continue shopping." : "Create an account in seconds."}
         </p>
       </div>
+
 
       <form onSubmit={submit} className="mt-6 flex flex-col gap-4">
         {mode === "signup" && (
@@ -121,8 +122,9 @@ function Login() {
         onClick={() => setMode(mode === "login" ? "signup" : "login")}
         className="mt-6 text-center text-primary font-semibold"
       >
-        {mode === "login" ? "New to Jumia? Create an account" : "Already have an account? Log in"}
+        {mode === "login" ? "New to Kivora? Create an account" : "Already have an account? Log in"}
       </button>
+
 
       <p className="mt-auto pt-8 text-center text-sm text-foreground/80">
         Need help? Call <span className="font-semibold">0257 573 471</span>

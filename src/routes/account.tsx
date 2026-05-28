@@ -5,18 +5,22 @@ import {
 } from "lucide-react";
 import { SearchBar } from "@/components/SearchBar";
 import { useAuth, useIsAdmin } from "@/hooks/use-auth";
+import { useIsSeller } from "@/hooks/use-seller";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/account")({
   component: Account,
-  head: () => ({ meta: [{ title: "Account – Jumia Ghana" }] }),
+  head: () => ({ meta: [{ title: "Account – Kivora Ghana" }] }),
 });
+
 
 function Account() {
   const router = useRouter();
   const { user, loading } = useAuth();
   const { data: isAdmin } = useIsAdmin(user);
+  const { data: isSeller } = useIsSeller(user);
+
 
   const logout = async () => {
     await supabase.auth.signOut();
@@ -71,6 +75,13 @@ function Account() {
           <ChevronRight size={20} />
         </Link>
       )}
+
+      <Link to="/seller" className="flex items-center gap-3 px-4 py-3 bg-[#ff7a00] text-white border-b border-border">
+        <Store size={20} />
+        <span className="flex-1 font-bold">{isSeller ? "Open Seller Hub" : "Sell on Kivora"}</span>
+        <ChevronRight size={20} />
+      </Link>
+
 
       <div className="bg-muted px-4 py-3 flex gap-2">
         <button className="flex-1 bg-primary text-primary-foreground font-bold py-3 rounded-md flex items-center justify-center gap-2">

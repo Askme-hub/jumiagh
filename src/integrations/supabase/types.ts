@@ -257,6 +257,7 @@ export type Database = {
       }
       products: {
         Row: {
+          approval_status: string
           category: string | null
           created_at: string
           description: string | null
@@ -266,9 +267,11 @@ export type Database = {
           name: string
           old_price: number | null
           price: number
+          seller_id: string | null
           stock: number
         }
         Insert: {
+          approval_status?: string
           category?: string | null
           created_at?: string
           description?: string | null
@@ -278,9 +281,11 @@ export type Database = {
           name: string
           old_price?: number | null
           price: number
+          seller_id?: string | null
           stock?: number
         }
         Update: {
+          approval_status?: string
           category?: string | null
           created_at?: string
           description?: string | null
@@ -290,6 +295,7 @@ export type Database = {
           name?: string
           old_price?: number | null
           price?: number
+          seller_id?: string | null
           stock?: number
         }
         Relationships: []
@@ -312,6 +318,39 @@ export type Database = {
           display_name?: string | null
           email?: string | null
           id?: string
+        }
+        Relationships: []
+      }
+      seller_profiles: {
+        Row: {
+          bio: string | null
+          created_at: string
+          logo_url: string | null
+          phone: string | null
+          shop_name: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          logo_url?: string | null
+          phone?: string | null
+          shop_name: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          logo_url?: string | null
+          phone?: string | null
+          shop_name?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -347,7 +386,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "seller"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -475,7 +514,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "seller"],
     },
   },
 } as const

@@ -1,10 +1,10 @@
 import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tanstack/react-router";
-import { Package, ShoppingBag, Mail, ArrowLeft } from "lucide-react";
+import { Package, ShoppingBag, Mail, ArrowLeft, Store } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin")({
   component: AdminLayout,
-  head: () => ({ meta: [{ title: "Admin – Jumia Ghana" }] }),
+  head: () => ({ meta: [{ title: "Admin – Kivora" }] }),
   beforeLoad: async () => {
     if (typeof window === "undefined") return;
     const { data, error } = await supabase.auth.getUser();
@@ -24,8 +24,10 @@ function AdminLayout() {
   const tabs = [
     { to: "/admin/products" as const, label: "Products", icon: Package },
     { to: "/admin/orders" as const, label: "Orders", icon: ShoppingBag },
+    { to: "/admin/sellers" as const, label: "Sellers", icon: Store },
     { to: "/admin/messages" as const, label: "Messages", icon: Mail },
   ];
+
   return (
     <div>
       <div className="bg-primary text-primary-foreground px-4 py-3 flex items-center gap-3">

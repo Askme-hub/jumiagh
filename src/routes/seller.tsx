@@ -17,6 +17,7 @@ function SellerLayout() {
   const tabs = [
     { to: "/seller" as const, label: "Dashboard", icon: Store, exact: true },
     { to: "/seller/products" as const, label: "Products", icon: Package },
+    { to: "/seller/orders" as const, label: "Orders", icon: ShoppingBag },
     { to: "/seller/products/new" as const, label: "Add", icon: Plus },
     { to: "/seller/profile" as const, label: "Shop", icon: User },
   ];

@@ -36,6 +36,7 @@ import { Route as SellerProductsIndexRouteImport } from './routes/seller.product
 import { Route as SellerOrdersIndexRouteImport } from './routes/seller.orders.index'
 import { Route as SellerProductsNewRouteImport } from './routes/seller.products.new'
 import { Route as SellerProductsIdRouteImport } from './routes/seller.products.$id'
+import { Route as SellerOrdersIdRouteImport } from './routes/seller.orders.$id'
 import { Route as OrdersStatusIdRouteImport } from './routes/orders.status.$id'
 import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/public/paystack-webhook'
 
@@ -174,6 +175,11 @@ const SellerProductsIdRoute = SellerProductsIdRouteImport.update({
   path: '/products/$id',
   getParentRoute: () => SellerRoute,
 } as any)
+const SellerOrdersIdRoute = SellerOrdersIdRouteImport.update({
+  id: '/orders/$id',
+  path: '/orders/$id',
+  getParentRoute: () => SellerRoute,
+} as any)
 const OrdersStatusIdRoute = OrdersStatusIdRouteImport.update({
   id: '/status/$id',
   path: '/status/$id',
@@ -212,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/seller/': typeof SellerIndexRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/orders/status/$id': typeof OrdersStatusIdRoute
+  '/seller/orders/$id': typeof SellerOrdersIdRoute
   '/seller/products/$id': typeof SellerProductsIdRoute
   '/seller/products/new': typeof SellerProductsNewRoute
   '/seller/orders/': typeof SellerOrdersIndexRoute
@@ -240,6 +247,7 @@ export interface FileRoutesByTo {
   '/seller': typeof SellerIndexRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/orders/status/$id': typeof OrdersStatusIdRoute
+  '/seller/orders/$id': typeof SellerOrdersIdRoute
   '/seller/products/$id': typeof SellerProductsIdRoute
   '/seller/products/new': typeof SellerProductsNewRoute
   '/seller/orders': typeof SellerOrdersIndexRoute
@@ -272,6 +280,7 @@ export interface FileRoutesById {
   '/seller/': typeof SellerIndexRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/orders/status/$id': typeof OrdersStatusIdRoute
+  '/seller/orders/$id': typeof SellerOrdersIdRoute
   '/seller/products/$id': typeof SellerProductsIdRoute
   '/seller/products/new': typeof SellerProductsNewRoute
   '/seller/orders/': typeof SellerOrdersIndexRoute
@@ -305,6 +314,7 @@ export interface FileRouteTypes {
     | '/seller/'
     | '/api/public/paystack-webhook'
     | '/orders/status/$id'
+    | '/seller/orders/$id'
     | '/seller/products/$id'
     | '/seller/products/new'
     | '/seller/orders/'
@@ -333,6 +343,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/api/public/paystack-webhook'
     | '/orders/status/$id'
+    | '/seller/orders/$id'
     | '/seller/products/$id'
     | '/seller/products/new'
     | '/seller/orders'
@@ -364,6 +375,7 @@ export interface FileRouteTypes {
     | '/seller/'
     | '/api/public/paystack-webhook'
     | '/orders/status/$id'
+    | '/seller/orders/$id'
     | '/seller/products/$id'
     | '/seller/products/new'
     | '/seller/orders/'
@@ -579,6 +591,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerProductsIdRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/seller/orders/$id': {
+      id: '/seller/orders/$id'
+      path: '/orders/$id'
+      fullPath: '/seller/orders/$id'
+      preLoaderRoute: typeof SellerOrdersIdRouteImport
+      parentRoute: typeof SellerRoute
+    }
     '/orders/status/$id': {
       id: '/orders/status/$id'
       path: '/status/$id'
@@ -632,6 +651,7 @@ const OrdersRouteWithChildren =
 interface SellerRouteChildren {
   SellerProfileRoute: typeof SellerProfileRoute
   SellerIndexRoute: typeof SellerIndexRoute
+  SellerOrdersIdRoute: typeof SellerOrdersIdRoute
   SellerProductsIdRoute: typeof SellerProductsIdRoute
   SellerProductsNewRoute: typeof SellerProductsNewRoute
   SellerOrdersIndexRoute: typeof SellerOrdersIndexRoute
@@ -641,6 +661,7 @@ interface SellerRouteChildren {
 const SellerRouteChildren: SellerRouteChildren = {
   SellerProfileRoute: SellerProfileRoute,
   SellerIndexRoute: SellerIndexRoute,
+  SellerOrdersIdRoute: SellerOrdersIdRoute,
   SellerProductsIdRoute: SellerProductsIdRoute,
   SellerProductsNewRoute: SellerProductsNewRoute,
   SellerOrdersIndexRoute: SellerOrdersIndexRoute,

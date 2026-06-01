@@ -48,7 +48,7 @@ async function buildSellerOrders(userId: string, supabase: any, orderFilter?: st
     .from("orders").select("*").in("id", orderIds).order("created_at", { ascending: false });
   if (!orders) return [];
 
-  const userIds = [...new Set(orders.map((o: any) => o.user_id))];
+  const userIds = [...new Set(orders.map((o: any) => o.user_id))] as string[];
   const { data: profiles } = await supabaseAdmin
     .from("profiles").select("id, email, display_name").in("id", userIds);
   const pmap = new Map((profiles ?? []).map((p: any) => [p.id, p]));

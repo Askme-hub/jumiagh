@@ -43,7 +43,7 @@ async function buildSellerOrders(userId: string, supabase: any, orderFilter?: st
   const { data: items } = await itemsQ;
   if (!items || items.length === 0) return [];
 
-  const orderIds = [...new Set(items.map((i: any) => i.order_id))];
+  const orderIds = [...new Set(items.map((i: any) => i.order_id))] as string[];
   const { data: orders } = await supabase
     .from("orders").select("*").in("id", orderIds).order("created_at", { ascending: false });
   if (!orders) return [];

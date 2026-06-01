@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.set_order_item_seller() FROM PUBLIC, anon, authenticated;

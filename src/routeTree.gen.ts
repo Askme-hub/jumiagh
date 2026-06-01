@@ -33,8 +33,10 @@ import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminMessagesRouteImport } from './routes/admin.messages'
 import { Route as SellerProductsIndexRouteImport } from './routes/seller.products.index'
+import { Route as SellerOrdersIndexRouteImport } from './routes/seller.orders.index'
 import { Route as SellerProductsNewRouteImport } from './routes/seller.products.new'
 import { Route as SellerProductsIdRouteImport } from './routes/seller.products.$id'
+import { Route as SellerOrdersIdRouteImport } from './routes/seller.orders.$id'
 import { Route as OrdersStatusIdRouteImport } from './routes/orders.status.$id'
 import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/public/paystack-webhook'
 
@@ -158,6 +160,11 @@ const SellerProductsIndexRoute = SellerProductsIndexRouteImport.update({
   path: '/products/',
   getParentRoute: () => SellerRoute,
 } as any)
+const SellerOrdersIndexRoute = SellerOrdersIndexRouteImport.update({
+  id: '/orders/',
+  path: '/orders/',
+  getParentRoute: () => SellerRoute,
+} as any)
 const SellerProductsNewRoute = SellerProductsNewRouteImport.update({
   id: '/products/new',
   path: '/products/new',
@@ -166,6 +173,11 @@ const SellerProductsNewRoute = SellerProductsNewRouteImport.update({
 const SellerProductsIdRoute = SellerProductsIdRouteImport.update({
   id: '/products/$id',
   path: '/products/$id',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerOrdersIdRoute = SellerOrdersIdRouteImport.update({
+  id: '/orders/$id',
+  path: '/orders/$id',
   getParentRoute: () => SellerRoute,
 } as any)
 const OrdersStatusIdRoute = OrdersStatusIdRouteImport.update({
@@ -206,8 +218,10 @@ export interface FileRoutesByFullPath {
   '/seller/': typeof SellerIndexRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/orders/status/$id': typeof OrdersStatusIdRoute
+  '/seller/orders/$id': typeof SellerOrdersIdRoute
   '/seller/products/$id': typeof SellerProductsIdRoute
   '/seller/products/new': typeof SellerProductsNewRoute
+  '/seller/orders/': typeof SellerOrdersIndexRoute
   '/seller/products/': typeof SellerProductsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -233,8 +247,10 @@ export interface FileRoutesByTo {
   '/seller': typeof SellerIndexRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/orders/status/$id': typeof OrdersStatusIdRoute
+  '/seller/orders/$id': typeof SellerOrdersIdRoute
   '/seller/products/$id': typeof SellerProductsIdRoute
   '/seller/products/new': typeof SellerProductsNewRoute
+  '/seller/orders': typeof SellerOrdersIndexRoute
   '/seller/products': typeof SellerProductsIndexRoute
 }
 export interface FileRoutesById {
@@ -264,8 +280,10 @@ export interface FileRoutesById {
   '/seller/': typeof SellerIndexRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/orders/status/$id': typeof OrdersStatusIdRoute
+  '/seller/orders/$id': typeof SellerOrdersIdRoute
   '/seller/products/$id': typeof SellerProductsIdRoute
   '/seller/products/new': typeof SellerProductsNewRoute
+  '/seller/orders/': typeof SellerOrdersIndexRoute
   '/seller/products/': typeof SellerProductsIndexRoute
 }
 export interface FileRouteTypes {
@@ -296,8 +314,10 @@ export interface FileRouteTypes {
     | '/seller/'
     | '/api/public/paystack-webhook'
     | '/orders/status/$id'
+    | '/seller/orders/$id'
     | '/seller/products/$id'
     | '/seller/products/new'
+    | '/seller/orders/'
     | '/seller/products/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -323,8 +343,10 @@ export interface FileRouteTypes {
     | '/seller'
     | '/api/public/paystack-webhook'
     | '/orders/status/$id'
+    | '/seller/orders/$id'
     | '/seller/products/$id'
     | '/seller/products/new'
+    | '/seller/orders'
     | '/seller/products'
   id:
     | '__root__'
@@ -353,8 +375,10 @@ export interface FileRouteTypes {
     | '/seller/'
     | '/api/public/paystack-webhook'
     | '/orders/status/$id'
+    | '/seller/orders/$id'
     | '/seller/products/$id'
     | '/seller/products/new'
+    | '/seller/orders/'
     | '/seller/products/'
   fileRoutesById: FileRoutesById
 }
@@ -546,6 +570,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerProductsIndexRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/seller/orders/': {
+      id: '/seller/orders/'
+      path: '/orders'
+      fullPath: '/seller/orders/'
+      preLoaderRoute: typeof SellerOrdersIndexRouteImport
+      parentRoute: typeof SellerRoute
+    }
     '/seller/products/new': {
       id: '/seller/products/new'
       path: '/products/new'
@@ -558,6 +589,13 @@ declare module '@tanstack/react-router' {
       path: '/products/$id'
       fullPath: '/seller/products/$id'
       preLoaderRoute: typeof SellerProductsIdRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/orders/$id': {
+      id: '/seller/orders/$id'
+      path: '/orders/$id'
+      fullPath: '/seller/orders/$id'
+      preLoaderRoute: typeof SellerOrdersIdRouteImport
       parentRoute: typeof SellerRoute
     }
     '/orders/status/$id': {
@@ -613,16 +651,20 @@ const OrdersRouteWithChildren =
 interface SellerRouteChildren {
   SellerProfileRoute: typeof SellerProfileRoute
   SellerIndexRoute: typeof SellerIndexRoute
+  SellerOrdersIdRoute: typeof SellerOrdersIdRoute
   SellerProductsIdRoute: typeof SellerProductsIdRoute
   SellerProductsNewRoute: typeof SellerProductsNewRoute
+  SellerOrdersIndexRoute: typeof SellerOrdersIndexRoute
   SellerProductsIndexRoute: typeof SellerProductsIndexRoute
 }
 
 const SellerRouteChildren: SellerRouteChildren = {
   SellerProfileRoute: SellerProfileRoute,
   SellerIndexRoute: SellerIndexRoute,
+  SellerOrdersIdRoute: SellerOrdersIdRoute,
   SellerProductsIdRoute: SellerProductsIdRoute,
   SellerProductsNewRoute: SellerProductsNewRoute,
+  SellerOrdersIndexRoute: SellerOrdersIndexRoute,
   SellerProductsIndexRoute: SellerProductsIndexRoute,
 }
 
@@ -649,13 +691,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

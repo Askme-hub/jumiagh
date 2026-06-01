@@ -100,6 +100,7 @@ export type Database = {
       }
       order_items: {
         Row: {
+          fulfillment_status: string
           id: string
           image_url: string | null
           name: string
@@ -108,8 +109,10 @@ export type Database = {
           price: number
           product_id: string | null
           qty: number
+          seller_id: string | null
         }
         Insert: {
+          fulfillment_status?: string
           id?: string
           image_url?: string | null
           name: string
@@ -118,8 +121,10 @@ export type Database = {
           price: number
           product_id?: string | null
           qty: number
+          seller_id?: string | null
         }
         Update: {
+          fulfillment_status?: string
           id?: string
           image_url?: string | null
           name?: string
@@ -128,6 +133,7 @@ export type Database = {
           price?: number
           product_id?: string | null
           qty?: number
+          seller_id?: string | null
         }
         Relationships: [
           {
@@ -382,6 +388,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_order_seller: {
+        Args: { _order_id: string; _user_id: string }
         Returns: boolean
       }
     }

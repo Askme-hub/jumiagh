@@ -360,6 +360,90 @@ export type Database = {
         }
         Relationships: []
       }
+      seller_wallets: {
+        Row: {
+          balance: number
+          commission_paid: number
+          created_at: string
+          pending: number
+          total_earned: number
+          total_withdrawn: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          commission_paid?: number
+          created_at?: string
+          pending?: number
+          total_earned?: number
+          total_withdrawn?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          commission_paid?: number
+          created_at?: string
+          pending?: number
+          total_earned?: number
+          total_withdrawn?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          order_id: string | null
+          seller_id: string
+          status: string
+          type: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_id?: string | null
+          seller_id: string
+          status?: string
+          type: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_id?: string | null
+          seller_id?: string
+          status?: string
+          type?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -375,6 +459,42 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      withdrawal_requests: {
+        Row: {
+          account_details: string | null
+          admin_note: string | null
+          amount: number
+          created_at: string
+          id: string
+          method: string
+          seller_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          account_details?: string | null
+          admin_note?: string | null
+          amount: number
+          created_at?: string
+          id?: string
+          method: string
+          seller_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          account_details?: string | null
+          admin_note?: string | null
+          amount?: number
+          created_at?: string
+          id?: string
+          method?: string
+          seller_id?: string
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }

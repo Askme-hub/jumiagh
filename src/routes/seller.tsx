@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tanstack/react-router";
-import { Package, Store, ArrowLeft, Plus, User, ShoppingBag } from "lucide-react";
+import { Package, Store, ArrowLeft, Plus, User, ShoppingBag, Wallet } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/seller")({
@@ -18,6 +18,7 @@ function SellerLayout() {
     { to: "/seller" as const, label: "Dashboard", icon: Store, exact: true },
     { to: "/seller/products" as const, label: "Products", icon: Package },
     { to: "/seller/orders" as const, label: "Orders", icon: ShoppingBag },
+    { to: "/seller/wallet" as const, label: "Wallet", icon: Wallet },
     { to: "/seller/products/new" as const, label: "Add", icon: Plus },
     { to: "/seller/profile" as const, label: "Shop", icon: User },
   ];

@@ -24,10 +24,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as SellerWalletRouteImport } from './routes/seller.wallet'
 import { Route as SellerProfileRouteImport } from './routes/seller.profile'
 import { Route as ProductsIdRouteImport } from './routes/products.$id'
 import { Route as PaymentCallbackRouteImport } from './routes/payment.callback'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
+import { Route as AdminWithdrawalsRouteImport } from './routes/admin.withdrawals'
 import { Route as AdminSellersRouteImport } from './routes/admin.sellers'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
@@ -115,6 +117,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const SellerWalletRoute = SellerWalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => SellerRoute,
+} as any)
 const SellerProfileRoute = SellerProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -134,6 +141,11 @@ const OrdersIdRoute = OrdersIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => OrdersRoute,
+} as any)
+const AdminWithdrawalsRoute = AdminWithdrawalsRouteImport.update({
+  id: '/withdrawals',
+  path: '/withdrawals',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminSellersRoute = AdminSellersRouteImport.update({
   id: '/sellers',
@@ -209,10 +221,12 @@ export interface FileRoutesByFullPath {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/sellers': typeof AdminSellersRoute
+  '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/orders/$id': typeof OrdersIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
   '/seller/profile': typeof SellerProfileRoute
+  '/seller/wallet': typeof SellerWalletRoute
   '/admin/': typeof AdminIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/seller/': typeof SellerIndexRoute
@@ -238,10 +252,12 @@ export interface FileRoutesByTo {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/sellers': typeof AdminSellersRoute
+  '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/orders/$id': typeof OrdersIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
   '/seller/profile': typeof SellerProfileRoute
+  '/seller/wallet': typeof SellerWalletRoute
   '/admin': typeof AdminIndexRoute
   '/orders': typeof OrdersIndexRoute
   '/seller': typeof SellerIndexRoute
@@ -271,10 +287,12 @@ export interface FileRoutesById {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/sellers': typeof AdminSellersRoute
+  '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/orders/$id': typeof OrdersIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
   '/seller/profile': typeof SellerProfileRoute
+  '/seller/wallet': typeof SellerWalletRoute
   '/admin/': typeof AdminIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/seller/': typeof SellerIndexRoute
@@ -305,10 +323,12 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/products'
     | '/admin/sellers'
+    | '/admin/withdrawals'
     | '/orders/$id'
     | '/payment/callback'
     | '/products/$id'
     | '/seller/profile'
+    | '/seller/wallet'
     | '/admin/'
     | '/orders/'
     | '/seller/'
@@ -334,10 +354,12 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/products'
     | '/admin/sellers'
+    | '/admin/withdrawals'
     | '/orders/$id'
     | '/payment/callback'
     | '/products/$id'
     | '/seller/profile'
+    | '/seller/wallet'
     | '/admin'
     | '/orders'
     | '/seller'
@@ -366,10 +388,12 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/products'
     | '/admin/sellers'
+    | '/admin/withdrawals'
     | '/orders/$id'
     | '/payment/callback'
     | '/products/$id'
     | '/seller/profile'
+    | '/seller/wallet'
     | '/admin/'
     | '/orders/'
     | '/seller/'
@@ -507,6 +531,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/seller/wallet': {
+      id: '/seller/wallet'
+      path: '/wallet'
+      fullPath: '/seller/wallet'
+      preLoaderRoute: typeof SellerWalletRouteImport
+      parentRoute: typeof SellerRoute
+    }
     '/seller/profile': {
       id: '/seller/profile'
       path: '/profile'
@@ -534,6 +565,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/orders/$id'
       preLoaderRoute: typeof OrdersIdRouteImport
       parentRoute: typeof OrdersRoute
+    }
+    '/admin/withdrawals': {
+      id: '/admin/withdrawals'
+      path: '/withdrawals'
+      fullPath: '/admin/withdrawals'
+      preLoaderRoute: typeof AdminWithdrawalsRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/sellers': {
       id: '/admin/sellers'
@@ -620,6 +658,7 @@ interface AdminRouteChildren {
   AdminOrdersRoute: typeof AdminOrdersRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminSellersRoute: typeof AdminSellersRoute
+  AdminWithdrawalsRoute: typeof AdminWithdrawalsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -628,6 +667,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminOrdersRoute: AdminOrdersRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminSellersRoute: AdminSellersRoute,
+  AdminWithdrawalsRoute: AdminWithdrawalsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
@@ -650,6 +690,7 @@ const OrdersRouteWithChildren =
 
 interface SellerRouteChildren {
   SellerProfileRoute: typeof SellerProfileRoute
+  SellerWalletRoute: typeof SellerWalletRoute
   SellerIndexRoute: typeof SellerIndexRoute
   SellerOrdersIdRoute: typeof SellerOrdersIdRoute
   SellerProductsIdRoute: typeof SellerProductsIdRoute
@@ -660,6 +701,7 @@ interface SellerRouteChildren {
 
 const SellerRouteChildren: SellerRouteChildren = {
   SellerProfileRoute: SellerProfileRoute,
+  SellerWalletRoute: SellerWalletRoute,
   SellerIndexRoute: SellerIndexRoute,
   SellerOrdersIdRoute: SellerOrdersIdRoute,
   SellerProductsIdRoute: SellerProductsIdRoute,

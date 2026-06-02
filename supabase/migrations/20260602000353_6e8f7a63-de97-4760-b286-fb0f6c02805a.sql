@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.credit_seller_on_delivery() FROM PUBLIC, anon, authenticated;

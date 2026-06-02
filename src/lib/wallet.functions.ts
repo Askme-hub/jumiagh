@@ -26,7 +26,7 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
 
     const { data: wallet } = await supabaseAdmin
       .from("seller_wallets")
-      .select("balance")
+      .select("balance, pending")
       .eq("user_id", userId)
       .maybeSingle();
 

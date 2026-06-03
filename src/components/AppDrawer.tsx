@@ -181,7 +181,7 @@ export function MobileTopBar() {
   if (path === "/login") return null;
 
   return (
-    <header className="md:hidden sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border px-3 py-2.5 flex items-center gap-3">
+    <header className="md:hidden z-40 bg-background border-b border-border px-3 py-2.5 flex items-center gap-3">
       <AppDrawer />
       <Link to="/" className="flex items-center gap-2 flex-1 min-w-0">
         <img src={kivoraIcon} alt="Kivora" className="w-8 h-8 rounded-lg" />

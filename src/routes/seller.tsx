@@ -50,6 +50,7 @@ function SellerLayout() {
             </Link>
           );
         })}
+        </div>
       </div>
       <Outlet />
     </div>

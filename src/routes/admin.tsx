@@ -31,22 +31,28 @@ function AdminLayout() {
 
   return (
     <div>
-      <div className="bg-primary text-primary-foreground px-4 py-3 flex items-center gap-3">
+      <div className="bg-gradient-to-r from-zinc-900 to-zinc-700 text-white px-4 py-5 flex items-center gap-3 shadow-md">
         <Link to="/" aria-label="Back"><ArrowLeft size={22} /></Link>
-        <h1 className="font-bold">Admin Panel</h1>
+        <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center">
+          <Store size={20} />
+        </div>
+        <div>
+          <h1 className="font-extrabold text-lg leading-tight">Admin Panel</h1>
+          <p className="text-xs opacity-80">Platform management</p>
+        </div>
       </div>
-      <div className="flex border-b border-border bg-card">
+      <div className="sticky top-0 z-30 flex gap-1 border-b border-border bg-background/95 backdrop-blur-xl px-2 py-2 overflow-x-auto scrollbar-none">
         {tabs.map(({ to, label, icon: Icon }) => {
           const active = path.startsWith(to);
           return (
             <Link
               key={to}
               to={to}
-              className={`flex-1 py-3 flex flex-col items-center gap-0.5 text-xs font-semibold ${
-                active ? "text-primary border-b-2 border-primary" : "text-muted-foreground"
+              className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-xs font-semibold transition ${
+                active ? "bg-foreground text-background shadow" : "text-muted-foreground hover:bg-muted"
               }`}
             >
-              <Icon size={18} /> {label}
+              <Icon size={16} /> {label}
             </Link>
           );
         })}

@@ -7,7 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { BottomNav } from "@/components/BottomNav";
+import { MobileTopBar } from "@/components/AppDrawer";
 import { TopNav } from "@/components/TopNav";
 import { Preloader } from "@/components/Preloader";
 import { Toaster } from "@/components/ui/sonner";

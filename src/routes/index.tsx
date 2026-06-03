@@ -148,22 +148,8 @@ function Home() {
               </span>
             </div>
           </div>
-        </div>
-
-        {/* SLIDER DOTS */}
-        <div className="flex justify-center gap-1.5 mt-3">
-          {[0, 1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className={`h-1.5 rounded-full transition-all ${
-                i === 1
-                  ? "w-5 bg-[#ff7a00]"
-                  : "w-1.5 bg-gray-300"
-              }`}
-            />
-          ))}
-        </div>
       </div>
+
 
       {/* FLASH SALES */}
       <div className="mt-4 mx-3 bg-black text-white rounded-2xl p-4 flex items-center justify-between shadow-lg border border-orange-500/20">

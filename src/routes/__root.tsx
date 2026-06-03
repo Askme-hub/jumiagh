@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { MobileTopBar } from "@/components/AppDrawer";
 import { TopNav } from "@/components/TopNav";
+import { Footer } from "@/components/Footer";
 import { Preloader } from "@/components/Preloader";
 import { Toaster } from "@/components/ui/sonner";
 import { useState } from "react";

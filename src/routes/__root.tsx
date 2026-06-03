@@ -7,7 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { BottomNav } from "@/components/BottomNav";
+import { MobileTopBar } from "@/components/AppDrawer";
 import { TopNav } from "@/components/TopNav";
 import { Preloader } from "@/components/Preloader";
 import { Toaster } from "@/components/ui/sonner";
@@ -120,12 +120,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {loading && <Preloader onDone={() => setLoading(false)} />}
-      <div className="min-h-screen bg-background pb-20 md:pb-0">
+      <div className="min-h-screen bg-background">
+        <MobileTopBar />
         <TopNav />
         <main className="max-w-md md:max-w-7xl mx-auto md:px-4">
           <Outlet />
         </main>
-        <BottomNav />
       </div>
 
       <Toaster position="top-center" />

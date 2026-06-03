@@ -121,12 +121,13 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {loading && <Preloader onDone={() => setLoading(false)} />}
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen flex flex-col bg-background">
         <MobileTopBar />
         <TopNav />
-        <main className="max-w-md md:max-w-7xl mx-auto md:px-4">
+        <main className="flex-1 w-full max-w-md md:max-w-7xl mx-auto md:px-4">
           <Outlet />
         </main>
+        <Footer />
       </div>
 
       <Toaster position="top-center" />

@@ -57,6 +57,7 @@ function AdminLayout() {
             </Link>
           );
         })}
+        </div>
       </div>
       <Outlet />
     </div>

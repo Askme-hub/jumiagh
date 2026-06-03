@@ -41,7 +41,8 @@ function AdminLayout() {
           <p className="text-xs opacity-80">Platform management</p>
         </div>
       </div>
-      <div className="sticky top-0 z-30 flex gap-1 border-b border-border bg-background/95 backdrop-blur-xl px-2 py-2 overflow-x-auto scrollbar-none">
+      <div className="sticky top-14 md:top-[60px] z-30 flex gap-1 border-b border-border bg-background/95 backdrop-blur-xl px-2 py-2 overflow-x-auto scrollbar-none">
+        <div className="flex gap-1 min-w-max">
         {tabs.map(({ to, label, icon: Icon }) => {
           const active = path.startsWith(to);
           return (

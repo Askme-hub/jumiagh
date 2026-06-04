@@ -31,7 +31,7 @@ export const Route = createFileRoute("/api/public/paystack-webhook")({
           if (reference) {
             const { data: order } = await supabaseAdmin
               .from("orders")
-              .select("id, total, payment_status")
+              .select("id, total, payment_status, user_id, item_count, order_number")
               .eq("payment_reference", reference)
               .maybeSingle();
             if (order && order.payment_status !== "paid") {
@@ -45,6 +45,21 @@ export const Route = createFileRoute("/api/public/paystack-webhook")({
                     status: "placed",
                   })
                   .eq("id", order.id);
+
+                const orderRef = order.order_number ?? order.id.slice(0, 8);
+                const { data: existingMsg } = await supabaseAdmin
+                  .from("inbox_messages")
+                  .select("id")
+                  .eq("user_id", order.user_id)
+                  .eq("title", `Order #${orderRef} placed`)
+                  .maybeSingle();
+                if (!existingMsg) {
+                  await supabaseAdmin.from("inbox_messages").insert({
+                    user_id: order.user_id,
+                    title: `Order #${orderRef} placed`,
+                    body: `Thank you! Your order of ${order.item_count} item(s) totalling GH₵ ${Number(order.total).toFixed(2)} has been received and is being processed. We'll keep you updated on delivery.`,
+                  });
+                }
               }
             }
           }

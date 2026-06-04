@@ -147,42 +147,130 @@ function SellerWallet() {
         <StatCard label="Withdrawn" value={formatGHC(Number(wallet?.total_withdrawn ?? 0))} icon={ArrowDownToLine} color="text-muted-foreground" />
       </div>
 
+      {/* Saved payout accounts */}
       <section className="bg-card border border-border rounded-xl p-4">
-        <h2 className="font-bold flex items-center gap-2"><ArrowDownToLine size={18} /> Request Withdrawal</h2>
-        <form onSubmit={handleSubmit} className="mt-3 space-y-3">
-          <div>
-            <label className="text-xs font-medium text-muted-foreground">Amount (max {formatGHC(balance)})</label>
-            <input
-              type="number" min="1" step="0.01" value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="w-full mt-1 border-2 border-border focus:border-primary rounded-md px-3 py-2 outline-none"
-              placeholder="0.00"
-            />
+        <div className="flex items-center gap-2">
+          <CreditCard size={18} className="text-primary" />
+          <h2 className="font-bold flex-1">Payout Accounts</h2>
+          <button
+            onClick={() => setShowForm((s) => !s)}
+            className="text-primary text-xs font-bold flex items-center gap-1"
+          >
+            <Plus size={14} /> {showForm ? "Cancel" : "Add account"}
+          </button>
+        </div>
+
+        {accounts.length > 0 && (
+          <div className="mt-3 space-y-2">
+            {accounts.map((a) => {
+              const active = selectedAccount === a.id;
+              return (
+                <div
+                  key={a.id}
+                  className={`p-3 rounded-lg border-2 ${active ? "border-primary bg-primary/5" : "border-border"}`}
+                >
+                  <button onClick={() => setSelectedAccount(a.id)} className="w-full text-left flex gap-2">
+                    <div className="mt-0.5">
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${active ? "border-primary bg-primary" : "border-border"}`}>
+                        {active && <Check size={10} className="text-primary-foreground" />}
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold text-sm">{a.account_name}</p>
+                        {a.is_default && <span className="text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded font-semibold uppercase">Default</span>}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {a.method}{a.provider ? ` · ${a.provider}` : ""} · {a.account_number}
+                      </p>
+                    </div>
+                  </button>
+                  <div className="flex justify-end mt-1">
+                    <button
+                      onClick={() => {
+                        if (confirm("Remove this payout account?")) {
+                          deleteAccount.mutate(a.id, {
+                            onSuccess: () => { if (selectedAccount === a.id) setSelectedAccount(null); },
+                          });
+                        }
+                      }}
+                      className="text-destructive text-xs font-semibold flex items-center gap-1"
+                    >
+                      <Trash2 size={12} /> Remove
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <div>
-            <label className="text-xs font-medium text-muted-foreground">Payout method</label>
+        )}
+
+        {(showForm || accounts.length === 0) && (
+          <div className="mt-3 space-y-2 border-t border-border pt-3">
+            <p className="text-xs font-bold uppercase text-muted-foreground">New payout account</p>
             <select
               value={method} onChange={(e) => setMethod(e.target.value)}
-              className="w-full mt-1 border-2 border-border focus:border-primary rounded-md px-3 py-2 outline-none bg-background"
+              className="w-full border-2 border-border focus:border-primary rounded-md px-3 py-2 outline-none bg-background"
             >
               {METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
             </select>
-          </div>
-          <div>
-            <label className="text-xs font-medium text-muted-foreground">Account details</label>
             <input
-              value={details} onChange={(e) => setDetails(e.target.value)}
-              className="w-full mt-1 border-2 border-border focus:border-primary rounded-md px-3 py-2 outline-none"
-              placeholder="e.g. MoMo 024 000 0000 / Bank acct no."
+              value={accountName} onChange={(e) => setAccountName(e.target.value)}
+              className="w-full border-2 border-border focus:border-primary rounded-md px-3 py-2 outline-none"
+              placeholder="Account holder name"
             />
+            <input
+              value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)}
+              className="w-full border-2 border-border focus:border-primary rounded-md px-3 py-2 outline-none"
+              placeholder="Account / MoMo number"
+            />
+            <input
+              value={provider} onChange={(e) => setProvider(e.target.value)}
+              className="w-full border-2 border-border focus:border-primary rounded-md px-3 py-2 outline-none"
+              placeholder="Provider / Bank (e.g. MTN, GCB Bank)"
+            />
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={makeDefault} onChange={(e) => setMakeDefault(e.target.checked)} />
+              Set as default payout account
+            </label>
+            <button
+              onClick={addAccount}
+              disabled={saveAccount.isPending}
+              className="w-full bg-foreground text-background font-bold py-2.5 rounded-md disabled:opacity-60"
+            >
+              {saveAccount.isPending ? "Saving…" : "Save account"}
+            </button>
           </div>
-          <button
-            type="submit" disabled={busy || balance <= 0}
-            className="w-full bg-primary text-primary-foreground font-bold py-2.5 rounded-md disabled:opacity-60"
-          >
-            {busy ? "Submitting…" : "Request withdrawal"}
-          </button>
-        </form>
+        )}
+      </section>
+
+      {/* Request withdrawal */}
+      <section className="bg-card border border-border rounded-xl p-4">
+        <h2 className="font-bold flex items-center gap-2"><ArrowDownToLine size={18} /> Request Withdrawal</h2>
+        {accounts.length === 0 ? (
+          <p className="mt-2 text-sm text-muted-foreground">Add a payout account above to withdraw your earnings.</p>
+        ) : (
+          <form onSubmit={handleSubmit} className="mt-3 space-y-3">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Amount (max {formatGHC(balance)})</label>
+              <input
+                type="number" min="1" step="0.01" value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="w-full mt-1 border-2 border-border focus:border-primary rounded-md px-3 py-2 outline-none"
+                placeholder="0.00"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Funds will be sent to your selected payout account above.
+            </p>
+            <button
+              type="submit" disabled={busy || balance <= 0 || !selectedAccount}
+              className="w-full bg-primary text-primary-foreground font-bold py-2.5 rounded-md disabled:opacity-60"
+            >
+              {busy ? "Submitting…" : "Request withdrawal"}
+            </button>
+          </form>
+        )}
       </section>
 
       <section>

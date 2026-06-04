@@ -261,6 +261,42 @@ export type Database = {
           },
         ]
       }
+      payout_accounts: {
+        Row: {
+          account_name: string
+          account_number: string
+          created_at: string
+          id: string
+          is_default: boolean
+          method: string
+          provider: string | null
+          seller_id: string
+          updated_at: string
+        }
+        Insert: {
+          account_name: string
+          account_number: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          method: string
+          provider?: string | null
+          seller_id: string
+          updated_at?: string
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          method?: string
+          provider?: string | null
+          seller_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           approval_status: string

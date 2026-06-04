@@ -22,6 +22,7 @@ import { useAuth, useIsAdmin } from "@/hooks/use-auth";
 import { useIsSeller } from "@/hooks/use-seller";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import kivoraIcon from "@/assets/kivora-icon.png";
 
 const mainItems = [
@@ -149,7 +150,13 @@ export function AppDrawer() {
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-border p-3">
+        <div className="border-t border-border p-3 space-y-3">
+          <div>
+            <p className="px-1 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+              Appearance
+            </p>
+            <ThemeToggle />
+          </div>
           {user ? (
             <button
               onClick={logout}

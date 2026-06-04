@@ -5,8 +5,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const withdrawalSchema = z.object({
   amount: z.number().positive().max(10_000_000),
-  method: z.string().min(2).max(50),
-  account_details: z.string().min(2).max(500),
+  payout_account_id: z.string().uuid(),
 });
 
 // Seller requests a withdrawal — moves funds from balance to pending.
@@ -24,6 +23,17 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!isSeller) throw new Error("Only sellers can request withdrawals.");
 
+    const { data: account } = await supabaseAdmin
+      .from("payout_accounts")
+      .select("*")
+      .eq("id", data.payout_account_id)
+      .eq("seller_id", userId)
+      .maybeSingle();
+    if (!account) throw new Error("Select a valid saved payout account.");
+
+    const method = account.method;
+    const accountDetails = `${account.account_name} · ${account.account_number}${account.provider ? ` (${account.provider})` : ""}`;
+
     const { data: wallet } = await supabaseAdmin
       .from("seller_wallets")
       .select("balance, pending")
@@ -38,8 +48,8 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
       .insert({
         seller_id: userId,
         amount: data.amount,
-        method: data.method,
-        account_details: data.account_details,
+        method,
+        account_details: accountDetails,
         status: "pending",
       })
       .select()
@@ -60,7 +70,7 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
       type: "withdrawal_request",
       amount: -data.amount,
       status: "pending",
-      description: `Withdrawal request via ${data.method}`,
+      description: `Withdrawal request via ${method}`,
     });
 
     return { id: request.id };

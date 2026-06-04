@@ -1,13 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Wallet, ArrowDownToLine, Clock, TrendingUp } from "lucide-react";
+import { Wallet, ArrowDownToLine, Clock, TrendingUp, Plus, Trash2, Check, CreditCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatGHC } from "@/lib/store";
 import { requestWithdrawal } from "@/lib/wallet.functions";
+import {
+  usePayoutAccounts,
+  useSavePayoutAccount,
+  useDeletePayoutAccount,
+} from "@/lib/payout-accounts";
 
 export const Route = createFileRoute("/seller/wallet")({
   component: SellerWallet,
@@ -21,9 +26,20 @@ function SellerWallet() {
   const qc = useQueryClient();
   const submit = useServerFn(requestWithdrawal);
   const [amount, setAmount] = useState("");
-  const [method, setMethod] = useState(METHODS[0]);
-  const [details, setDetails] = useState("");
   const [busy, setBusy] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
+
+  // Add-account form
+  const [showForm, setShowForm] = useState(false);
+  const [method, setMethod] = useState(METHODS[0]);
+  const [accountName, setAccountName] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [provider, setProvider] = useState("");
+  const [makeDefault, setMakeDefault] = useState(true);
+
+  const { data: accounts = [] } = usePayoutAccounts();
+  const saveAccount = useSavePayoutAccount();
+  const deleteAccount = useDeletePayoutAccount();
 
   const { data: wallet } = useQuery({
     queryKey: ["seller-wallet", user?.id],
@@ -65,22 +81,53 @@ function SellerWallet() {
     },
   });
 
+  // Default selected account
+  useEffect(() => {
+    if (selectedAccount || accounts.length === 0) {
+      if (accounts.length === 0) setShowForm(true);
+      return;
+    }
+    const def = accounts.find((a) => a.is_default) ?? accounts[0];
+    setSelectedAccount(def.id);
+  }, [accounts, selectedAccount]);
+
   if (!user) return <div className="p-6 text-sm">Please log in.</div>;
 
   const balance = Number(wallet?.balance ?? 0);
+
+  const addAccount = async () => {
+    if (accountName.trim().length < 2) return toast.error("Enter the account holder name");
+    if (accountNumber.trim().length < 4) return toast.error("Enter a valid account / phone number");
+    try {
+      const saved = await saveAccount.mutateAsync({
+        method,
+        account_name: accountName.trim(),
+        account_number: accountNumber.trim(),
+        provider: provider.trim() || null,
+        is_default: makeDefault || accounts.length === 0,
+      });
+      setSelectedAccount(saved.id);
+      setAccountName("");
+      setAccountNumber("");
+      setProvider("");
+      setShowForm(false);
+      toast.success("Payout account saved");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Could not save account");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const amt = Number(amount);
     if (!amt || amt <= 0) return toast.error("Enter a valid amount");
     if (amt > balance) return toast.error("Amount exceeds available balance");
-    if (details.trim().length < 2) return toast.error("Enter your payout account details");
+    if (!selectedAccount) return toast.error("Select a saved payout account");
     setBusy(true);
     try {
-      await submit({ data: { amount: amt, method, account_details: details.trim() } });
+      await submit({ data: { amount: amt, payout_account_id: selectedAccount } });
       toast.success("Withdrawal request submitted");
       setAmount("");
-      setDetails("");
       qc.invalidateQueries({ queryKey: ["seller-wallet", user.id] });
       qc.invalidateQueries({ queryKey: ["seller-withdrawals", user.id] });
       qc.invalidateQueries({ queryKey: ["seller-txns", user.id] });

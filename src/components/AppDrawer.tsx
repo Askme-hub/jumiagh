@@ -149,7 +149,13 @@ export function AppDrawer() {
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-border p-3">
+        <div className="border-t border-border p-3 space-y-3">
+          <div>
+            <p className="px-1 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+              Appearance
+            </p>
+            <ThemeToggle />
+          </div>
           {user ? (
             <button
               onClick={logout}

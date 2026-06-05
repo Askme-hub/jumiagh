@@ -41,11 +41,11 @@ function ProductDetails() {
     <div className="pb-24">
       <PageHeader title="Product Details" />
 
-      <div className="bg-white">
-        <div className="relative aspect-square bg-gray-50">
+      <div className="bg-card">
+        <div className="relative aspect-square bg-muted">
           <img src={images[activeImg]} alt={product.name} className="w-full h-full object-contain p-4" />
           {product.discount && (
-            <div className="absolute top-3 left-3 bg-orange-100 text-orange-600 text-xs font-bold px-2 py-1 rounded">
+            <div className="absolute top-3 left-3 bg-primary/15 text-primary text-xs font-bold px-2 py-1 rounded">
               -{product.discount}%
             </div>
           )}

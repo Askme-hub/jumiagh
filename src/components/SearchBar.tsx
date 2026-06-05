@@ -68,7 +68,7 @@ export function SearchBar({
   }, [value]);
 
   return (
-    <div className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-zinc-200 px-4 py-3">
+    <div className="sticky top-0 z-50 bg-background/90 backdrop-blur-xl border-b border-border px-4 py-3">
       <div className="flex items-center gap-3">
         
         {/* BACK BUTTON */}
@@ -78,7 +78,7 @@ export function SearchBar({
               router.history.back()
             }
             aria-label="Back"
-            className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center shadow-md active:scale-95 transition"
+            className="w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center shadow-md active:scale-95 transition"
           >
             <ArrowLeft size={18} />
           </button>

@@ -13,7 +13,7 @@ import {
   LogIn,
   Wallet,
   Mail,
-  X,
+  Search,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";

@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useCategories } from "@/lib/categories";
 
 type ProductRow = {
   id?: string;

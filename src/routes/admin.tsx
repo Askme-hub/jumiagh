@@ -23,6 +23,7 @@ function AdminLayout() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const tabs = [
     { to: "/admin/products" as const, label: "Products", icon: Package },
+    { to: "/admin/categories" as const, label: "Categories", icon: LayoutGrid },
     { to: "/admin/orders" as const, label: "Orders", icon: ShoppingBag },
     { to: "/admin/sellers" as const, label: "Sellers", icon: Store },
     { to: "/admin/withdrawals" as const, label: "Payouts", icon: ArrowDownToLine },

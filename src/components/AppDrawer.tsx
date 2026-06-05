@@ -183,13 +183,14 @@ export function AppDrawer() {
 export function MobileTopBar() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const count = useShop((s) => s.cartCount());
+  const openSearch = useSearchUI((s) => s.setOpen);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
   if (path === "/login") return null;
 
   return (
-    <header className="md:hidden sticky top-0 z-40 h-14 bg-background border-b border-border px-3 flex items-center gap-3">
+    <header className="md:hidden sticky top-0 z-40 h-14 bg-background border-b border-border px-3 flex items-center gap-2">
       <AppDrawer />
       <Link to="/" className="flex items-center gap-2 flex-1 min-w-0">
         <img src={kivoraIcon} alt="Kivora" className="w-8 h-8 rounded-lg" />
@@ -197,6 +198,13 @@ export function MobileTopBar() {
           Kivora
         </span>
       </Link>
+      <button
+        onClick={() => openSearch(true)}
+        aria-label="Search"
+        className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-foreground active:scale-95 transition"
+      >
+        <Search size={20} />
+      </button>
       <Link
         to="/cart"
         aria-label="Cart"

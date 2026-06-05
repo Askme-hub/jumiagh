@@ -10,6 +10,7 @@ import {
 import { MobileTopBar } from "@/components/AppDrawer";
 import { TopNav } from "@/components/TopNav";
 import { Footer } from "@/components/Footer";
+import { SearchOverlay } from "@/components/SearchOverlay";
 import { Preloader } from "@/components/Preloader";
 import { Toaster } from "@/components/ui/sonner";
 import { themeInitScript } from "@/lib/theme";
@@ -126,6 +127,7 @@ function RootComponent() {
       <div className="min-h-screen flex flex-col bg-background">
         <MobileTopBar />
         <TopNav />
+        <SearchOverlay />
         <main className="flex-1 w-full max-w-md md:max-w-7xl mx-auto md:px-4">
           <Outlet />
         </main>

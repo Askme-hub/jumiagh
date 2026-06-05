@@ -12,7 +12,7 @@ const baseItems = [
   { to: "/categories" as const, label: "Categories", icon: LayoutGrid },
   { to: "/orders" as const, label: "Orders", icon: Package },
   { to: "/wishlist" as const, label: "Wishlist", icon: Heart },
-  { to: "/inbox" as const, label: "Inbox", icon: UserCircle2 },
+  { to: "/inbox" as const, label: "Inbox", icon: Mail },
   { to: "/account" as const, label: "Account", icon: UserCircle2 },
 ];
 

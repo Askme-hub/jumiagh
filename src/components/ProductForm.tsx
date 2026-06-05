@@ -142,7 +142,24 @@ export function ProductForm({
         <Input label="Stock" value={stock} onChange={setStock} type="number" />
         <Input label="Discount %" value={discount} onChange={setDiscount} type="number" />
       </div>
-      <Input label="Category" value={category} onChange={setCategory} placeholder="e.g. Electronics" />
+      <div>
+        <label className="text-xs font-semibold text-muted-foreground">Category</label>
+        <select
+          value={category ?? ""}
+          onChange={(e) => setCategory(e.target.value)}
+          className="mt-1 w-full border border-input bg-background text-foreground rounded px-3 py-2 text-sm"
+        >
+          <option value="">Select a category…</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.name}>
+              {c.name}
+            </option>
+          ))}
+          {category && !categories.some((c) => c.name === category) && (
+            <option value={category}>{category} (legacy)</option>
+          )}
+        </select>
+      </div>
       <div>
         <label className="text-xs font-semibold text-muted-foreground">Description</label>
         <textarea

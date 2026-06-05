@@ -28,6 +28,7 @@ export function ProductForm({
   asAdmin?: boolean;
 }) {
   const { user } = useAuth();
+  const { data: categories = [] } = useCategories();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState(initial?.name ?? "");

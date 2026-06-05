@@ -21,7 +21,6 @@ function Categories() {
 
   return (
     <div>
-      <SearchBar />
       <div className="flex border-t border-border" style={{ minHeight: "calc(100vh - 130px)" }}>
         <aside className="w-28 bg-muted shrink-0">
           {isLoading ? (

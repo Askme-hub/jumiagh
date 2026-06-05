@@ -51,7 +51,7 @@ function ProductDetails() {
           )}
           <button
             onClick={() => { toggleWishlist(product); toast.success(wished ? "Removed from wishlist" : "Added to wishlist"); }}
-            className="absolute top-3 right-3 bg-white shadow rounded-full p-2"
+            className="absolute top-3 right-3 bg-card shadow rounded-full p-2 text-foreground"
           >
             <Heart size={18} fill={wished ? "currentColor" : "none"} className={wished ? "text-primary" : ""} />
           </button>

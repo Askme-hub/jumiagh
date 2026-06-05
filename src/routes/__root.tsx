@@ -127,6 +127,7 @@ function RootComponent() {
       <div className="min-h-screen flex flex-col bg-background">
         <MobileTopBar />
         <TopNav />
+        <SearchOverlay />
         <main className="flex-1 w-full max-w-md md:max-w-7xl mx-auto md:px-4">
           <Outlet />
         </main>

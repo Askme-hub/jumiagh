@@ -10,6 +10,7 @@ import {
 import { MobileTopBar } from "@/components/AppDrawer";
 import { TopNav } from "@/components/TopNav";
 import { Footer } from "@/components/Footer";
+import { SearchOverlay } from "@/components/SearchOverlay";
 import { Preloader } from "@/components/Preloader";
 import { Toaster } from "@/components/ui/sonner";
 import { themeInitScript } from "@/lib/theme";

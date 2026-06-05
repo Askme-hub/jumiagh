@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, LayoutGrid, ShoppingCart, Heart, UserCircle2, Package, Store, Shield, Search } from "lucide-react";
+import { Home, LayoutGrid, ShoppingCart, Heart, UserCircle2, Package, Store, Shield, Search, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useShop } from "@/lib/store";
 import { useAuth, useIsAdmin } from "@/hooks/use-auth";

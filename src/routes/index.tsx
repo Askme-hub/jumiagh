@@ -5,10 +5,9 @@ import { Zap, Phone, ChevronRight } from "lucide-react";
 
 import { ProductCard } from "@/components/ProductCard";
 
-import { useProducts } from "@/lib/products";
+import { useProducts, toProduct, type DbProduct } from "@/lib/products";
 import { useCategories } from "@/lib/categories";
 import { supabase } from "@/integrations/supabase/client";
-import { toProduct, type DbProduct } from "@/lib/products";
 import type { Product } from "@/lib/store";
 
 import banner from "@/assets/banner-anniversary.jpg";

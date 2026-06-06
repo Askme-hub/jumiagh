@@ -131,8 +131,13 @@
   /* SUCCESS */
   --success: oklch(0.68 0.18 145);
 
-  /* FLASH SALES */
-  --flash: oklch(0.7 0.2 40);
+  /* FLASH SALES (Jumia crimson) */
+  --flash: oklch(0.55 0.22 22);
+  --flash-foreground: oklch(1 0 0);
+
+  /* TEAL SECTION BANDS (Jumia) */
+  --teal: oklch(0.82 0.07 205);
+  --teal-foreground: oklch(0.25 0.05 230);
 
   /* BORDERS */
   --border: oklch(0.9 0.003 40);

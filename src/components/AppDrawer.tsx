@@ -110,48 +110,69 @@ export function AppDrawer() {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-          {mainItems.map(({ to, label, icon, exact }) => {
-            const active = exact ? path === to : path.startsWith(to);
-            return (
-              <NavLink key={to} to={to} label={label} icon={icon} active={active} />
-            );
-          })}
+        <nav className="flex-1 overflow-y-auto py-2">
+          <NavLink to="/" label="Home" icon={Home} active={path === "/"} />
+          <NavLink to="/account" label="My Account" icon={UserCircle2} active={path.startsWith("/account")} />
+
+          <SectionLabel>My Kivora Account</SectionLabel>
+          <div className="px-2 space-y-0.5">
+            {accountItems.map(({ to, label, icon }) => (
+              <NavLink key={to} to={to} label={label} icon={icon} active={path.startsWith(to)} />
+            ))}
+          </div>
+
+          <SectionLabel
+            action={
+              <Link to="/categories" className="text-xs font-semibold text-primary">
+                See All
+              </Link>
+            }
+          >
+            Our Categories
+          </SectionLabel>
+          <div className="px-2 space-y-0.5">
+            {categories.length === 0 ? (
+              <NavLink to="/categories" label="All Categories" icon={LayoutGrid} active={path.startsWith("/categories")} />
+            ) : (
+              categories.slice(0, 10).map((c) => (
+                <Link
+                  key={c.id}
+                  to="/categories"
+                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-muted transition"
+                >
+                  <Tag size={18} className="text-muted-foreground" />
+                  {c.name}
+                </Link>
+              ))
+            )}
+          </div>
+
+          <SectionLabel>Our Services</SectionLabel>
+          <div className="px-2 space-y-0.5">
+            <NavLink to="/seller" label="Sell on Kivora" icon={Store} active={path.startsWith("/seller")} />
+            <NavLink to="/inbox" label="Help Center" icon={HelpCircle} active={false} />
+          </div>
 
           {isSeller && (
             <>
-              <p className="px-3 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Seller
-              </p>
-              <NavLink
-                to="/seller"
-                label="Seller Hub"
-                icon={Store}
-                active={path.startsWith("/seller")}
-              />
-              <NavLink
-                to="/seller/wallet"
-                label="Wallet"
-                icon={Wallet}
-                active={path.startsWith("/seller/wallet")}
-              />
+              <SectionLabel>Seller</SectionLabel>
+              <div className="px-2 space-y-0.5">
+                <NavLink to="/seller" label="Seller Hub" icon={Store} active={path.startsWith("/seller")} />
+                <NavLink to="/seller/wallet" label="Wallet" icon={Wallet} active={path.startsWith("/seller/wallet")} />
+              </div>
             </>
           )}
 
           {isAdmin && (
             <>
-              <p className="px-3 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Admin
-              </p>
-              <NavLink
-                to="/admin"
-                label="Admin Panel"
-                icon={Shield}
-                active={path.startsWith("/admin")}
-              />
+              <SectionLabel>Admin</SectionLabel>
+              <div className="px-2 space-y-0.5">
+                <NavLink to="/admin" label="Admin Panel" icon={Shield} active={path.startsWith("/admin")} />
+              </div>
             </>
           )}
         </nav>
+
 
         {/* Footer */}
         <div className="border-t border-border p-3 space-y-3">

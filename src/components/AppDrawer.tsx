@@ -37,6 +37,23 @@ const accountItems = [
   { to: "/cart" as const, label: "Cart", icon: ShoppingCart },
 ];
 
+function SectionLabel({
+  children,
+  action,
+}: {
+  children: React.ReactNode;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className="mt-3 mb-1 flex items-center justify-between border-t border-border px-5 pt-3">
+      <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+        {children}
+      </p>
+      {action}
+    </div>
+  );
+}
+
 
 export function AppDrawer() {
   const [open, setOpen] = useState(false);

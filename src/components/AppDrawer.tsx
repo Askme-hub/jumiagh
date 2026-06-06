@@ -128,8 +128,11 @@ export function AppDrawer() {
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto py-2">
-          <NavLink to="/" label="Home" icon={Home} active={path === "/"} />
-          <NavLink to="/account" label="My Account" icon={UserCircle2} active={path.startsWith("/account")} />
+          <div className="px-2 space-y-0.5">
+            <NavLink to="/" label="Home" icon={Home} active={path === "/"} />
+            <NavLink to="/account" label="My Account" icon={UserCircle2} active={path.startsWith("/account")} />
+          </div>
+
 
           <SectionLabel>My Kivora Account</SectionLabel>
           <div className="px-2 space-y-0.5">

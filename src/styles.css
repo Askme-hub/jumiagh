@@ -75,6 +75,9 @@
   --color-primary-soft: var(--primary-soft);
   --color-success: var(--success);
   --color-flash: var(--flash);
+  --color-flash-foreground: var(--flash-foreground);
+  --color-teal: var(--teal);
+  --color-teal-foreground: var(--teal-foreground);
 
   --font-sans: "Inter", system-ui, sans-serif;
 }

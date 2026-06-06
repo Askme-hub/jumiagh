@@ -179,7 +179,7 @@ export function AppDrawer() {
   );
 }
 
-/** Mobile top bar with hamburger + brand + cart. */
+/** Mobile top bar with hamburger + brand + cart + always-visible search pill. */
 export function MobileTopBar() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const count = useShop((s) => s.cartCount());
@@ -190,33 +190,46 @@ export function MobileTopBar() {
   if (path === "/login") return null;
 
   return (
-    <header className="md:hidden sticky top-0 z-40 h-14 bg-background border-b border-border px-3 flex items-center gap-2">
-      <AppDrawer />
-      <Link to="/" className="flex items-center gap-2 flex-1 min-w-0">
-        <img src={kivoraIcon} alt="Kivora" className="w-8 h-8 rounded-lg" />
-        <span className="text-lg font-extrabold tracking-tight text-primary">
-          Kivora
-        </span>
-      </Link>
-      <button
-        onClick={() => openSearch(true)}
-        aria-label="Search"
-        className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-foreground active:scale-95 transition"
-      >
-        <Search size={20} />
-      </button>
-      <Link
-        to="/cart"
-        aria-label="Cart"
-        className="relative w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-foreground active:scale-95 transition"
-      >
-        <ShoppingCart size={20} />
-        {mounted && count > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
-            {count}
+    <header className="md:hidden sticky top-0 z-40 bg-background border-b border-border">
+      <div className="h-14 px-3 flex items-center gap-2">
+        <AppDrawer />
+        <Link to="/" className="flex items-center gap-2 flex-1 min-w-0">
+          <img src={kivoraIcon} alt="Kivora" className="w-8 h-8 rounded-lg" />
+          <span className="text-lg font-extrabold tracking-tight text-primary">
+            Kivora
           </span>
-        )}
-      </Link>
+        </Link>
+        <Link
+          to="/account"
+          aria-label="Account"
+          className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-foreground active:scale-95 transition"
+        >
+          <UserCircle2 size={20} />
+        </Link>
+        <Link
+          to="/cart"
+          aria-label="Cart"
+          className="relative w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-foreground active:scale-95 transition"
+        >
+          <ShoppingCart size={20} />
+          {mounted && count > 0 && (
+            <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+              {count}
+            </span>
+          )}
+        </Link>
+      </div>
+      <div className="px-3 pb-2.5">
+        <button
+          onClick={() => openSearch(true)}
+          className="w-full flex items-center gap-3 rounded-full bg-muted px-4 py-2.5 text-left active:scale-[0.99] transition"
+        >
+          <Search size={18} className="text-muted-foreground shrink-0" />
+          <span className="text-sm text-muted-foreground truncate">
+            Search products, brands and categories
+          </span>
+        </button>
+      </div>
     </header>
   );
 }

@@ -14,9 +14,9 @@ import {
   Wallet,
   Mail,
   Search,
-  ChevronRight,
   HelpCircle,
   Tag,
+
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";

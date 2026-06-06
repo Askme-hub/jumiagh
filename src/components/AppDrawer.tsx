@@ -44,6 +44,7 @@ export function AppDrawer() {
   const router = useRouter();
   const { user } = useAuth();
   const { data: isAdmin } = useIsAdmin(user);
+  const { data: categories = [] } = useCategories();
   const { data: isSeller } = useIsSeller(user);
 
   // close on route change

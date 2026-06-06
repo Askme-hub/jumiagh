@@ -14,27 +14,46 @@ import {
   Wallet,
   Mail,
   Search,
+  HelpCircle,
+  Tag,
+
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useShop } from "@/lib/store";
 import { useAuth, useIsAdmin } from "@/hooks/use-auth";
 import { useIsSeller } from "@/hooks/use-seller";
+import { useCategories } from "@/lib/categories";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useSearchUI } from "@/lib/search-ui";
 import kivoraIcon from "@/assets/kivora-icon.png";
 
-const mainItems = [
-  { to: "/" as const, label: "Home", icon: Home, exact: true },
-  { to: "/categories" as const, label: "Categories", icon: LayoutGrid },
-  { to: "/orders" as const, label: "My Orders", icon: Package },
-  { to: "/wishlist" as const, label: "Wishlist", icon: Heart },
+const accountItems = [
+  { to: "/orders" as const, label: "Orders", icon: Package },
   { to: "/inbox" as const, label: "Inbox", icon: Mail },
+  { to: "/wishlist" as const, label: "Wishlist", icon: Heart },
   { to: "/cart" as const, label: "Cart", icon: ShoppingCart },
-  { to: "/account" as const, label: "Account", icon: UserCircle2 },
 ];
+
+function SectionLabel({
+  children,
+  action,
+}: {
+  children: React.ReactNode;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className="mt-3 mb-1 flex items-center justify-between border-t border-border px-5 pt-3">
+      <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+        {children}
+      </p>
+      {action}
+    </div>
+  );
+}
+
 
 export function AppDrawer() {
   const [open, setOpen] = useState(false);
@@ -42,6 +61,7 @@ export function AppDrawer() {
   const router = useRouter();
   const { user } = useAuth();
   const { data: isAdmin } = useIsAdmin(user);
+  const { data: categories = [] } = useCategories();
   const { data: isSeller } = useIsSeller(user);
 
   // close on route change
@@ -107,48 +127,72 @@ export function AppDrawer() {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-          {mainItems.map(({ to, label, icon, exact }) => {
-            const active = exact ? path === to : path.startsWith(to);
-            return (
-              <NavLink key={to} to={to} label={label} icon={icon} active={active} />
-            );
-          })}
+        <nav className="flex-1 overflow-y-auto py-2">
+          <div className="px-2 space-y-0.5">
+            <NavLink to="/" label="Home" icon={Home} active={path === "/"} />
+            <NavLink to="/account" label="My Account" icon={UserCircle2} active={path.startsWith("/account")} />
+          </div>
+
+
+          <SectionLabel>My Kivora Account</SectionLabel>
+          <div className="px-2 space-y-0.5">
+            {accountItems.map(({ to, label, icon }) => (
+              <NavLink key={to} to={to} label={label} icon={icon} active={path.startsWith(to)} />
+            ))}
+          </div>
+
+          <SectionLabel
+            action={
+              <Link to="/categories" className="text-xs font-semibold text-primary">
+                See All
+              </Link>
+            }
+          >
+            Our Categories
+          </SectionLabel>
+          <div className="px-2 space-y-0.5">
+            {categories.length === 0 ? (
+              <NavLink to="/categories" label="All Categories" icon={LayoutGrid} active={path.startsWith("/categories")} />
+            ) : (
+              categories.slice(0, 10).map((c) => (
+                <Link
+                  key={c.id}
+                  to="/categories"
+                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-muted transition"
+                >
+                  <Tag size={18} className="text-muted-foreground" />
+                  {c.name}
+                </Link>
+              ))
+            )}
+          </div>
+
+          <SectionLabel>Our Services</SectionLabel>
+          <div className="px-2 space-y-0.5">
+            <NavLink to="/seller" label="Sell on Kivora" icon={Store} active={path.startsWith("/seller")} />
+            <NavLink to="/inbox" label="Help Center" icon={HelpCircle} active={false} />
+          </div>
 
           {isSeller && (
             <>
-              <p className="px-3 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Seller
-              </p>
-              <NavLink
-                to="/seller"
-                label="Seller Hub"
-                icon={Store}
-                active={path.startsWith("/seller")}
-              />
-              <NavLink
-                to="/seller/wallet"
-                label="Wallet"
-                icon={Wallet}
-                active={path.startsWith("/seller/wallet")}
-              />
+              <SectionLabel>Seller</SectionLabel>
+              <div className="px-2 space-y-0.5">
+                <NavLink to="/seller" label="Seller Hub" icon={Store} active={path.startsWith("/seller")} />
+                <NavLink to="/seller/wallet" label="Wallet" icon={Wallet} active={path.startsWith("/seller/wallet")} />
+              </div>
             </>
           )}
 
           {isAdmin && (
             <>
-              <p className="px-3 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Admin
-              </p>
-              <NavLink
-                to="/admin"
-                label="Admin Panel"
-                icon={Shield}
-                active={path.startsWith("/admin")}
-              />
+              <SectionLabel>Admin</SectionLabel>
+              <div className="px-2 space-y-0.5">
+                <NavLink to="/admin" label="Admin Panel" icon={Shield} active={path.startsWith("/admin")} />
+              </div>
             </>
           )}
         </nav>
+
 
         {/* Footer */}
         <div className="border-t border-border p-3 space-y-3">
@@ -179,7 +223,7 @@ export function AppDrawer() {
   );
 }
 
-/** Mobile top bar with hamburger + brand + cart. */
+/** Mobile top bar with hamburger + brand + cart + always-visible search pill. */
 export function MobileTopBar() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const count = useShop((s) => s.cartCount());
@@ -190,33 +234,46 @@ export function MobileTopBar() {
   if (path === "/login") return null;
 
   return (
-    <header className="md:hidden sticky top-0 z-40 h-14 bg-background border-b border-border px-3 flex items-center gap-2">
-      <AppDrawer />
-      <Link to="/" className="flex items-center gap-2 flex-1 min-w-0">
-        <img src={kivoraIcon} alt="Kivora" className="w-8 h-8 rounded-lg" />
-        <span className="text-lg font-extrabold tracking-tight text-primary">
-          Kivora
-        </span>
-      </Link>
-      <button
-        onClick={() => openSearch(true)}
-        aria-label="Search"
-        className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-foreground active:scale-95 transition"
-      >
-        <Search size={20} />
-      </button>
-      <Link
-        to="/cart"
-        aria-label="Cart"
-        className="relative w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-foreground active:scale-95 transition"
-      >
-        <ShoppingCart size={20} />
-        {mounted && count > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
-            {count}
+    <header className="md:hidden sticky top-0 z-40 bg-background border-b border-border">
+      <div className="h-14 px-3 flex items-center gap-2">
+        <AppDrawer />
+        <Link to="/" className="flex items-center gap-2 flex-1 min-w-0">
+          <img src={kivoraIcon} alt="Kivora" className="w-8 h-8 rounded-lg" />
+          <span className="text-lg font-extrabold tracking-tight text-primary">
+            Kivora
           </span>
-        )}
-      </Link>
+        </Link>
+        <Link
+          to="/account"
+          aria-label="Account"
+          className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-foreground active:scale-95 transition"
+        >
+          <UserCircle2 size={20} />
+        </Link>
+        <Link
+          to="/cart"
+          aria-label="Cart"
+          className="relative w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-foreground active:scale-95 transition"
+        >
+          <ShoppingCart size={20} />
+          {mounted && count > 0 && (
+            <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+              {count}
+            </span>
+          )}
+        </Link>
+      </div>
+      <div className="px-3 pb-2.5">
+        <button
+          onClick={() => openSearch(true)}
+          className="w-full flex items-center gap-3 rounded-full bg-muted px-4 py-2.5 text-left active:scale-[0.99] transition"
+        >
+          <Search size={18} className="text-muted-foreground shrink-0" />
+          <span className="text-sm text-muted-foreground truncate">
+            Search products, brands and categories
+          </span>
+        </button>
+      </div>
     </header>
   );
 }

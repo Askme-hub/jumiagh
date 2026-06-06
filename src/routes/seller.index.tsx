@@ -103,15 +103,48 @@ function Stat({ label, value, icon: Icon, color }: { label: string; value: any; 
   );
 }
 
+const STEPS = ["Country", "Account", "Personal", "Review"];
+
+function Stepper({ step }: { step: number }) {
+  return (
+    <div className="flex items-center gap-1 mb-6">
+      {STEPS.map((_, i) => (
+        <div key={i} className="flex items-center flex-1 last:flex-none">
+          <div
+            className={`w-3.5 h-3.5 rounded-full transition ${
+              i <= step ? "bg-primary" : "bg-muted border border-border"
+            }`}
+          />
+          {i < STEPS.length - 1 && (
+            <div
+              className={`h-1 flex-1 rounded-full transition ${
+                i < step ? "bg-primary" : "bg-muted"
+              }`}
+            />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function ApplyForm({ userId, onApplied }: { userId: string; onApplied: () => void }) {
+  const { user } = useAuth();
+  const [step, setStep] = useState(0);
+  const [country, setCountry] = useState("Ghana");
   const [shop, setShop] = useState("");
-  const [bio, setBio] = useState("");
   const [phone, setPhone] = useState("");
+  const [bio, setBio] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const apply = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!shop.trim()) return toast.error("Shop name is required");
+  const next = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
+  const back = () => setStep((s) => Math.max(s - 1, 0));
+
+  const apply = async () => {
+    if (!shop.trim()) {
+      setStep(1);
+      return toast.error("Shop name is required");
+    }
     setBusy(true);
     const { error } = await supabase.from("seller_profiles").insert({
       user_id: userId,
@@ -126,41 +159,155 @@ function ApplyForm({ userId, onApplied }: { userId: string; onApplied: () => voi
     onApplied();
   };
 
+  const titles = [
+    { h: "Sell on Kivora", s: "Choose the country of your shop" },
+    { h: "Setup your account", s: "Provide your shop name and email" },
+    { h: "Personal Information", s: "Add your contact details" },
+    { h: "Review & submit", s: "Confirm your details to finish" },
+  ];
+
+  const field =
+    "w-full border-2 border-border focus:border-primary rounded-xl px-4 py-3 outline-none bg-card transition";
+
   return (
-    <div className="p-6 max-w-md mx-auto">
-      <h2 className="text-2xl font-bold">Become a Kivora Seller</h2>
-      <p className="text-muted-foreground text-sm mt-1">
-        Apply to sell on Kivora. Once approved, you can upload products for review.
-      </p>
-      <form onSubmit={apply} className="mt-5 space-y-3">
-        <input
-          required
-          placeholder="Shop name *"
-          value={shop}
-          onChange={(e) => setShop(e.target.value)}
-          className="w-full border-2 border-border focus:border-primary rounded-md px-4 py-3 outline-none"
-        />
-        <input
-          placeholder="Phone (e.g. 024 000 0000)"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="w-full border-2 border-border focus:border-primary rounded-md px-4 py-3 outline-none"
-        />
-        <textarea
-          placeholder="Tell buyers about your shop"
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
-          rows={4}
-          className="w-full border-2 border-border focus:border-primary rounded-md px-4 py-3 outline-none"
-        />
-        <button
-          type="submit"
-          disabled={busy}
-          className="w-full bg-primary text-primary-foreground font-bold py-3 rounded-md disabled:opacity-60"
-        >
-          {busy ? "Submitting…" : "Submit application"}
-        </button>
-      </form>
+    <div className="p-4 max-w-md mx-auto">
+      <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
+        <Stepper step={step} />
+        <h2 className="text-2xl font-extrabold text-foreground">{titles[step].h}</h2>
+        <p className="text-muted-foreground text-sm mt-1">{titles[step].s}</p>
+
+        <div className="mt-5 space-y-3">
+          {step === 0 && (
+            <label className="block">
+              <span className="text-xs font-semibold text-muted-foreground">
+                Select your country *
+              </span>
+              <select
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                className={`${field} mt-1`}
+              >
+                <option>Ghana</option>
+                <option>Nigeria</option>
+                <option>Kenya</option>
+                <option>Côte d'Ivoire</option>
+              </select>
+              <p className="text-xs text-muted-foreground mt-2">
+                Only for sellers registered &amp; selling in their own country.
+              </p>
+            </label>
+          )}
+
+          {step === 1 && (
+            <>
+              <label className="block">
+                <span className="text-xs font-semibold text-muted-foreground">
+                  Email Address *
+                </span>
+                <input
+                  value={user?.email ?? ""}
+                  readOnly
+                  className={`${field} mt-1 bg-muted text-muted-foreground`}
+                />
+              </label>
+              <label className="block">
+                <span className="text-xs font-semibold text-muted-foreground">
+                  Shop name *
+                </span>
+                <input
+                  placeholder="e.g. Kofi Electronics"
+                  value={shop}
+                  onChange={(e) => setShop(e.target.value)}
+                  className={`${field} mt-1`}
+                />
+              </label>
+            </>
+          )}
+
+          {step === 2 && (
+            <>
+              <label className="block">
+                <span className="text-xs font-semibold text-muted-foreground">
+                  Phone number
+                </span>
+                <div className="mt-1 flex gap-2">
+                  <span className="flex items-center px-4 rounded-xl border-2 border-border bg-muted font-semibold text-sm">
+                    +233
+                  </span>
+                  <input
+                    placeholder="24 000 0000"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className={field}
+                  />
+                </div>
+              </label>
+              <label className="block">
+                <span className="text-xs font-semibold text-muted-foreground">
+                  About your shop
+                </span>
+                <textarea
+                  placeholder="Tell buyers about your shop"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  rows={4}
+                  className={`${field} mt-1`}
+                />
+              </label>
+            </>
+          )}
+
+          {step === 3 && (
+            <div className="space-y-2 text-sm">
+              <Row label="Country" value={country} />
+              <Row label="Email" value={user?.email ?? "—"} />
+              <Row label="Shop name" value={shop || "—"} />
+              <Row label="Phone" value={phone ? `+233 ${phone}` : "—"} />
+              <p className="text-xs text-muted-foreground pt-2">
+                Once submitted, an admin will review and approve your shop.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-6 flex gap-3">
+          {step > 0 && (
+            <button
+              onClick={back}
+              className="flex-1 border-2 border-border rounded-xl py-3 font-bold text-foreground hover:bg-muted transition"
+            >
+              Back
+            </button>
+          )}
+          {step < STEPS.length - 1 ? (
+            <button
+              onClick={next}
+              disabled={step === 1 && !shop.trim()}
+              className="flex-1 bg-primary text-primary-foreground rounded-xl py-3 font-bold disabled:opacity-50 transition"
+            >
+              Next
+            </button>
+          ) : (
+            <button
+              onClick={apply}
+              disabled={busy}
+              className="flex-1 bg-primary text-primary-foreground rounded-xl py-3 font-bold disabled:opacity-60 transition"
+            >
+              {busy ? "Submitting…" : "Submit application"}
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between border-b border-border py-2">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-semibold text-foreground text-right">{value}</span>
+    </div>
+  );
+}
+

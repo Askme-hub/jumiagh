@@ -68,10 +68,12 @@ export function TopNav() {
         <button
           onClick={() => openSearch(true)}
           aria-label="Search"
-          className="flex items-center justify-center w-10 h-10 rounded-lg bg-muted text-foreground hover:bg-muted/70 transition"
+          className="flex items-center gap-3 w-72 rounded-full bg-muted px-4 py-2.5 text-left text-muted-foreground hover:bg-muted/70 transition"
         >
-          <Search size={18} />
+          <Search size={18} className="shrink-0" />
+          <span className="text-sm truncate">Search products, brands and categories</span>
         </button>
+
 
         <Link
           to="/cart"

@@ -14,27 +14,29 @@ import {
   Wallet,
   Mail,
   Search,
+  ChevronRight,
+  HelpCircle,
+  Tag,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useShop } from "@/lib/store";
 import { useAuth, useIsAdmin } from "@/hooks/use-auth";
 import { useIsSeller } from "@/hooks/use-seller";
+import { useCategories } from "@/lib/categories";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useSearchUI } from "@/lib/search-ui";
 import kivoraIcon from "@/assets/kivora-icon.png";
 
-const mainItems = [
-  { to: "/" as const, label: "Home", icon: Home, exact: true },
-  { to: "/categories" as const, label: "Categories", icon: LayoutGrid },
-  { to: "/orders" as const, label: "My Orders", icon: Package },
-  { to: "/wishlist" as const, label: "Wishlist", icon: Heart },
+const accountItems = [
+  { to: "/orders" as const, label: "Orders", icon: Package },
   { to: "/inbox" as const, label: "Inbox", icon: Mail },
+  { to: "/wishlist" as const, label: "Wishlist", icon: Heart },
   { to: "/cart" as const, label: "Cart", icon: ShoppingCart },
-  { to: "/account" as const, label: "Account", icon: UserCircle2 },
 ];
+
 
 export function AppDrawer() {
   const [open, setOpen] = useState(false);

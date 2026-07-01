@@ -123,7 +123,7 @@ function Home() {
     <div className="bg-background min-h-screen pb-8">
       {/* CALL TO ORDER BAR */}
       <div className="bg-primary py-2.5 text-center text-sm font-bold text-primary-foreground flex items-center justify-center gap-2">
-        <Phone size={15} /> Call to Order: 025 757 3471
+        <Phone size={15} /> Call to Order: 025 757 3471 or 055 247 4242
       </div>
 
       {/* HERO */}

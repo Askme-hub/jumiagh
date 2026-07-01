@@ -74,6 +74,9 @@
 
   --color-primary-soft: var(--primary-soft);
   --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-flash: var(--flash);
   --color-flash-foreground: var(--flash-foreground);
   --color-teal: var(--teal);
@@ -129,7 +132,12 @@
   --destructive-foreground: oklch(1 0 0);
 
   /* SUCCESS */
-  --success: oklch(0.68 0.18 145);
+  --success: oklch(0.62 0.15 150);
+  --success-foreground: oklch(1 0 0);
+
+  /* WARNING */
+  --warning: oklch(0.8 0.16 80);
+  --warning-foreground: oklch(0.28 0.08 70);
 
   /* FLASH SALES (Jumia crimson) */
   --flash: oklch(0.55 0.22 22);
@@ -200,7 +208,12 @@
   --input: oklch(1 0 0 / 12%);
   --ring: oklch(0.72 0.21 45);
 
-  --flash: oklch(0.55 0.22 22);
+  --success: oklch(0.68 0.16 150);
+  --success-foreground: oklch(0.14 0.01 40);
+  --warning: oklch(0.82 0.16 80);
+  --warning-foreground: oklch(0.2 0.03 70);
+
+  --flash: oklch(0.58 0.22 22);
   --flash-foreground: oklch(1 0 0);
   --teal: oklch(0.42 0.06 205);
   --teal-foreground: oklch(0.95 0.01 205);
@@ -354,4 +367,63 @@
 .animate-cart-ring-3 {
   animation:
     cart-ring 2s ease-out infinite 1.2s;
+}
+
+/* =========================================
+   PREMIUM UTILITIES
+========================================= */
+
+.shadow-soft {
+  box-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 6%, transparent),
+    0 4px 16px color-mix(in oklab, var(--foreground) 5%, transparent);
+}
+
+.shadow-elevated {
+  box-shadow: 0 4px 12px color-mix(in oklab, var(--foreground) 8%, transparent),
+    0 12px 32px color-mix(in oklab, var(--foreground) 8%, transparent);
+}
+
+.hover-lift {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px color-mix(in oklab, var(--foreground) 12%, transparent);
+}
+
+.gradient-primary {
+  background-image: linear-gradient(
+    135deg,
+    var(--primary),
+    color-mix(in oklab, var(--primary) 70%, oklch(0.85 0.19 65))
+  );
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s ease-out both;
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--foreground) 6%, transparent),
+    transparent
+  );
+  animation: shimmer 1.6s infinite;
 }

@@ -1,179 +1,126 @@
 import { Product, formatGHC, useShop } from "@/lib/store";
-import {
-  Heart,
-  Star,
-  Minus,
-  Plus,
-  ShoppingBag,
-} from "lucide-react";
-
+import { Heart, Star, Minus, Plus, ShoppingBag } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
-export function ProductCard({
-  product,
-}: {
-  product: Product;
-}) {
+export function ProductCard({ product }: { product: Product }) {
   const addToCart = useShop((s) => s.addToCart);
   const updateQty = useShop((s) => s.updateQty);
+  const toggleWishlist = useShop((s) => s.toggleWishlist);
+  const isWishlisted = useShop((s) => s.isWishlisted);
 
-  const cartItem = useShop((s) =>
-    s.cart.find((c) => c.product.id === product.id)
-  );
-
+  const cartItem = useShop((s) => s.cart.find((c) => c.product.id === product.id));
   const qty = cartItem?.qty ?? 0;
+  const wished = isWishlisted(product.id);
 
   const oldPrice = product.discount
-    ? product.price +
-      (product.price * product.discount) / 100
+    ? product.price + (product.price * product.discount) / 100
     : null;
 
   return (
-    <div className="group bg-white rounded-2xl overflow-hidden border border-zinc-200 hover:border-[#ff7a00]/40 hover:shadow-xl transition-all duration-300 w-full">
-      
+    <div className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated hover:border-primary/40">
       {/* IMAGE */}
       <Link
         to="/products/$id"
         params={{ id: product.id }}
-        className="relative bg-gradient-to-b from-zinc-100 to-white aspect-square block overflow-hidden"
+        className="relative block aspect-square overflow-hidden bg-muted/40"
       >
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300"
+          loading="lazy"
+          className="h-full w-full object-contain p-3 transition-transform duration-500 group-hover:scale-105"
         />
 
-        {/* DISCOUNT BADGE */}
         {product.discount && (
-          <div className="absolute top-2 left-2 bg-[#ff7a00] text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md">
-            -{product.discount}% OFF
+          <div className="absolute left-2 top-2 rounded-full bg-flash px-2 py-1 text-[10px] font-bold text-flash-foreground shadow">
+            -{product.discount}%
           </div>
         )}
 
-        {/* FAVORITE */}
-        <button className="absolute top-2 right-2 bg-white/90 backdrop-blur shadow-md rounded-full p-1.5 hover:bg-[#ff7a00] hover:text-white transition">
-          <Heart size={14} />
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            toggleWishlist(product);
+            toast.success(wished ? "Removed from wishlist" : "Added to wishlist");
+          }}
+          aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
+          className="absolute right-2 top-2 rounded-full bg-background/90 p-2 text-foreground shadow-sm backdrop-blur transition hover:bg-primary hover:text-primary-foreground"
+        >
+          <Heart size={15} fill={wished ? "currentColor" : "none"} className={wished ? "text-primary" : ""} />
         </button>
-
-        {/* KIVORA DEAL */}
-        <div className="absolute bottom-2 left-2 bg-black/80 backdrop-blur text-white text-[9px] px-2 py-1 rounded-full font-semibold tracking-wide">
-          KIVORA DEAL
-        </div>
       </Link>
 
       {/* CONTENT */}
-      <div className="p-3">
-        
-        {/* PRODUCT NAME */}
-        <h3 className="text-[13px] leading-5 line-clamp-2 min-h-[42px] text-zinc-800 font-medium">
+      <div className="flex flex-1 flex-col p-3">
+        <h3 className="line-clamp-2 min-h-[40px] text-sm font-medium leading-5 text-foreground">
           {product.name}
         </h3>
 
-        {/* PRICE */}
         <div className="mt-2">
-          <p className="font-extrabold text-[17px] text-black">
-            {formatGHC(product.price)}
-          </p>
-
+          <p className="text-lg font-extrabold text-foreground">{formatGHC(product.price)}</p>
           {oldPrice && (
-            <div className="flex items-center gap-2 mt-0.5">
-              <p className="text-[11px] text-zinc-400 line-through">
-                {formatGHC(oldPrice)}
-              </p>
-
-              <span className="text-[10px] text-green-600 font-semibold">
-                Save {product.discount}%
-              </span>
+            <div className="mt-0.5 flex items-center gap-2">
+              <p className="text-xs text-muted-foreground line-through">{formatGHC(oldPrice)}</p>
+              <span className="text-[10px] font-semibold text-success">Save {product.discount}%</span>
             </div>
           )}
         </div>
 
-        {/* RATING */}
-        <div className="flex items-center gap-1 mt-2">
-          <div className="flex text-yellow-400">
+        <div className="mt-2 flex items-center gap-1">
+          <div className="flex text-warning">
             {[1, 2, 3, 4, 5].map((i) => (
-              <Star
-                key={i}
-                size={11}
-                fill="currentColor"
-                strokeWidth={0}
-              />
+              <Star key={i} size={11} fill="currentColor" strokeWidth={0} />
             ))}
           </div>
-
-          <span className="text-[11px] text-zinc-500 font-medium">
-            4.9
-          </span>
-
-          <span className="text-[10px] text-zinc-400">
-            (24 reviews)
-          </span>
+          <span className="text-[11px] font-medium text-muted-foreground">4.9</span>
+          <span className="text-[10px] text-muted-foreground/70">(24)</span>
         </div>
 
-        {/* STOCK */}
-        {product.stock && (
+        {product.stock ? (
           <div className="mt-2">
-            <p className="text-[11px] text-[#ff7a00] font-semibold">
-              Only {product.stock} left in stock
-            </p>
-
-            <div className="w-full bg-zinc-200 rounded-full h-1.5 mt-1 overflow-hidden">
+            <p className="text-[11px] font-semibold text-primary">Only {product.stock} left</p>
+            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
               <div
-                className="bg-[#ff7a00] h-full rounded-full"
-                style={{
-                  width: `${Math.min(
-                    product.stock * 10,
-                    100
-                  )}%`,
-                }}
+                className="h-full rounded-full bg-primary"
+                style={{ width: `${Math.min(product.stock * 10, 100)}%` }}
               />
             </div>
           </div>
-        )}
+        ) : null}
 
-        {/* BUTTONS */}
-        {qty === 0 ? (
-          <button
-            onClick={() => {
-              addToCart(product);
-
-              toast.success(
-                `${product.name} added to cart`
-              );
-            }}
-            className="w-full mt-3 bg-black text-white rounded-xl py-2.5 text-[13px] font-semibold hover:bg-[#ff7a00] transition-all duration-300 flex items-center justify-center gap-2 shadow-md"
-          >
-            <ShoppingBag size={15} />
-            Add to Cart
-          </button>
-        ) : (
-          <div className="w-full mt-3 flex items-center justify-between bg-zinc-100 rounded-xl overflow-hidden border border-[#ff7a00]/20">
+        <div className="mt-auto pt-3">
+          {qty === 0 ? (
             <button
-              onClick={() =>
-                updateQty(product.id, qty - 1)
-              }
-              className="w-10 h-10 flex items-center justify-center text-[#ff7a00] hover:bg-orange-50 transition"
-              aria-label="Decrease"
+              onClick={() => {
+                addToCart(product);
+                toast.success(`${product.name} added to cart`);
+              }}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-[13px] font-semibold text-primary-foreground shadow-sm transition-all duration-300 hover:bg-primary/90 active:scale-[0.98]"
             >
-              <Minus size={15} />
+              <ShoppingBag size={15} />
+              Add to Cart
             </button>
-
-            <span className="text-[13px] font-bold text-black">
-              {qty} in cart
-            </span>
-
-            <button
-              onClick={() =>
-                updateQty(product.id, qty + 1)
-              }
-              className="w-10 h-10 flex items-center justify-center text-[#ff7a00] hover:bg-orange-50 transition"
-              aria-label="Increase"
-            >
-              <Plus size={15} />
-            </button>
-          </div>
-        )}
+          ) : (
+            <div className="flex w-full items-center justify-between overflow-hidden rounded-xl border border-primary/30 bg-muted">
+              <button
+                onClick={() => updateQty(product.id, qty - 1)}
+                className="flex h-10 w-10 items-center justify-center text-primary transition hover:bg-primary/10"
+                aria-label="Decrease quantity"
+              >
+                <Minus size={15} />
+              </button>
+              <span className="text-[13px] font-bold text-foreground">{qty} in cart</span>
+              <button
+                onClick={() => updateQty(product.id, qty + 1)}
+                className="flex h-10 w-10 items-center justify-center text-primary transition hover:bg-primary/10"
+                aria-label="Increase quantity"
+              >
+                <Plus size={15} />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

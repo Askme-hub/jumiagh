@@ -208,7 +208,12 @@
   --input: oklch(1 0 0 / 12%);
   --ring: oklch(0.72 0.21 45);
 
-  --flash: oklch(0.55 0.22 22);
+  --success: oklch(0.68 0.16 150);
+  --success-foreground: oklch(0.14 0.01 40);
+  --warning: oklch(0.82 0.16 80);
+  --warning-foreground: oklch(0.2 0.03 70);
+
+  --flash: oklch(0.58 0.22 22);
   --flash-foreground: oklch(1 0 0);
   --teal: oklch(0.42 0.06 205);
   --teal-foreground: oklch(0.95 0.01 205);

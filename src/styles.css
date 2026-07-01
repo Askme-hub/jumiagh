@@ -132,7 +132,12 @@
   --destructive-foreground: oklch(1 0 0);
 
   /* SUCCESS */
-  --success: oklch(0.68 0.18 145);
+  --success: oklch(0.62 0.15 150);
+  --success-foreground: oklch(1 0 0);
+
+  /* WARNING */
+  --warning: oklch(0.8 0.16 80);
+  --warning-foreground: oklch(0.28 0.08 70);
 
   /* FLASH SALES (Jumia crimson) */
   --flash: oklch(0.55 0.22 22);

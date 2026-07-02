@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Zap, Phone, ChevronRight } from "lucide-react";
+import { Zap, Phone, ChevronRight, PackageOpen } from "lucide-react";
 
 import { ProductCard } from "@/components/ProductCard";
+import { ProductCardSkeleton, ProductGridSkeleton } from "@/components/ProductCardSkeleton";
+import { EmptyState } from "@/components/EmptyState";
 
 import { useProducts, toProduct, type DbProduct } from "@/lib/products";
 import { useCategories } from "@/lib/categories";
@@ -199,10 +201,9 @@ function Home() {
         <div className="flex gap-3 px-3 py-3">
           {isLoading
             ? Array.from({ length: 4 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="min-w-[150px] max-w-[160px] aspect-[3/4] rounded-lg bg-foreground/10 animate-pulse"
-                />
+                <div key={i} className="min-w-[150px] max-w-[160px]">
+                  <ProductCardSkeleton />
+                </div>
               ))
             : products.slice(0, 8).map((p: Product) => (
                 <div key={p.id} className="min-w-[150px] max-w-[160px]">
@@ -218,16 +219,15 @@ function Home() {
           <h2 className="font-bold text-base">Recommended For You</h2>
         </div>
         {isLoading ? (
-          <div className="px-3 mt-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="aspect-[3/4] rounded-lg bg-foreground/10 animate-pulse" />
-            ))}
+          <div className="px-3 mt-3">
+            <ProductGridSkeleton count={10} />
           </div>
         ) : products.length === 0 ? (
-          <div className="py-16 text-center">
-            <p className="text-sm font-semibold text-foreground">No products yet</p>
-            <p className="text-xs text-muted-foreground mt-1">Check back soon for new arrivals.</p>
-          </div>
+          <EmptyState
+            icon={PackageOpen}
+            title="No products yet"
+            description="Check back soon for new arrivals and amazing deals."
+          />
         ) : (
           <div className="px-3 mt-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {products.slice(0, 12).map((p: Product) => (

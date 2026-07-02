@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { PackageOpen } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
+import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
+import { EmptyState } from "@/components/EmptyState";
 import { useCategories } from "@/lib/categories";
 import { useProducts } from "@/lib/products";
 
@@ -59,17 +62,16 @@ function Categories() {
 
           {loadingProducts ? (
             <div className="grid grid-cols-2 gap-3">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="aspect-[3/4] rounded-lg bg-foreground/10 animate-pulse" />
+              {Array.from({ length: 6 }).map((_, i) => (
+                <ProductCardSkeleton key={i} />
               ))}
             </div>
           ) : products.length === 0 ? (
-            <div className="py-16 text-center">
-              <p className="text-sm font-semibold text-foreground">No products yet</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Products in {active || "this category"} will appear here.
-              </p>
-            </div>
+            <EmptyState
+              icon={PackageOpen}
+              title="No products yet"
+              description={`Products in ${active || "this category"} will appear here soon.`}
+            />
           ) : (
             <div className="grid grid-cols-2 gap-3">
               {products.map((p) => (

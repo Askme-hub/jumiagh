@@ -50,19 +50,27 @@ function SearchPage() {
           : `${results.length} result${results.length === 1 ? "" : "s"} for "${q}"`}
       </div>
 
-      <div className="px-3 mt-2 grid grid-cols-2 md:grid-cols-4 gap-3 pb-6">
-        {results.map((p) => (
-          <ProductCard key={p.id} product={p} />
-        ))}
-      </div>
+      {q.trim() && isLoading ? (
+        <div className="px-3 mt-2 grid grid-cols-2 md:grid-cols-4 gap-3 pb-6">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <ProductCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : (
+        <div className="px-3 mt-2 grid grid-cols-2 md:grid-cols-4 gap-3 pb-6">
+          {results.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </div>
+      )}
 
       {q.trim() && !isLoading && results.length === 0 && (
-        <div className="px-4 py-16 text-center">
-          <p className="text-sm font-semibold text-foreground">No products found</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Nothing matched "{q}". Try a different keyword.
-          </p>
-        </div>
+        <EmptyState
+          icon={SearchX}
+          title="No products found"
+          description={`Nothing matched "${q}". Try a different keyword.`}
+          action={{ label: "Browse categories", to: "/categories" }}
+        />
       )}
     </div>
   );

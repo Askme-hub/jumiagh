@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Zap, Phone, ChevronRight } from "lucide-react";
+import { Zap, Phone, ChevronRight, PackageOpen } from "lucide-react";
 
 import { ProductCard } from "@/components/ProductCard";
+import { ProductCardSkeleton, ProductGridSkeleton } from "@/components/ProductCardSkeleton";
+import { EmptyState } from "@/components/EmptyState";
 
 import { useProducts, toProduct, type DbProduct } from "@/lib/products";
 import { useCategories } from "@/lib/categories";

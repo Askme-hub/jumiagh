@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { z } from "zod";
-import { Search } from "lucide-react";
+import { Search, SearchX } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
+import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
+import { EmptyState } from "@/components/EmptyState";
 import { useProducts } from "@/lib/products";
 import { useSearchUI } from "@/lib/search-ui";
 import type { Product } from "@/lib/store";

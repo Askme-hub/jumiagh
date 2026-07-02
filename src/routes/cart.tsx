@@ -51,7 +51,7 @@ function Cart() {
         <CheckCircle2 size={20} className="text-success shrink-0 mt-0.5" />
         <p>
           Save up to GHC 50 on Your Delivery Fee for Orders above GHC 150. Prepaid only! (Everywhere In Ghana){" "}
-          <span className="font-bold text-primary">JUMIA EXPRESS</span>
+          <span className="font-bold text-primary">KIVORA EXPRESS</span>
         </p>
       </div>
 

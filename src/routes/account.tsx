@@ -64,7 +64,7 @@ function Account() {
         <p className="text-primary mt-1">{user.email}</p>
         <div className="flex items-center gap-2 mt-3">
           <Wallet size={22} className="text-[#1d4ed8]" />
-          <p className="text-[#1d4ed8] font-semibold">Jumia store credit balance: GH₵ 0</p>
+          <p className="text-[#1d4ed8] font-semibold">Kivora store credit balance: GH₵ 0</p>
         </div>
       </div>
 

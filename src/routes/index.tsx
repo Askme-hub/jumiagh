@@ -201,10 +201,9 @@ function Home() {
         <div className="flex gap-3 px-3 py-3">
           {isLoading
             ? Array.from({ length: 4 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="min-w-[150px] max-w-[160px] aspect-[3/4] rounded-lg bg-foreground/10 animate-pulse"
-                />
+                <div key={i} className="min-w-[150px] max-w-[160px]">
+                  <ProductCardSkeleton />
+                </div>
               ))
             : products.slice(0, 8).map((p: Product) => (
                 <div key={p.id} className="min-w-[150px] max-w-[160px]">

@@ -89,6 +89,10 @@ export function Footer() {
               <Phone className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
               <span>025 757 3471</span>
             </li>
+             <li className="flex items-start gap-2">
+              <Phone className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+              <span>055 247 4242</span>
+            </li>
             <li className="flex items-start gap-2">
               <Mail className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
               <span>support@kivora.gh</span>

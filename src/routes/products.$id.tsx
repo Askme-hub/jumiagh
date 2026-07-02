@@ -16,7 +16,7 @@ export const Route = createFileRoute("/products/$id")({
       .select("*")
       .eq("id", params.id)
       .maybeSingle();
-    return { product: (data as DbProduct & { stock: number; category: string | null; description: string | null }) | null };
+    return { product: (data ?? null) as DbProduct | null };
   },
   head: ({ loaderData }) => {
     const p = loaderData?.product;

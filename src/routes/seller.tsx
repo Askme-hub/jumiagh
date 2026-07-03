@@ -19,6 +19,7 @@ function SellerLayout() {
     { to: "/seller/products" as const, label: "Products", icon: Package },
     { to: "/seller/orders" as const, label: "Orders", icon: ShoppingBag },
     { to: "/seller/wallet" as const, label: "Wallet", icon: Wallet },
+    { to: "/seller/subscription" as const, label: "Plans", icon: Crown },
     { to: "/seller/products/new" as const, label: "Add", icon: Plus },
     { to: "/seller/profile" as const, label: "Shop", icon: User },
   ];

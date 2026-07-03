@@ -24,6 +24,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as SubscriptionCallbackRouteImport } from './routes/subscription.callback'
 import { Route as SellerWalletRouteImport } from './routes/seller.wallet'
 import { Route as SellerProfileRouteImport } from './routes/seller.profile'
 import { Route as ProductsIdRouteImport } from './routes/products.$id'
@@ -117,6 +118,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const SubscriptionCallbackRoute = SubscriptionCallbackRouteImport.update({
+  id: '/subscription/callback',
+  path: '/subscription/callback',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const SellerWalletRoute = SellerWalletRouteImport.update({
   id: '/wallet',
@@ -234,6 +240,7 @@ export interface FileRoutesByFullPath {
   '/products/$id': typeof ProductsIdRoute
   '/seller/profile': typeof SellerProfileRoute
   '/seller/wallet': typeof SellerWalletRoute
+  '/subscription/callback': typeof SubscriptionCallbackRoute
   '/admin/': typeof AdminIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/seller/': typeof SellerIndexRoute
@@ -266,6 +273,7 @@ export interface FileRoutesByTo {
   '/products/$id': typeof ProductsIdRoute
   '/seller/profile': typeof SellerProfileRoute
   '/seller/wallet': typeof SellerWalletRoute
+  '/subscription/callback': typeof SubscriptionCallbackRoute
   '/admin': typeof AdminIndexRoute
   '/orders': typeof OrdersIndexRoute
   '/seller': typeof SellerIndexRoute
@@ -302,6 +310,7 @@ export interface FileRoutesById {
   '/products/$id': typeof ProductsIdRoute
   '/seller/profile': typeof SellerProfileRoute
   '/seller/wallet': typeof SellerWalletRoute
+  '/subscription/callback': typeof SubscriptionCallbackRoute
   '/admin/': typeof AdminIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/seller/': typeof SellerIndexRoute
@@ -339,6 +348,7 @@ export interface FileRouteTypes {
     | '/products/$id'
     | '/seller/profile'
     | '/seller/wallet'
+    | '/subscription/callback'
     | '/admin/'
     | '/orders/'
     | '/seller/'
@@ -371,6 +381,7 @@ export interface FileRouteTypes {
     | '/products/$id'
     | '/seller/profile'
     | '/seller/wallet'
+    | '/subscription/callback'
     | '/admin'
     | '/orders'
     | '/seller'
@@ -406,6 +417,7 @@ export interface FileRouteTypes {
     | '/products/$id'
     | '/seller/profile'
     | '/seller/wallet'
+    | '/subscription/callback'
     | '/admin/'
     | '/orders/'
     | '/seller/'
@@ -433,6 +445,7 @@ export interface RootRouteChildren {
   WishlistRoute: typeof WishlistRoute
   PaymentCallbackRoute: typeof PaymentCallbackRoute
   ProductsIdRoute: typeof ProductsIdRoute
+  SubscriptionCallbackRoute: typeof SubscriptionCallbackRoute
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
 }
 
@@ -542,6 +555,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/subscription/callback': {
+      id: '/subscription/callback'
+      path: '/subscription/callback'
+      fullPath: '/subscription/callback'
+      preLoaderRoute: typeof SubscriptionCallbackRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/seller/wallet': {
       id: '/seller/wallet'
@@ -749,6 +769,7 @@ const rootRouteChildren: RootRouteChildren = {
   WishlistRoute: WishlistRoute,
   PaymentCallbackRoute: PaymentCallbackRoute,
   ProductsIdRoute: ProductsIdRoute,
+  SubscriptionCallbackRoute: SubscriptionCallbackRoute,
   ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
 }
 export const routeTree = rootRouteImport

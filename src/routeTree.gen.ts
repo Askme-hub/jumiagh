@@ -24,7 +24,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as SubscriptionCallbackRouteImport } from './routes/subscription.callback'
 import { Route as SellerWalletRouteImport } from './routes/seller.wallet'
+import { Route as SellerSubscriptionRouteImport } from './routes/seller.subscription'
 import { Route as SellerProfileRouteImport } from './routes/seller.profile'
 import { Route as ProductsIdRouteImport } from './routes/products.$id'
 import { Route as PaymentCallbackRouteImport } from './routes/payment.callback'
@@ -118,9 +120,19 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const SubscriptionCallbackRoute = SubscriptionCallbackRouteImport.update({
+  id: '/subscription/callback',
+  path: '/subscription/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellerWalletRoute = SellerWalletRouteImport.update({
   id: '/wallet',
   path: '/wallet',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerSubscriptionRoute = SellerSubscriptionRouteImport.update({
+  id: '/subscription',
+  path: '/subscription',
   getParentRoute: () => SellerRoute,
 } as any)
 const SellerProfileRoute = SellerProfileRouteImport.update({
@@ -233,7 +245,9 @@ export interface FileRoutesByFullPath {
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
   '/seller/profile': typeof SellerProfileRoute
+  '/seller/subscription': typeof SellerSubscriptionRoute
   '/seller/wallet': typeof SellerWalletRoute
+  '/subscription/callback': typeof SubscriptionCallbackRoute
   '/admin/': typeof AdminIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/seller/': typeof SellerIndexRoute
@@ -265,7 +279,9 @@ export interface FileRoutesByTo {
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
   '/seller/profile': typeof SellerProfileRoute
+  '/seller/subscription': typeof SellerSubscriptionRoute
   '/seller/wallet': typeof SellerWalletRoute
+  '/subscription/callback': typeof SubscriptionCallbackRoute
   '/admin': typeof AdminIndexRoute
   '/orders': typeof OrdersIndexRoute
   '/seller': typeof SellerIndexRoute
@@ -301,7 +317,9 @@ export interface FileRoutesById {
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
   '/seller/profile': typeof SellerProfileRoute
+  '/seller/subscription': typeof SellerSubscriptionRoute
   '/seller/wallet': typeof SellerWalletRoute
+  '/subscription/callback': typeof SubscriptionCallbackRoute
   '/admin/': typeof AdminIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/seller/': typeof SellerIndexRoute
@@ -338,7 +356,9 @@ export interface FileRouteTypes {
     | '/payment/callback'
     | '/products/$id'
     | '/seller/profile'
+    | '/seller/subscription'
     | '/seller/wallet'
+    | '/subscription/callback'
     | '/admin/'
     | '/orders/'
     | '/seller/'
@@ -370,7 +390,9 @@ export interface FileRouteTypes {
     | '/payment/callback'
     | '/products/$id'
     | '/seller/profile'
+    | '/seller/subscription'
     | '/seller/wallet'
+    | '/subscription/callback'
     | '/admin'
     | '/orders'
     | '/seller'
@@ -405,7 +427,9 @@ export interface FileRouteTypes {
     | '/payment/callback'
     | '/products/$id'
     | '/seller/profile'
+    | '/seller/subscription'
     | '/seller/wallet'
+    | '/subscription/callback'
     | '/admin/'
     | '/orders/'
     | '/seller/'
@@ -433,6 +457,7 @@ export interface RootRouteChildren {
   WishlistRoute: typeof WishlistRoute
   PaymentCallbackRoute: typeof PaymentCallbackRoute
   ProductsIdRoute: typeof ProductsIdRoute
+  SubscriptionCallbackRoute: typeof SubscriptionCallbackRoute
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
 }
 
@@ -543,11 +568,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/subscription/callback': {
+      id: '/subscription/callback'
+      path: '/subscription/callback'
+      fullPath: '/subscription/callback'
+      preLoaderRoute: typeof SubscriptionCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/seller/wallet': {
       id: '/seller/wallet'
       path: '/wallet'
       fullPath: '/seller/wallet'
       preLoaderRoute: typeof SellerWalletRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/subscription': {
+      id: '/seller/subscription'
+      path: '/subscription'
+      fullPath: '/seller/subscription'
+      preLoaderRoute: typeof SellerSubscriptionRouteImport
       parentRoute: typeof SellerRoute
     }
     '/seller/profile': {
@@ -711,6 +750,7 @@ const OrdersRouteWithChildren =
 
 interface SellerRouteChildren {
   SellerProfileRoute: typeof SellerProfileRoute
+  SellerSubscriptionRoute: typeof SellerSubscriptionRoute
   SellerWalletRoute: typeof SellerWalletRoute
   SellerIndexRoute: typeof SellerIndexRoute
   SellerOrdersIdRoute: typeof SellerOrdersIdRoute
@@ -722,6 +762,7 @@ interface SellerRouteChildren {
 
 const SellerRouteChildren: SellerRouteChildren = {
   SellerProfileRoute: SellerProfileRoute,
+  SellerSubscriptionRoute: SellerSubscriptionRoute,
   SellerWalletRoute: SellerWalletRoute,
   SellerIndexRoute: SellerIndexRoute,
   SellerOrdersIdRoute: SellerOrdersIdRoute,
@@ -749,18 +790,9 @@ const rootRouteChildren: RootRouteChildren = {
   WishlistRoute: WishlistRoute,
   PaymentCallbackRoute: PaymentCallbackRoute,
   ProductsIdRoute: ProductsIdRoute,
+  SubscriptionCallbackRoute: SubscriptionCallbackRoute,
   ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

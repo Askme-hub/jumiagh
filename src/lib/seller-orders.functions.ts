@@ -109,11 +109,33 @@ export const updateItemFulfillment = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
       .from("order_items")
       .update({ fulfillment_status: data.status })
       .in("id", data.itemIds)
-      .eq("seller_id", userId);
+      .eq("seller_id", userId)
+      .select("order_id");
     if (error) throw new Error(error.message);
+
+    // Notify buyers by SMS when items ship or are delivered (best-effort)
+    if (data.status === "shipped" || data.status === "delivered") {
+      const orderIds = [...new Set((updated ?? []).map((r: any) => r.order_id))].filter(Boolean);
+      if (orderIds.length > 0) {
+        const { data: orders } = await supabaseAdmin
+          .from("orders")
+          .select("order_number, delivery_phone")
+          .in("id", orderIds as string[]);
+        const { trySendSMS } = await import("./sms.server");
+        const verb = data.status === "shipped" ? "is on its way" : "has been delivered";
+        for (const o of orders ?? []) {
+          if (o.delivery_phone) {
+            await trySendSMS(
+              o.delivery_phone,
+              `Kivora: Your order #${o.order_number} ${verb}. Thank you for shopping with us!`
+            );
+          }
+        }
+      }
+    }
     return { ok: true };
   });

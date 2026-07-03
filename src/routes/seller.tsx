@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tanstack/react-router";
-import { Package, Store, ArrowLeft, Plus, User, ShoppingBag, Wallet } from "lucide-react";
+import { Package, Store, ArrowLeft, Plus, User, ShoppingBag, Wallet, Crown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/seller")({

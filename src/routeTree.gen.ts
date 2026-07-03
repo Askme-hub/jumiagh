@@ -26,6 +26,7 @@ import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as SubscriptionCallbackRouteImport } from './routes/subscription.callback'
 import { Route as SellerWalletRouteImport } from './routes/seller.wallet'
+import { Route as SellerSubscriptionRouteImport } from './routes/seller.subscription'
 import { Route as SellerProfileRouteImport } from './routes/seller.profile'
 import { Route as ProductsIdRouteImport } from './routes/products.$id'
 import { Route as PaymentCallbackRouteImport } from './routes/payment.callback'
@@ -127,6 +128,11 @@ const SubscriptionCallbackRoute = SubscriptionCallbackRouteImport.update({
 const SellerWalletRoute = SellerWalletRouteImport.update({
   id: '/wallet',
   path: '/wallet',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerSubscriptionRoute = SellerSubscriptionRouteImport.update({
+  id: '/subscription',
+  path: '/subscription',
   getParentRoute: () => SellerRoute,
 } as any)
 const SellerProfileRoute = SellerProfileRouteImport.update({
@@ -239,6 +245,7 @@ export interface FileRoutesByFullPath {
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
   '/seller/profile': typeof SellerProfileRoute
+  '/seller/subscription': typeof SellerSubscriptionRoute
   '/seller/wallet': typeof SellerWalletRoute
   '/subscription/callback': typeof SubscriptionCallbackRoute
   '/admin/': typeof AdminIndexRoute
@@ -272,6 +279,7 @@ export interface FileRoutesByTo {
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
   '/seller/profile': typeof SellerProfileRoute
+  '/seller/subscription': typeof SellerSubscriptionRoute
   '/seller/wallet': typeof SellerWalletRoute
   '/subscription/callback': typeof SubscriptionCallbackRoute
   '/admin': typeof AdminIndexRoute
@@ -309,6 +317,7 @@ export interface FileRoutesById {
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
   '/seller/profile': typeof SellerProfileRoute
+  '/seller/subscription': typeof SellerSubscriptionRoute
   '/seller/wallet': typeof SellerWalletRoute
   '/subscription/callback': typeof SubscriptionCallbackRoute
   '/admin/': typeof AdminIndexRoute
@@ -347,6 +356,7 @@ export interface FileRouteTypes {
     | '/payment/callback'
     | '/products/$id'
     | '/seller/profile'
+    | '/seller/subscription'
     | '/seller/wallet'
     | '/subscription/callback'
     | '/admin/'
@@ -380,6 +390,7 @@ export interface FileRouteTypes {
     | '/payment/callback'
     | '/products/$id'
     | '/seller/profile'
+    | '/seller/subscription'
     | '/seller/wallet'
     | '/subscription/callback'
     | '/admin'
@@ -416,6 +427,7 @@ export interface FileRouteTypes {
     | '/payment/callback'
     | '/products/$id'
     | '/seller/profile'
+    | '/seller/subscription'
     | '/seller/wallet'
     | '/subscription/callback'
     | '/admin/'
@@ -568,6 +580,13 @@ declare module '@tanstack/react-router' {
       path: '/wallet'
       fullPath: '/seller/wallet'
       preLoaderRoute: typeof SellerWalletRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/subscription': {
+      id: '/seller/subscription'
+      path: '/subscription'
+      fullPath: '/seller/subscription'
+      preLoaderRoute: typeof SellerSubscriptionRouteImport
       parentRoute: typeof SellerRoute
     }
     '/seller/profile': {
@@ -731,6 +750,7 @@ const OrdersRouteWithChildren =
 
 interface SellerRouteChildren {
   SellerProfileRoute: typeof SellerProfileRoute
+  SellerSubscriptionRoute: typeof SellerSubscriptionRoute
   SellerWalletRoute: typeof SellerWalletRoute
   SellerIndexRoute: typeof SellerIndexRoute
   SellerOrdersIdRoute: typeof SellerOrdersIdRoute
@@ -742,6 +762,7 @@ interface SellerRouteChildren {
 
 const SellerRouteChildren: SellerRouteChildren = {
   SellerProfileRoute: SellerProfileRoute,
+  SellerSubscriptionRoute: SellerSubscriptionRoute,
   SellerWalletRoute: SellerWalletRoute,
   SellerIndexRoute: SellerIndexRoute,
   SellerOrdersIdRoute: SellerOrdersIdRoute,

@@ -1,0 +1,1 @@
+revoke execute on function public.active_seller_plan(uuid) from authenticated;

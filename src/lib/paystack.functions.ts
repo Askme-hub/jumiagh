@@ -177,6 +177,44 @@ export const verifyPaystackPayment = createServerFn({ method: "POST" })
         });
       }
 
+      // SMS notifications (best-effort, never block the response)
+      const { trySendSMS, normalizeGhanaPhone } = await import("./sms.server");
+      if (order.delivery_phone) {
+        await trySendSMS(
+          order.delivery_phone,
+          `Kivora: Order #${orderRef} confirmed. ${order.item_count} item(s), GH₵ ${Number(order.total).toFixed(2)}. We'll notify you as it ships. Thank you!`
+        );
+      }
+      // Alert each seller in the order
+      const { data: soldItems } = await supabaseAdmin
+        .from("order_items")
+        .select("seller_id, name")
+        .eq("order_id", order.id);
+      const sellerIds = [
+        ...new Set((soldItems ?? []).map((i) => i.seller_id).filter(Boolean)),
+      ] as string[];
+      if (sellerIds.length > 0) {
+        const { data: sellerProfiles } = await supabaseAdmin
+          .from("seller_profiles")
+          .select("user_id, phone")
+          .in("user_id", sellerIds);
+        for (const sp of sellerProfiles ?? []) {
+          if (sp.phone && normalizeGhanaPhone(sp.phone)) {
+            await trySendSMS(
+              sp.phone,
+              `Kivora: You have a new paid order (#${orderRef}). Log in to your Seller Hub to fulfil it.`
+            );
+          }
+          if (sp.user_id) {
+            await supabaseAdmin.from("inbox_messages").insert({
+              user_id: sp.user_id,
+              title: `New order #${orderRef}`,
+              body: `You have a new paid order. Head to your Seller Hub → Orders to process it.`,
+            });
+          }
+        }
+      }
+
       return { status: "paid", order_id: order.id };
     }
 

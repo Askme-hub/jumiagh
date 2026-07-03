@@ -426,6 +426,42 @@ export type Database = {
         }
         Relationships: []
       }
+      seller_subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          payment_reference: string | null
+          plan: Database["public"]["Enums"]["subscription_plan"]
+          started_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          payment_reference?: string | null
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          payment_reference?: string | null
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       seller_wallets: {
         Row: {
           balance: number
@@ -569,6 +605,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      active_seller_plan: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["subscription_plan"]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -583,6 +623,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user" | "seller"
+      subscription_plan: "free" | "starter" | "premium"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -711,6 +752,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user", "seller"],
+      subscription_plan: ["free", "starter", "premium"],
     },
   },
 } as const

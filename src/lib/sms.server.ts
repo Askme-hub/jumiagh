@@ -15,7 +15,7 @@ export function normalizeGhanaPhone(raw: string): string {
 
 /**
  * Send an SMS via BulkSMSGhana.
- * Requires BULKSMSGHANA_API_KEY. Optional BULKSMSGHANA_SENDER_ID (defaults to "Kivora").
+ * Requires BULKSMSGHANA_API_KEY. Optional BULKSMSGHANA_SENDER_ID (defaults to "KIVORA").
  */
 export async function sendSMS(
   to: string | string[],

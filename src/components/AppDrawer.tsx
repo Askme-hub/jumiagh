@@ -130,7 +130,10 @@ export function AppDrawer() {
         <nav className="flex-1 overflow-y-auto py-2">
           <div className="px-2 space-y-0.5">
             <NavLink to="/" label="Home" icon={Home} active={path === "/"} />
-            <NavLink to="/account" label="My Account" icon={UserCircle2} active={path.startsWith("/account")} />
+            <NavLink to="/categories" label="Shop Products" icon={LayoutGrid} active={path.startsWith("/categories")} />
+            <NavLink to="/account" label="Account & Settings" icon={UserCircle2} active={path.startsWith("/account")} />
+          </div>
+          <SectionLabel>My Orders & Lists</SectionLabel>
           </div>
 
 

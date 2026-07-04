@@ -134,10 +134,6 @@ export function AppDrawer() {
             <NavLink to="/account" label="Account & Settings" icon={UserCircle2} active={path.startsWith("/account")} />
           </div>
           <SectionLabel>My Orders & Lists</SectionLabel>
-          </div>
-
-
-          <SectionLabel>My Kivora Account</SectionLabel>
           <div className="px-2 space-y-0.5">
             {accountItems.map(({ to, label, icon }) => (
               <NavLink key={to} to={to} label={label} icon={icon} active={path.startsWith(to)} />

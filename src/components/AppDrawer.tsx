@@ -175,10 +175,14 @@ export function AppDrawer() {
 
           {isSeller && (
             <>
-              <SectionLabel>Seller</SectionLabel>
+              <SectionLabel>Seller Dashboard</SectionLabel>
               <div className="px-2 space-y-0.5">
-                <NavLink to="/seller" label="Seller Hub" icon={Store} active={path.startsWith("/seller")} />
+                <NavLink to="/seller" label="Overview" icon={Store} active={path === "/seller"} />
+                <NavLink to="/seller/products" label="My Products" icon={Package} active={path.startsWith("/seller/products")} />
+                <NavLink to="/seller/orders" label="Orders" icon={ShoppingCart} active={path.startsWith("/seller/orders")} />
                 <NavLink to="/seller/wallet" label="Wallet" icon={Wallet} active={path.startsWith("/seller/wallet")} />
+                <NavLink to="/seller/subscription" label="Plans" icon={Tag} active={path.startsWith("/seller/subscription")} />
+                <NavLink to="/seller/profile" label="Store Settings" icon={UserCircle2} active={path.startsWith("/seller/profile")} />
               </div>
             </>
           )}

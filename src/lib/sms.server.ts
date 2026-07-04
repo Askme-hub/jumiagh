@@ -15,14 +15,14 @@ export function normalizeGhanaPhone(raw: string): string {
 
 /**
  * Send an SMS via BulkSMSGhana.
- * Requires BULKSMSGHANA_API_KEY. Optional BULKSMSGHANA_SENDER_ID (defaults to "Kivora").
+ * Requires BULKSMSGHANA_API_KEY. Optional BULKSMSGHANA_SENDER_ID (defaults to "KIVORA").
  */
 export async function sendSMS(
   to: string | string[],
   message: string
 ): Promise<SmsResult> {
   const key = process.env.BULKSMSGHANA_API_KEY;
-  const sender = process.env.BULKSMSGHANA_SENDER_ID || "Kivora";
+  const sender = process.env.BULKSMSGHANA_SENDER_ID || "KIVORA";
   if (!key) return { ok: false, detail: "SMS not configured" };
 
   const contacts = (Array.isArray(to) ? to : [to])

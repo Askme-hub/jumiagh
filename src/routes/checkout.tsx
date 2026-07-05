@@ -53,6 +53,7 @@ function Checkout() {
   const itemsTotal = useShop((s) => s.cartTotal());
   const itemCount = cart.reduce((a, c) => a + c.qty, 0);
   const initCheckout = useServerFn(initiatePaystackCheckout);
+  const placeCOD = useServerFn(placeCODOrder);
 
   const { data: addresses = [], isLoading: loadingAddrs } = useAddresses();
   const saveAddress = useSaveAddress();

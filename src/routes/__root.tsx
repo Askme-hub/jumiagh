@@ -8,6 +8,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { MobileTopBar } from "@/components/AppDrawer";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { TopNav } from "@/components/TopNav";
 import { Footer } from "@/components/Footer";
 import { SearchOverlay } from "@/components/SearchOverlay";

@@ -382,7 +382,9 @@ function Checkout() {
           disabled={paying || cart.length === 0 || !selected}
           className="w-full bg-primary text-primary-foreground font-bold py-3.5 rounded-md disabled:opacity-60"
         >
-          {paying ? "Redirecting to Paystack…" : `Confirm order · ${formatGHC(grand)}`}
+          {paying
+            ? paymentMethod === "cod" ? "Placing order…" : "Redirecting to Paystack…"
+            : paymentMethod === "cod" ? `Place order · ${formatGHC(grand)}` : `Confirm order · ${formatGHC(grand)}`}
         </button>
       </div>
     </div>

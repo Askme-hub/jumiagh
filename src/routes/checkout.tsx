@@ -315,16 +315,37 @@ function Checkout() {
           <CreditCard size={18} className="text-primary" />
           <h2 className="font-bold">Payment Method</h2>
         </div>
-        <div className="p-3">
-          <div className="p-3 border-2 border-primary rounded bg-primary/5">
+        <div className="p-3 space-y-2">
+          <button
+            type="button"
+            onClick={() => setPaymentMethod("online")}
+            className={`w-full text-left p-3 border-2 rounded ${paymentMethod === "online" ? "border-primary bg-primary/5" : "border-border"}`}
+          >
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-bold text-sm">Pay Online (Paystack)</p>
                 <p className="text-xs text-muted-foreground">Card · MTN MoMo · Vodafone Cash · AirtelTigo · Bank</p>
               </div>
-              <span className="text-xs font-bold bg-success/10 text-success px-2 py-1 rounded">SELECTED</span>
+              {paymentMethod === "online" && (
+                <span className="text-xs font-bold bg-success/10 text-success px-2 py-1 rounded">SELECTED</span>
+              )}
             </div>
-          </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => setPaymentMethod("cod")}
+            className={`w-full text-left p-3 border-2 rounded ${paymentMethod === "cod" ? "border-primary bg-primary/5" : "border-border"}`}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-bold text-sm">Pay on Delivery</p>
+                <p className="text-xs text-muted-foreground">Pay the seller in cash or MoMo when your product arrives</p>
+              </div>
+              {paymentMethod === "cod" && (
+                <span className="text-xs font-bold bg-success/10 text-success px-2 py-1 rounded">SELECTED</span>
+              )}
+            </div>
+          </button>
         </div>
       </section>
 

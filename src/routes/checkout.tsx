@@ -63,6 +63,7 @@ function Checkout() {
   const [showForm, setShowForm] = useState(false);
   const [deliveryType, setDeliveryType] = useState<"door" | "pickup">("door");
   const [pickupStation, setPickupStation] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"online" | "cod">("online");
 
   const [form, setForm] = useState({
     label: "Home", full_name: "", phone: "", region: "Greater Accra",

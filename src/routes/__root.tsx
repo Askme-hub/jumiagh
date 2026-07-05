@@ -129,10 +129,11 @@ function RootComponent() {
         <MobileTopBar />
         <TopNav />
         <SearchOverlay />
-        <main className="flex-1 w-full max-w-md md:max-w-7xl mx-auto md:px-4">
+        <main className="flex-1 w-full max-w-md md:max-w-7xl mx-auto md:px-4 pb-16 md:pb-0">
           <Outlet />
         </main>
         <Footer />
+        <MobileBottomNav />
       </div>
 
       <Toaster position="top-center" />

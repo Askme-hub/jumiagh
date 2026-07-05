@@ -146,30 +146,37 @@ function Checkout() {
     if (!selected) { toast.error("Add a delivery address"); setShowForm(true); return; }
     if (deliveryType === "pickup" && !pickupStation) { toast.error("Pick a pickup station"); return; }
     setPaying(true);
+    const deliveryPayload = {
+      name: selected.full_name,
+      phone: selected.phone,
+      region: selected.region,
+      city: selected.city,
+      address: selected.address,
+      notes: selected.notes ?? "",
+      delivery_type: deliveryType,
+      pickup_station: deliveryType === "pickup" ? pickupStation : "",
+    };
+    const itemsPayload = cart.map((c) => ({
+      product_id: c.product.id,
+      name: c.product.name,
+      price: Number(c.product.price),
+      old_price: c.product.oldPrice ?? null,
+      image_url: c.product.image ?? null,
+      qty: c.qty,
+    }));
     try {
+      if (paymentMethod === "cod") {
+        const res = await placeCOD({ data: { delivery: deliveryPayload, items: itemsPayload } });
+        clearCart();
+        toast.success("Order placed! Pay on delivery.");
+        router.navigate({ to: "/orders/$id", params: { id: res.order_id } });
+        return;
+      }
       const res = await initCheckout({
         data: {
           callbackOrigin: window.location.origin,
-          delivery: {
-            name: selected.full_name,
-            phone: selected.phone,
-            region: selected.region,
-            city: selected.city,
-            address: selected.address,
-            notes: selected.notes ?? "",
-            delivery_type: deliveryType,
-            pickup_station: deliveryType === "pickup" ? pickupStation : "",
-            shipping_fee: shipping,
-            discount,
-          },
-          items: cart.map((c) => ({
-            product_id: c.product.id,
-            name: c.product.name,
-            price: Number(c.product.price),
-            old_price: c.product.oldPrice ?? null,
-            image_url: c.product.image ?? null,
-            qty: c.qty,
-          })),
+          delivery: { ...deliveryPayload, shipping_fee: shipping, discount },
+          items: itemsPayload,
         },
       });
       clearCart();

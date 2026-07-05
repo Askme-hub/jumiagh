@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { formatGHC, useShop } from "@/lib/store";
 import { supabase } from "@/integrations/supabase/client";
 import { initiatePaystackCheckout } from "@/lib/paystack.functions";
+import { placeCODOrder } from "@/lib/cod.functions";
 import { useAddresses, useSaveAddress, useDeleteAddress, type Address } from "@/lib/addresses";
 import { toast } from "sonner";
 

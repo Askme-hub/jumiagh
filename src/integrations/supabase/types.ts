@@ -226,6 +226,7 @@ export type Database = {
           id: string
           item_count: number
           order_number: string
+          payment_method: string
           payment_reference: string | null
           payment_status: string
           paystack_access_code: string | null
@@ -249,6 +250,7 @@ export type Database = {
           id?: string
           item_count: number
           order_number?: string
+          payment_method?: string
           payment_reference?: string | null
           payment_status?: string
           paystack_access_code?: string | null
@@ -272,6 +274,7 @@ export type Database = {
           id?: string
           item_count?: number
           order_number?: string
+          payment_method?: string
           payment_reference?: string | null
           payment_status?: string
           paystack_access_code?: string | null

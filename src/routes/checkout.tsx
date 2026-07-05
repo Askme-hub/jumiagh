@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { formatGHC, useShop } from "@/lib/store";
 import { supabase } from "@/integrations/supabase/client";
 import { initiatePaystackCheckout } from "@/lib/paystack.functions";
+import { placeCODOrder } from "@/lib/cod.functions";
 import { useAddresses, useSaveAddress, useDeleteAddress, type Address } from "@/lib/addresses";
 import { toast } from "sonner";
 
@@ -52,6 +53,7 @@ function Checkout() {
   const itemsTotal = useShop((s) => s.cartTotal());
   const itemCount = cart.reduce((a, c) => a + c.qty, 0);
   const initCheckout = useServerFn(initiatePaystackCheckout);
+  const placeCOD = useServerFn(placeCODOrder);
 
   const { data: addresses = [], isLoading: loadingAddrs } = useAddresses();
   const saveAddress = useSaveAddress();
@@ -61,6 +63,7 @@ function Checkout() {
   const [showForm, setShowForm] = useState(false);
   const [deliveryType, setDeliveryType] = useState<"door" | "pickup">("door");
   const [pickupStation, setPickupStation] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"online" | "cod">("online");
 
   const [form, setForm] = useState({
     label: "Home", full_name: "", phone: "", region: "Greater Accra",
@@ -143,30 +146,37 @@ function Checkout() {
     if (!selected) { toast.error("Add a delivery address"); setShowForm(true); return; }
     if (deliveryType === "pickup" && !pickupStation) { toast.error("Pick a pickup station"); return; }
     setPaying(true);
+    const deliveryPayload = {
+      name: selected.full_name,
+      phone: selected.phone,
+      region: selected.region,
+      city: selected.city,
+      address: selected.address,
+      notes: selected.notes ?? "",
+      delivery_type: deliveryType,
+      pickup_station: deliveryType === "pickup" ? pickupStation : "",
+    };
+    const itemsPayload = cart.map((c) => ({
+      product_id: c.product.id,
+      name: c.product.name,
+      price: Number(c.product.price),
+      old_price: c.product.oldPrice ?? null,
+      image_url: c.product.image ?? null,
+      qty: c.qty,
+    }));
     try {
+      if (paymentMethod === "cod") {
+        const res = await placeCOD({ data: { delivery: deliveryPayload, items: itemsPayload } });
+        clearCart();
+        toast.success("Order placed! Pay on delivery.");
+        router.navigate({ to: "/orders/$id", params: { id: res.order_id } });
+        return;
+      }
       const res = await initCheckout({
         data: {
           callbackOrigin: window.location.origin,
-          delivery: {
-            name: selected.full_name,
-            phone: selected.phone,
-            region: selected.region,
-            city: selected.city,
-            address: selected.address,
-            notes: selected.notes ?? "",
-            delivery_type: deliveryType,
-            pickup_station: deliveryType === "pickup" ? pickupStation : "",
-            shipping_fee: shipping,
-            discount,
-          },
-          items: cart.map((c) => ({
-            product_id: c.product.id,
-            name: c.product.name,
-            price: Number(c.product.price),
-            old_price: c.product.oldPrice ?? null,
-            image_url: c.product.image ?? null,
-            qty: c.qty,
-          })),
+          delivery: { ...deliveryPayload, shipping_fee: shipping, discount },
+          items: itemsPayload,
         },
       });
       clearCart();
@@ -305,16 +315,37 @@ function Checkout() {
           <CreditCard size={18} className="text-primary" />
           <h2 className="font-bold">Payment Method</h2>
         </div>
-        <div className="p-3">
-          <div className="p-3 border-2 border-primary rounded bg-primary/5">
+        <div className="p-3 space-y-2">
+          <button
+            type="button"
+            onClick={() => setPaymentMethod("online")}
+            className={`w-full text-left p-3 border-2 rounded ${paymentMethod === "online" ? "border-primary bg-primary/5" : "border-border"}`}
+          >
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-bold text-sm">Pay Online (Paystack)</p>
                 <p className="text-xs text-muted-foreground">Card · MTN MoMo · Vodafone Cash · AirtelTigo · Bank</p>
               </div>
-              <span className="text-xs font-bold bg-success/10 text-success px-2 py-1 rounded">SELECTED</span>
+              {paymentMethod === "online" && (
+                <span className="text-xs font-bold bg-success/10 text-success px-2 py-1 rounded">SELECTED</span>
+              )}
             </div>
-          </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => setPaymentMethod("cod")}
+            className={`w-full text-left p-3 border-2 rounded ${paymentMethod === "cod" ? "border-primary bg-primary/5" : "border-border"}`}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-bold text-sm">Pay on Delivery</p>
+                <p className="text-xs text-muted-foreground">Pay the seller in cash or MoMo when your product arrives</p>
+              </div>
+              {paymentMethod === "cod" && (
+                <span className="text-xs font-bold bg-success/10 text-success px-2 py-1 rounded">SELECTED</span>
+              )}
+            </div>
+          </button>
         </div>
       </section>
 
@@ -336,10 +367,12 @@ function Checkout() {
 
       <p className="flex items-center gap-2 text-xs text-muted-foreground px-4 py-3">
         <ShieldCheck size={14} className="text-success" />
-        Your payment is encrypted and securely processed by Paystack.
+        {paymentMethod === "cod"
+          ? "No payment now — pay the courier when your order is delivered."
+          : "Your payment is encrypted and securely processed by Paystack."}
       </p>
 
-      <div className="fixed bottom-16 left-0 right-0 max-w-md mx-auto bg-card border-t border-border p-3 z-40">
+      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-card border-t border-border p-3 z-40">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs text-muted-foreground">Total</span>
           <span className="font-bold text-lg">{formatGHC(grand)}</span>
@@ -349,7 +382,9 @@ function Checkout() {
           disabled={paying || cart.length === 0 || !selected}
           className="w-full bg-primary text-primary-foreground font-bold py-3.5 rounded-md disabled:opacity-60"
         >
-          {paying ? "Redirecting to Paystack…" : `Confirm order · ${formatGHC(grand)}`}
+          {paying
+            ? paymentMethod === "cod" ? "Placing order…" : "Redirecting to Paystack…"
+            : paymentMethod === "cod" ? `Place order · ${formatGHC(grand)}` : `Confirm order · ${formatGHC(grand)}`}
         </button>
       </div>
     </div>

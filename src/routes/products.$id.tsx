@@ -206,7 +206,7 @@ function ProductDetails() {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-40 flex gap-2 border-t border-border bg-card p-3">
+      <div className="fixed bottom-16 md:bottom-0 left-0 right-0 z-40 flex gap-2 border-t border-border bg-card p-3 max-w-md md:max-w-7xl mx-auto">
         {cartQty === 0 ? (
           <>
             <Link

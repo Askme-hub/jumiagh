@@ -372,7 +372,7 @@ function Checkout() {
           : "Your payment is encrypted and securely processed by Paystack."}
       </p>
 
-      <div className="fixed bottom-16 left-0 right-0 max-w-md mx-auto bg-card border-t border-border p-3 z-40">
+      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-card border-t border-border p-3 z-40">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs text-muted-foreground">Total</span>
           <span className="font-bold text-lg">{formatGHC(grand)}</span>

@@ -367,7 +367,9 @@ function Checkout() {
 
       <p className="flex items-center gap-2 text-xs text-muted-foreground px-4 py-3">
         <ShieldCheck size={14} className="text-success" />
-        Your payment is encrypted and securely processed by Paystack.
+        {paymentMethod === "cod"
+          ? "No payment now — pay the courier when your order is delivered."
+          : "Your payment is encrypted and securely processed by Paystack."}
       </p>
 
       <div className="fixed bottom-16 left-0 right-0 max-w-md mx-auto bg-card border-t border-border p-3 z-40">

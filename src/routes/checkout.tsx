@@ -8,6 +8,7 @@ import { formatGHC, useShop } from "@/lib/store";
 import { supabase } from "@/integrations/supabase/client";
 import { initiatePaystackCheckout } from "@/lib/paystack.functions";
 import { placeCODOrder } from "@/lib/cod.functions";
+import { useSellerDelivery } from "@/lib/seller-delivery";
 import { useAddresses, useSaveAddress, useDeleteAddress, type Address } from "@/lib/addresses";
 import { toast } from "sonner";
 
@@ -27,14 +28,6 @@ const GH_REGIONS = [
   "Bono East", "Ahafo", "Western North", "Oti", "Savannah", "North East",
 ];
 
-const PICKUP_STATIONS: Record<string, string[]> = {
-  "Greater Accra": ["Jumia Pickup Station Accra Central", "Jumia Pickup Station East Legon", "Jumia Pickup Station Tema"],
-  "Ashanti": ["Jumia Pickup Station Adum", "Jumia Pickup Station Abuakwa", "Jumia Pickup Station KNUST"],
-  "Western": ["Jumia Pickup Station Takoradi"],
-  "Central": ["Jumia Pickup Station Cape Coast"],
-  "Eastern": ["Jumia Pickup Station Koforidua"],
-  "Northern": ["Jumia Pickup Station Tamale"],
-};
 
 const Schema = z.object({
   full_name: z.string().trim().min(2, "Enter your full name").max(100),
@@ -90,14 +83,37 @@ function Checkout() {
     [addresses, selectedId]
   );
 
-  const activeRegion = selected?.region ?? form.region;
-  const stations = PICKUP_STATIONS[activeRegion] ?? [];
+  const sellerIds = useMemo(
+    () => cart.map((c) => c.product.sellerId).filter(Boolean) as string[],
+    [cart]
+  );
+  const { data: sellerDelivery = [] } = useSellerDelivery(sellerIds);
+
+  // Pickup stations offered by the sellers in this cart
+  const stations = useMemo(
+    () => sellerDelivery
+      .filter((s) => s.pickup_enabled && s.pickup_station)
+      .map((s) => ({
+        id: s.user_id,
+        label: s.pickup_station as string,
+        region: s.pickup_region ?? "",
+        fee: s.pickup_fee,
+        shop: s.shop_name,
+      })),
+    [sellerDelivery]
+  );
 
   const { shipping, discount, grand } = useMemo(() => {
-    const ship = deliveryType === "pickup" ? 10 : (itemsTotal >= 150 ? 0 : 25);
-    const disc = deliveryType === "pickup" && itemsTotal >= 150 ? 10 : 0;
-    return { shipping: ship, discount: disc, grand: Math.max(0, itemsTotal + ship - disc) };
-  }, [deliveryType, itemsTotal]);
+    let ship: number;
+    if (deliveryType === "pickup") {
+      const p = sellerDelivery.filter((s) => s.pickup_enabled).reduce((a, s) => a + s.pickup_fee, 0);
+      ship = p > 0 ? p : 10;
+    } else {
+      const d = sellerDelivery.reduce((a, s) => a + s.door_delivery_fee, 0);
+      ship = d > 0 ? d : (itemsTotal >= 150 ? 0 : 25);
+    }
+    return { shipping: ship, discount: 0, grand: Math.max(0, itemsTotal + ship) };
+  }, [deliveryType, itemsTotal, sellerDelivery]);
 
   useEffect(() => {
     // Wait for zustand persist hydration before redirecting on empty cart
@@ -291,22 +307,26 @@ function Checkout() {
           {deliveryType === "pickup" && (
             <div className="p-3 pt-0 space-y-2">
               {stations.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No pickup stations in {activeRegion}. Use Door Delivery.</p>
+                <p className="text-sm text-muted-foreground">No pickup stations available for these items. Use Door Delivery.</p>
               ) : stations.map((s) => (
                 <button
-                  key={s}
-                  onClick={() => setPickupStation(s)}
-                  className={`w-full text-left p-3 rounded border ${pickupStation === s ? "border-primary bg-primary/5" : "border-border"}`}
+                  key={s.id}
+                  onClick={() => setPickupStation(s.label)}
+                  className={`w-full text-left p-3 rounded border ${pickupStation === s.label ? "border-primary bg-primary/5" : "border-border"}`}
                 >
-                  <div className="flex items-center justify-between">
-                    <p className="font-semibold text-sm">{s}</p>
-                    <span className="text-xs font-bold bg-secondary px-2 py-0.5 rounded">GH₵ 10</span>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm truncate">{s.label}</p>
+                      <p className="text-[11px] text-muted-foreground truncate">{s.shop}{s.region ? ` · ${s.region}` : ""}</p>
+                    </div>
+                    <span className="text-xs font-bold bg-secondary px-2 py-0.5 rounded shrink-0">{formatGHC(s.fee)}</span>
                   </div>
                 </button>
               ))}
             </div>
           )}
         </section>
+
       )}
 
       {/* Payment method */}

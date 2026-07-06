@@ -42,8 +42,32 @@ export const initiatePaystackCheckout = createServerFn({ method: "POST" })
     // server-side total (don't trust client)
     const itemsTotal = data.items.reduce((a, i) => a + i.price * i.qty, 0);
     const itemCount = data.items.reduce((a, i) => a + i.qty, 0);
-    const shipping = data.delivery.delivery_type === "pickup" ? 10 : (itemsTotal >= 150 ? 0 : 25);
-    const discount = data.delivery.delivery_type === "pickup" && itemsTotal >= 150 ? 10 : 0;
+
+    // Delivery fee comes from the sellers' store settings
+    const productIds = data.items.map((i) => i.product_id).filter(Boolean) as string[];
+    let shipping = data.delivery.delivery_type === "pickup" ? 10 : (itemsTotal >= 150 ? 0 : 25);
+    if (productIds.length > 0) {
+      const { data: prods } = await supabaseAdmin
+        .from("products")
+        .select("seller_id")
+        .in("id", productIds);
+      const sellerIds = [...new Set((prods ?? []).map((p) => p.seller_id).filter(Boolean))] as string[];
+      if (sellerIds.length > 0) {
+        const { data: sellers } = await supabaseAdmin
+          .from("seller_profiles")
+          .select("door_delivery_fee, pickup_enabled, pickup_fee")
+          .in("user_id", sellerIds);
+        if (sellers && sellers.length > 0) {
+          if (data.delivery.delivery_type === "pickup") {
+            const p = sellers.filter((s: any) => s.pickup_enabled).reduce((a: number, s: any) => a + Number(s.pickup_fee ?? 10), 0);
+            shipping = p > 0 ? p : 10;
+          } else {
+            shipping = sellers.reduce((a: number, s: any) => a + Number(s.door_delivery_fee ?? 25), 0);
+          }
+        }
+      }
+    }
+    const discount = 0;
     const total = Math.max(0, itemsTotal + shipping - discount);
     if (total <= 0) throw new Error("Invalid cart total");
 

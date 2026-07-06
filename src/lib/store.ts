@@ -9,6 +9,7 @@ export type Product = {
   image: string;
   stock?: number;
   discount?: number;
+  sellerId?: string;
 };
 
 type Store = {

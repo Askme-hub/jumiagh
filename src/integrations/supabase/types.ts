@@ -400,8 +400,13 @@ export type Database = {
         Row: {
           bio: string | null
           created_at: string
+          door_delivery_fee: number
           logo_url: string | null
           phone: string | null
+          pickup_enabled: boolean
+          pickup_fee: number
+          pickup_region: string | null
+          pickup_station: string | null
           shop_name: string
           status: string
           updated_at: string
@@ -410,8 +415,13 @@ export type Database = {
         Insert: {
           bio?: string | null
           created_at?: string
+          door_delivery_fee?: number
           logo_url?: string | null
           phone?: string | null
+          pickup_enabled?: boolean
+          pickup_fee?: number
+          pickup_region?: string | null
+          pickup_station?: string | null
           shop_name: string
           status?: string
           updated_at?: string
@@ -420,8 +430,13 @@ export type Database = {
         Update: {
           bio?: string | null
           created_at?: string
+          door_delivery_fee?: number
           logo_url?: string | null
           phone?: string | null
+          pickup_enabled?: boolean
+          pickup_fee?: number
+          pickup_region?: string | null
+          pickup_station?: string | null
           shop_name?: string
           status?: string
           updated_at?: string

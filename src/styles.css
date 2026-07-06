@@ -192,6 +192,9 @@
   --primary: oklch(0.72 0.21 45);
   --primary-foreground: oklch(0.14 0.01 40);
 
+  /* SOFT ORANGE (dark surface tint) */
+  --primary-soft: oklch(0.3 0.07 50);
+
   --secondary: oklch(0.25 0.01 40);
   --secondary-foreground: oklch(0.98 0.002 85);
 

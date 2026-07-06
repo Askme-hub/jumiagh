@@ -12,6 +12,7 @@ export type DbProduct = {
   stock: number;
   discount: number | null;
   category: string | null;
+  seller_id?: string | null;
 };
 
 export const toProduct = (p: DbProduct): Product => ({
@@ -22,6 +23,7 @@ export const toProduct = (p: DbProduct): Product => ({
   image: p.image_url ?? "",
   stock: p.stock,
   discount: p.discount ?? undefined,
+  sellerId: p.seller_id ?? undefined,
 });
 
 export function useProducts(category?: string) {

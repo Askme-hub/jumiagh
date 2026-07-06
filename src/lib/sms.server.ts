@@ -15,7 +15,7 @@ export function normalizeGhanaPhone(raw: string): string {
 
 /**
  * Send an SMS via BulkSMSGhana.
- * Requires BULKSMSGHANA_API_KEY. Optional BULKSMSGHANA_SENDER_ID (defaults to "KIVORA").
+ * Requires BULKSMSGHANA_API_KEY. Optional BULKSMSGHANA_SENDER_ID (defaults to "KIVORA GH").
  * Endpoint & params per https://bulksmsghana.com/developer/ :
  *   https://clientlogin.bulksmsgh.com/smsapi?key=..&to=..&msg=..&sender_id=..
  */
@@ -35,7 +35,7 @@ export async function sendSMS(
   message: string
 ): Promise<SmsResult> {
   const key = process.env.BULKSMSGHANA_API_KEY;
-  const sender = process.env.BULKSMSGHANA_SENDER_ID || "KIVORA";
+  const sender = process.env.BULKSMSGHANA_SENDER_ID || "KIVORA GH";
   if (!key) return { ok: false, detail: "SMS not configured" };
 
   const contacts = (Array.isArray(to) ? to : [to])

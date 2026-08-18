@@ -7,11 +7,11 @@ export function ProductCard({ product }: { product: Product }) {
   const addToCart = useShop((s) => s.addToCart);
   const updateQty = useShop((s) => s.updateQty);
   const toggleWishlist = useShop((s) => s.toggleWishlist);
-  const isWishlisted = useShop((s) => s.isWishlisted);
 
   const cartItem = useShop((s) => s.cart.find((c) => c.product.id === product.id));
   const qty = cartItem?.qty ?? 0;
-  const wished = isWishlisted(product.id);
+  const wished = useShop((s) => s.wishlist.some((w) => w.id === product.id));
+
 
   const oldPrice = product.discount
     ? product.price + (product.price * product.discount) / 100
@@ -45,10 +45,16 @@ export function ProductCard({ product }: { product: Product }) {
             toast.success(wished ? "Removed from wishlist" : "Added to wishlist");
           }}
           aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
-          className="absolute right-2 top-2 rounded-full bg-background/90 p-2 text-foreground shadow-sm backdrop-blur transition hover:bg-primary hover:text-primary-foreground"
+          aria-pressed={wished}
+          className={`absolute right-2 top-2 rounded-full p-2 shadow-sm backdrop-blur transition ${
+            wished
+              ? "bg-primary text-primary-foreground"
+              : "bg-background/90 text-foreground hover:bg-primary hover:text-primary-foreground"
+          }`}
         >
-          <Heart size={15} fill={wished ? "currentColor" : "none"} className={wished ? "text-primary" : ""} />
+          <Heart size={15} fill={wished ? "currentColor" : "none"} />
         </button>
+
       </Link>
 
       {/* CONTENT */}

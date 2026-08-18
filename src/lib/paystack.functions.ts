@@ -240,8 +240,9 @@ export const verifyPaystackPayment = createServerFn({ method: "POST" })
           if (sp.phone && normalizeGhanaPhone(sp.phone)) {
             await trySendSMS(
               sp.phone,
-              `Kivora: You have a new paid order (#${orderRef}). Log in to your Seller Hub to fulfil it.`
+              `KIVORA GH\nNew PAID order #${orderRef}.\nItems: ${itemLines || `${order.item_count} item(s)`}\nBuyer: ${order.delivery_name ?? ""} (${order.delivery_phone ?? "n/a"})\n${dest}\nLog in to your Seller Hub to process and ship it.`
             );
+
           }
           if (sp.user_id) {
             await supabaseAdmin.from("inbox_messages").insert({

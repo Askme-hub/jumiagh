@@ -142,10 +142,12 @@ export const initiatePaystackCheckout = createServerFn({ method: "POST" })
 
     return {
       authorization_url: json.data.authorization_url as string,
+      access_code: json.data.access_code as string,
       reference,
       order_id: order.id,
     };
   });
+
 
 export const verifyPaystackPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -203,12 +205,24 @@ export const verifyPaystackPayment = createServerFn({ method: "POST" })
 
       // SMS notifications (best-effort, never block the response)
       const { trySendSMS, normalizeGhanaPhone } = await import("./sms.server");
+      const { data: boughtItems } = await supabaseAdmin
+        .from("order_items")
+        .select("name, qty, price")
+        .eq("order_id", order.id);
+      const itemLines = (boughtItems ?? [])
+        .map((i: any) => `${i.qty} x ${String(i.name).slice(0, 40)}`)
+        .join(", ");
+      const dest =
+        order.delivery_type === "pickup"
+          ? `Pickup: ${order.pickup_station ?? "station"}`
+          : `Delivery: ${[order.delivery_address, order.delivery_city, order.delivery_region].filter(Boolean).join(", ")}`;
       if (order.delivery_phone) {
         await trySendSMS(
           order.delivery_phone,
-          `Kivora: Order #${orderRef} confirmed. ${order.item_count} item(s), GH₵ ${Number(order.total).toFixed(2)}. We'll notify you as it ships. Thank you!`
+          `KIVORA GH\nOrder #${orderRef} CONFIRMED (Paid Online).\nItems: ${itemLines || `${order.item_count} item(s)`}\nSubtotal: GH${"\u20B5"} ${(Number(order.total) - Number(order.shipping_fee ?? 0)).toFixed(2)}\nShipping: GH${"\u20B5"} ${Number(order.shipping_fee ?? 0).toFixed(2)}\nTotal paid: GH${"\u20B5"} ${Number(order.total).toFixed(2)}\n${dest}\nTrack your order in the Kivora app. Support: support@kivora.gh`
         );
       }
+
       // Alert each seller in the order
       const { data: soldItems } = await supabaseAdmin
         .from("order_items")
@@ -226,8 +240,9 @@ export const verifyPaystackPayment = createServerFn({ method: "POST" })
           if (sp.phone && normalizeGhanaPhone(sp.phone)) {
             await trySendSMS(
               sp.phone,
-              `Kivora: You have a new paid order (#${orderRef}). Log in to your Seller Hub to fulfil it.`
+              `KIVORA GH\nNew PAID order #${orderRef}.\nItems: ${itemLines || `${order.item_count} item(s)`}\nBuyer: ${order.delivery_name ?? ""} (${order.delivery_phone ?? "n/a"})\n${dest}\nLog in to your Seller Hub to process and ship it.`
             );
+
           }
           if (sp.user_id) {
             await supabaseAdmin.from("inbox_messages").insert({

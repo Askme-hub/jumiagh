@@ -158,9 +158,27 @@ function Checkout() {
     }
   };
 
+  const blocker = !selected
+    ? "Add a delivery address to continue"
+    : deliveryType === "pickup" && !pickupStation
+    ? "Choose a pickup station to continue"
+    : cart.length === 0
+    ? "Your cart is empty"
+    : null;
+
   const pay = async () => {
-    if (!selected) { toast.error("Add a delivery address"); setShowForm(true); return; }
-    if (deliveryType === "pickup" && !pickupStation) { toast.error("Pick a pickup station"); return; }
+    if (!selected) {
+      toast.error("Add a delivery address");
+      setShowForm(true);
+      document.getElementById("address-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (deliveryType === "pickup" && !pickupStation) {
+      toast.error("Pick a pickup station");
+      document.getElementById("delivery-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (cart.length === 0) { toast.error("Your cart is empty"); return; }
     setPaying(true);
     const deliveryPayload = {
       name: selected.full_name,
@@ -195,13 +213,35 @@ function Checkout() {
           items: itemsPayload,
         },
       });
-      clearCart();
-      window.location.href = res.authorization_url;
+
+      // Keep the cart intact until payment actually succeeds.
+      const done = () => {
+        window.location.href = `/payment/callback?ref=${encodeURIComponent(res.reference)}`;
+      };
+      const PaystackPop = await loadPaystack();
+      if (!PaystackPop) {
+        window.location.href = res.authorization_url;
+        return;
+      }
+      const popup = new PaystackPop();
+      popup.resumeTransaction(res.access_code, {
+        onSuccess: done,
+        onLoad: () => {},
+        onCancel: () => {
+          setPaying(false);
+          toast.info("Payment cancelled — your cart is still saved.");
+        },
+        onError: () => {
+          setPaying(false);
+          toast.error("Payment could not be completed. Your cart is saved.");
+        },
+      });
     } catch (e: any) {
       toast.error(e.message ?? "Checkout failed");
       setPaying(false);
     }
   };
+
 
   return (
     <div className="pb-32">

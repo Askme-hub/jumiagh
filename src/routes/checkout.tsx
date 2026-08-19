@@ -282,7 +282,8 @@ function Checkout() {
       </ol>
 
       {/* Saved addresses */}
-      <section className="bg-card mt-2">
+      <section id="address-section" className="bg-card mt-2">
+
         <div className="px-4 py-3 border-b border-border flex items-center gap-2">
           <MapPin size={18} className="text-primary" />
           <h2 className="font-bold flex-1">Delivery Address</h2>
@@ -347,7 +348,8 @@ function Checkout() {
 
       {/* Delivery method */}
       {selected && (
-        <section className="bg-card mt-2">
+        <section id="delivery-section" className="bg-card mt-2">
+
           <div className="px-4 py-3 border-b border-border">
             <h2 className="font-bold">Delivery Method</h2>
           </div>

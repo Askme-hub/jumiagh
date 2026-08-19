@@ -28,6 +28,32 @@ const GH_REGIONS = [
   "Bono East", "Ahafo", "Western North", "Oti", "Savannah", "North East",
 ];
 
+/** Load Paystack's inline popup script once; returns null if unavailable. */
+async function loadPaystack(): Promise<any | null> {
+  if (typeof window === "undefined") return null;
+  const w = window as any;
+  if (w.PaystackPop) return w.PaystackPop;
+  return new Promise((resolve) => {
+    const existing = document.getElementById("paystack-inline-js") as HTMLScriptElement | null;
+    const done = () => resolve((window as any).PaystackPop ?? null);
+    if (existing) {
+      existing.addEventListener("load", done, { once: true });
+      existing.addEventListener("error", () => resolve(null), { once: true });
+      return;
+    }
+    const s = document.createElement("script");
+    s.id = "paystack-inline-js";
+    s.src = "https://js.paystack.co/v2/inline.js";
+    s.async = true;
+    s.onload = done;
+    s.onerror = () => resolve(null);
+    document.head.appendChild(s);
+    setTimeout(() => resolve((window as any).PaystackPop ?? null), 8000);
+  });
+}
+
+
+
 
 const Schema = z.object({
   full_name: z.string().trim().min(2, "Enter your full name").max(100),

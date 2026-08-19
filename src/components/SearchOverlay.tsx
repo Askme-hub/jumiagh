@@ -1,7 +1,9 @@
 import { Search, X, ArrowRight } from "lucide-react";
-import { useRouter } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { Link, useRouter } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchUI } from "@/lib/search-ui";
+import { useProducts } from "@/lib/products";
+import { formatGHC } from "@/lib/store";
 
 const TRENDING = ["iPhone", "Sneakers", "PlayStation", "Smart TV", "AirPods"];
 
@@ -10,6 +12,14 @@ export function SearchOverlay() {
   const router = useRouter();
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const { data: products = [], isLoading } = useProducts();
+
+  const term = value.trim().toLowerCase();
+  const suggestions = useMemo(
+    () => (term.length < 2 ? [] : products.filter((p) => p.name.toLowerCase().includes(term)).slice(0, 6)),
+    [term, products]
+  );
+
 
   // focus + lock scroll when open
   useEffect(() => {

@@ -45,15 +45,15 @@ function Account() {
     );
   }
 
-  const accountItems = [
-    { icon: Package, label: "Orders", to: "/orders" as const },
-    { icon: Mail, label: "Inbox", to: "/inbox" as const },
-    { icon: Heart, label: "Wishlist", to: "/wishlist" as const },
-    { icon: Star, label: "Ratings & Reviews" },
-    { icon: Ticket, label: "Vouchers" },
-    { icon: Store, label: "Follow Seller" },
-    { icon: History, label: "Recently Viewed" },
-    { icon: SearchIcon, label: "Recently Searched" },
+  const accountItems: { icon: any; label: string; to?: AccountLink; soon?: boolean }[] = [
+    { icon: Package, label: "Orders", to: "/orders" },
+    { icon: Mail, label: "Inbox", to: "/inbox" },
+    { icon: Heart, label: "Wishlist", to: "/wishlist" },
+    { icon: SearchIcon, label: "Browse Categories", to: "/categories" },
+    { icon: Store, label: "Seller Hub", to: "/seller" },
+    { icon: Star, label: "Ratings & Reviews", soon: true },
+    { icon: Ticket, label: "Vouchers", soon: true },
+    { icon: History, label: "Recently Viewed", soon: true },
   ];
 
   return (
@@ -63,8 +63,8 @@ function Account() {
         <h1 className="text-2xl font-bold">Welcome {user.user_metadata?.display_name ?? user.email?.split("@")[0]}!</h1>
         <p className="text-primary mt-1">{user.email}</p>
         <div className="flex items-center gap-2 mt-3">
-          <Wallet size={22} className="text-[#1d4ed8]" />
-          <p className="text-[#1d4ed8] font-semibold">Kivora store credit balance: GH₵ 0</p>
+          <Wallet size={22} className="text-primary" />
+          <p className="text-primary font-semibold">Kivora store credit balance: GH₵ 0</p>
         </div>
       </div>
 
@@ -76,29 +76,36 @@ function Account() {
         </Link>
       )}
 
-      <Link to="/seller" className="flex items-center gap-3 px-4 py-3 bg-[#ff7a00] text-white border-b border-border">
+      <Link to="/seller" className="flex items-center gap-3 px-4 py-3 bg-primary text-primary-foreground border-b border-border">
         <Store size={20} />
         <span className="flex-1 font-bold">{isSeller ? "Open Seller Hub" : "Sell on Kivora"}</span>
         <ChevronRight size={20} />
       </Link>
 
-
       <div className="bg-muted px-4 py-3 flex gap-2">
-        <button className="flex-1 bg-primary text-primary-foreground font-bold py-3 rounded-md flex items-center justify-center gap-2">
-          <MessageSquare size={18} /> Live Chat
-        </button>
-        <button className="flex-1 bg-background border-2 border-success text-success font-bold py-3 rounded-md flex items-center justify-center gap-2">
+        <a
+          href="tel:+233000000000"
+          className="flex-1 bg-primary text-primary-foreground font-bold py-3 rounded-md flex items-center justify-center gap-2"
+        >
+          <MessageSquare size={18} /> Call Support
+        </a>
+        <a
+          href="https://wa.me/233000000000"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 bg-background border-2 border-success text-success font-bold py-3 rounded-md flex items-center justify-center gap-2"
+        >
           <MessageCircle size={18} /> WhatsApp
-        </button>
+        </a>
       </div>
 
       <Section title="Need Assistance?">
-        <Row icon={Info} label="Help & Support" />
+        <Row icon={Info} label="Help & Support" soon />
       </Section>
 
-      <Section title="My Jumia Account">
+      <Section title="My Kivora Account">
         {accountItems.map((it) => (
-          <Row key={it.label} icon={it.icon} label={it.label} to={it.to} />
+          <Row key={it.label} icon={it.icon} label={it.label} to={it.to} soon={it.soon} />
         ))}
       </Section>
 
@@ -112,6 +119,8 @@ function Account() {
   );
 }
 
+type AccountLink = "/wishlist" | "/orders" | "/inbox" | "/categories" | "/seller";
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mt-2">
@@ -121,13 +130,27 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function Row({ icon: Icon, label, to }: { icon?: any; label: string; to?: "/wishlist" | "/orders" | "/inbox" }) {
+function Row({ icon: Icon, label, to, soon }: { icon?: any; label: string; to?: AccountLink; soon?: boolean }) {
   const content = (
     <div className="flex items-center gap-4 px-4 py-4 border-b border-border bg-card">
       {Icon && <Icon size={20} className="text-foreground/80" />}
       <span className="flex-1">{label}</span>
+      {soon && (
+        <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold uppercase text-muted-foreground">
+          Soon
+        </span>
+      )}
       <ChevronRight size={20} className="text-muted-foreground" />
     </div>
   );
-  return to ? <Link to={to}>{content}</Link> : <button className="w-full text-left">{content}</button>;
+  if (to) return <Link to={to}>{content}</Link>;
+  return (
+    <button
+      className="w-full text-left"
+      onClick={() => toast.info(`${label} is coming soon to Kivora.`)}
+    >
+      {content}
+    </button>
+  );
 }
+

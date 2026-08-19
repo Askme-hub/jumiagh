@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { verifyPaystackPayment } from "@/lib/paystack.functions";
+import { useShop } from "@/lib/store";
+
 
 export const Route = createFileRoute("/payment/callback")({
   component: PaymentCallback,
@@ -22,9 +24,15 @@ function PaymentCallback() {
   useEffect(() => {
     if (!ref) { setState("failed"); return; }
     verify({ data: { reference: ref } })
-      .then((r) => { setState(r.status as any); setOrderId(r.order_id); })
+      .then((r) => {
+        setState(r.status as any);
+        setOrderId(r.order_id);
+        // Only empty the cart once payment is actually confirmed.
+        if (r.status === "paid") useShop.getState().clearCart();
+      })
       .catch(() => setState("failed"));
   }, [ref]);
+
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">

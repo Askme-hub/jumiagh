@@ -116,12 +116,20 @@ export const placeCODOrder = createServerFn({ method: "POST" })
 
     // SMS notifications (best-effort, never block)
     const { trySendSMS, normalizeGhanaPhone } = await import("./sms.server");
+    const itemLines = data.items
+      .map((i) => `${i.qty} x ${String(i.name).slice(0, 40)}`)
+      .join(", ");
+    const dest =
+      order.delivery_type === "pickup"
+        ? `Pickup: ${order.pickup_station ?? "station"}`
+        : `Delivery: ${[order.delivery_address, order.delivery_city, order.delivery_region].filter(Boolean).join(", ")}`;
     if (order.delivery_phone) {
       await trySendSMS(
         order.delivery_phone,
-        `Kivora: Order #${orderRef} placed (Pay on Delivery). ${order.item_count} item(s), GH₵ ${Number(order.total).toFixed(2)}. Pay the courier on delivery. Thank you!`
+        `KIVORA GH\nOrder #${orderRef} PLACED (Pay on Delivery).\nItems: ${itemLines}\nAmount due on delivery: GH${"\u20B5"} ${Number(order.total).toFixed(2)}\n${dest}\nPlease have the exact amount (cash or MoMo) ready for the courier. Track it in the Kivora app.`
       );
     }
+
 
     // Alert each seller in the order
     const { data: soldItems } = await supabaseAdmin
@@ -140,8 +148,9 @@ export const placeCODOrder = createServerFn({ method: "POST" })
         if (sp.phone && normalizeGhanaPhone(sp.phone)) {
           await trySendSMS(
             sp.phone,
-            `Kivora: New Pay on Delivery order (#${orderRef}). Log in to your Seller Hub to fulfil it.`
+            `KIVORA GH\nNew PAY ON DELIVERY order #${orderRef}.\nItems: ${itemLines}\nCollect GH${"\u20B5"} ${Number(order.total).toFixed(2)} on delivery.\nBuyer: ${order.delivery_name ?? ""} (${order.delivery_phone ?? "n/a"})\n${dest}\nLog in to your Seller Hub to process it.`
           );
+
         }
         if (sp.user_id) {
           await supabaseAdmin.from("inbox_messages").insert({

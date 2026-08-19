@@ -28,6 +28,32 @@ const GH_REGIONS = [
   "Bono East", "Ahafo", "Western North", "Oti", "Savannah", "North East",
 ];
 
+/** Load Paystack's inline popup script once; returns null if unavailable. */
+async function loadPaystack(): Promise<any | null> {
+  if (typeof window === "undefined") return null;
+  const w = window as any;
+  if (w.PaystackPop) return w.PaystackPop;
+  return new Promise((resolve) => {
+    const existing = document.getElementById("paystack-inline-js") as HTMLScriptElement | null;
+    const done = () => resolve((window as any).PaystackPop ?? null);
+    if (existing) {
+      existing.addEventListener("load", done, { once: true });
+      existing.addEventListener("error", () => resolve(null), { once: true });
+      return;
+    }
+    const s = document.createElement("script");
+    s.id = "paystack-inline-js";
+    s.src = "https://js.paystack.co/v2/inline.js";
+    s.async = true;
+    s.onload = done;
+    s.onerror = () => resolve(null);
+    document.head.appendChild(s);
+    setTimeout(() => resolve((window as any).PaystackPop ?? null), 8000);
+  });
+}
+
+
+
 
 const Schema = z.object({
   full_name: z.string().trim().min(2, "Enter your full name").max(100),
@@ -256,7 +282,8 @@ function Checkout() {
       </ol>
 
       {/* Saved addresses */}
-      <section className="bg-card mt-2">
+      <section id="address-section" className="bg-card mt-2">
+
         <div className="px-4 py-3 border-b border-border flex items-center gap-2">
           <MapPin size={18} className="text-primary" />
           <h2 className="font-bold flex-1">Delivery Address</h2>
@@ -321,7 +348,8 @@ function Checkout() {
 
       {/* Delivery method */}
       {selected && (
-        <section className="bg-card mt-2">
+        <section id="delivery-section" className="bg-card mt-2">
+
           <div className="px-4 py-3 border-b border-border">
             <h2 className="font-bold">Delivery Method</h2>
           </div>
@@ -433,19 +461,27 @@ function Checkout() {
       </p>
 
       <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-card border-t border-border p-3 z-40">
+        {blocker && (
+          <p className="mb-2 rounded-md bg-warning/10 px-3 py-2 text-xs font-semibold text-warning">
+            {blocker}
+          </p>
+        )}
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs text-muted-foreground">Total</span>
           <span className="font-bold text-lg">{formatGHC(grand)}</span>
         </div>
         <button
           onClick={pay}
-          disabled={paying || cart.length === 0 || !selected}
-          className="w-full bg-primary text-primary-foreground font-bold py-3.5 rounded-md disabled:opacity-60"
+          disabled={paying}
+          className={`w-full font-bold py-3.5 rounded-md transition disabled:opacity-60 ${
+            blocker ? "bg-primary/60 text-primary-foreground" : "bg-primary text-primary-foreground"
+          }`}
         >
           {paying
-            ? paymentMethod === "cod" ? "Placing order…" : "Redirecting to Paystack…"
-            : paymentMethod === "cod" ? `Place order · ${formatGHC(grand)}` : `Confirm order · ${formatGHC(grand)}`}
+            ? paymentMethod === "cod" ? "Placing order…" : "Opening secure payment…"
+            : paymentMethod === "cod" ? `Place order · ${formatGHC(grand)}` : `Pay now · ${formatGHC(grand)}`}
         </button>
+
       </div>
     </div>
   );

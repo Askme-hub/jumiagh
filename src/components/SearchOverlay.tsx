@@ -1,7 +1,9 @@
 import { Search, X, ArrowRight } from "lucide-react";
-import { useRouter } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { Link, useRouter } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchUI } from "@/lib/search-ui";
+import { useProducts } from "@/lib/products";
+import { formatGHC } from "@/lib/store";
 
 const TRENDING = ["iPhone", "Sneakers", "PlayStation", "Smart TV", "AirPods"];
 
@@ -10,6 +12,14 @@ export function SearchOverlay() {
   const router = useRouter();
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const { data: products = [], isLoading } = useProducts();
+
+  const term = value.trim().toLowerCase();
+  const suggestions = useMemo(
+    () => (term.length < 2 ? [] : products.filter((p) => p.name.toLowerCase().includes(term)).slice(0, 6)),
+    [term, products]
+  );
+
 
   // focus + lock scroll when open
   useEffect(() => {
@@ -93,22 +103,60 @@ export function SearchOverlay() {
             </button>
           </form>
 
-          <div className="mt-3">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
-              Trending
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {TRENDING.map((t) => (
-                <button
-                  key={t}
-                  onClick={() => submit(t)}
-                  className="px-3 py-1.5 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground text-xs font-medium text-foreground transition"
-                >
-                  {t}
-                </button>
-              ))}
+          {term.length >= 2 ? (
+            <div className="mt-3 max-h-[60vh] overflow-y-auto">
+              {isLoading ? (
+                <p className="py-3 text-sm text-muted-foreground">Searching…</p>
+              ) : suggestions.length === 0 ? (
+                <p className="py-3 text-sm text-muted-foreground">
+                  No matches for “{value.trim()}”. Press enter to search anyway.
+                </p>
+              ) : (
+                <ul className="divide-y divide-border">
+                  {suggestions.map((p) => (
+                    <li key={p.id}>
+                      <Link
+                        to="/products/$id"
+                        params={{ id: p.id }}
+                        onClick={() => { setOpen(false); setValue(""); }}
+                        className="flex items-center gap-3 py-2.5 hover:bg-muted/60 rounded-lg px-1 transition"
+                      >
+                        <div className="h-11 w-11 shrink-0 overflow-hidden rounded-md bg-muted">
+                          {p.image && <img src={p.image} alt="" className="h-full w-full object-contain" />}
+                        </div>
+                        <span className="line-clamp-1 flex-1 text-sm text-foreground">{p.name}</span>
+                        <span className="text-xs font-bold text-primary">{formatGHC(p.price)}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <button
+                onClick={() => submit(value)}
+                className="mt-2 w-full rounded-xl bg-muted py-2.5 text-xs font-bold text-foreground hover:bg-primary hover:text-primary-foreground transition"
+              >
+                See all results for “{value.trim()}”
+              </button>
             </div>
-          </div>
+          ) : (
+            <div className="mt-3">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
+                Trending
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {TRENDING.map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => submit(t)}
+                    className="px-3 py-1.5 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground text-xs font-medium text-foreground transition"
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </div>

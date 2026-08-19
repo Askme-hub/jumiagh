@@ -461,19 +461,27 @@ function Checkout() {
       </p>
 
       <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-card border-t border-border p-3 z-40">
+        {blocker && (
+          <p className="mb-2 rounded-md bg-warning/10 px-3 py-2 text-xs font-semibold text-warning">
+            {blocker}
+          </p>
+        )}
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs text-muted-foreground">Total</span>
           <span className="font-bold text-lg">{formatGHC(grand)}</span>
         </div>
         <button
           onClick={pay}
-          disabled={paying || cart.length === 0 || !selected}
-          className="w-full bg-primary text-primary-foreground font-bold py-3.5 rounded-md disabled:opacity-60"
+          disabled={paying}
+          className={`w-full font-bold py-3.5 rounded-md transition disabled:opacity-60 ${
+            blocker ? "bg-primary/60 text-primary-foreground" : "bg-primary text-primary-foreground"
+          }`}
         >
           {paying
-            ? paymentMethod === "cod" ? "Placing order…" : "Redirecting to Paystack…"
-            : paymentMethod === "cod" ? `Place order · ${formatGHC(grand)}` : `Confirm order · ${formatGHC(grand)}`}
+            ? paymentMethod === "cod" ? "Placing order…" : "Opening secure payment…"
+            : paymentMethod === "cod" ? `Place order · ${formatGHC(grand)}` : `Pay now · ${formatGHC(grand)}`}
         </button>
+
       </div>
     </div>
   );

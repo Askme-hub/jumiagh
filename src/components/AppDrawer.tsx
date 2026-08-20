@@ -237,43 +237,50 @@ export function MobileTopBar() {
   if (path === "/login") return null;
 
   return (
-    <header className="md:hidden sticky top-0 z-40 bg-background border-b border-border">
-      <div className="h-14 px-3 flex items-center gap-2">
+    <header className="md:hidden sticky top-0 z-40 bg-background/95 backdrop-blur-xl">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-3 pt-3">
         <AppDrawer />
-        <Link to="/" className="flex items-center gap-2 flex-1 min-w-0">
-          <img src={kivoraIcon} alt="Kivora" className="w-8 h-8 rounded-lg" />
-          <span className="text-lg font-extrabold tracking-tight text-primary">
-            Kivora
+        <Link to="/" className="flex min-w-0 items-center gap-2">
+          <img src={kivoraIcon} alt="Kivora" className="h-9 w-9 shrink-0 rounded-xl" />
+          <span className="min-w-0">
+            <span className="block truncate text-[11px] font-medium text-muted-foreground">
+              Hello there 👋
+            </span>
+            <span className="block truncate text-base font-extrabold leading-tight tracking-tight text-primary">
+              Kivora Ghana
+            </span>
           </span>
         </Link>
-        <Link
-          to="/account"
-          aria-label="Account"
-          className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-foreground active:scale-95 transition"
-        >
-          <UserCircle2 size={20} />
-        </Link>
-        <Link
-          to="/cart"
-          aria-label="Cart"
-          className="relative w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-foreground active:scale-95 transition"
-        >
-          <ShoppingCart size={20} />
-          {mounted && count > 0 && (
-            <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
-              {count}
-            </span>
-          )}
-        </Link>
+        <div className="flex shrink-0 items-center gap-2">
+          <Link
+            to="/account"
+            aria-label="Account"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-foreground shadow-soft transition active:scale-95"
+          >
+            <UserCircle2 size={20} />
+          </Link>
+          <Link
+            to="/cart"
+            aria-label="Cart"
+            className="relative flex h-11 w-11 items-center justify-center rounded-full bg-card text-foreground shadow-soft transition active:scale-95"
+          >
+            <ShoppingCart size={20} />
+            {mounted && count > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-flash px-1 text-[10px] font-bold text-flash-foreground">
+                {count}
+              </span>
+            )}
+          </Link>
+        </div>
       </div>
-      <div className="px-3 pb-2.5">
+      <div className="px-3 py-3">
         <button
           onClick={() => openSearch(true)}
-          className="w-full flex items-center gap-3 rounded-full bg-muted px-4 py-2.5 text-left active:scale-[0.99] transition"
+          className="flex w-full items-center gap-3 rounded-full bg-card px-5 py-3.5 text-left shadow-soft transition active:scale-[0.99]"
         >
-          <Search size={18} className="text-muted-foreground shrink-0" />
-          <span className="text-sm text-muted-foreground truncate">
-            Search products, brands and categories
+          <Search size={18} className="shrink-0 text-primary" />
+          <span className="truncate text-sm text-muted-foreground">
+            Search for your favourite products...
           </span>
         </button>
       </div>

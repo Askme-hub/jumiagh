@@ -1,5 +1,5 @@
 import { Product, formatGHC, useShop } from "@/lib/store";
-import { Heart, Star, Minus, Plus, ShoppingBag } from "lucide-react";
+import { Heart, Star, Minus, Plus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 

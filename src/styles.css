@@ -92,8 +92,8 @@
 :root {
   --radius: 1rem;
 
-  /* MAIN */
-  --background: oklch(0.985 0.002 85);
+  /* MAIN — warm cream canvas */
+  --background: oklch(0.972 0.014 78);
   --foreground: oklch(0.18 0.01 40);
 
   /* CARD */

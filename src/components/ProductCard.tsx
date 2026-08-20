@@ -1,5 +1,5 @@
 import { Product, formatGHC, useShop } from "@/lib/store";
-import { Heart, Star, Minus, Plus, ShoppingBag } from "lucide-react";
+import { Heart, Star, Minus, Plus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
@@ -18,12 +18,12 @@ export function ProductCard({ product }: { product: Product }) {
     : null;
 
   return (
-    <div className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated hover:border-primary/40">
+    <div className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border/60 bg-card text-card-foreground shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated">
       {/* IMAGE */}
       <Link
         to="/products/$id"
         params={{ id: product.id }}
-        className="relative block aspect-square overflow-hidden bg-muted/40"
+        className="relative m-2 block aspect-square overflow-hidden rounded-2xl bg-muted/50"
       >
         <img
           src={product.image}
@@ -33,7 +33,7 @@ export function ProductCard({ product }: { product: Product }) {
         />
 
         {product.discount && (
-          <div className="absolute left-2 top-2 rounded-full bg-flash px-2 py-1 text-[10px] font-bold text-flash-foreground shadow">
+          <div className="absolute left-2 top-2 rounded-full bg-flash px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-flash-foreground shadow">
             -{product.discount}%
           </div>
         )}
@@ -46,10 +46,10 @@ export function ProductCard({ product }: { product: Product }) {
           }}
           aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
           aria-pressed={wished}
-          className={`absolute right-2 top-2 rounded-full p-2 shadow-sm backdrop-blur transition ${
+          className={`absolute right-2 top-2 rounded-full p-2 shadow-soft backdrop-blur transition ${
             wished
               ? "bg-primary text-primary-foreground"
-              : "bg-background/90 text-foreground hover:bg-primary hover:text-primary-foreground"
+              : "bg-card/90 text-foreground hover:bg-primary hover:text-primary-foreground"
           }`}
         >
           <Heart size={15} fill={wished ? "currentColor" : "none"} />
@@ -57,23 +57,14 @@ export function ProductCard({ product }: { product: Product }) {
 
       </Link>
 
+
       {/* CONTENT */}
-      <div className="flex flex-1 flex-col p-3">
-        <h3 className="line-clamp-2 min-h-[40px] text-sm font-medium leading-5 text-foreground">
+      <div className="flex flex-1 flex-col px-3 pb-3 pt-1">
+        <h3 className="line-clamp-2 min-h-[40px] text-sm font-semibold leading-5 text-foreground">
           {product.name}
         </h3>
 
-        <div className="mt-2">
-          <p className="text-lg font-extrabold text-foreground">{formatGHC(product.price)}</p>
-          {oldPrice && (
-            <div className="mt-0.5 flex items-center gap-2">
-              <p className="text-xs text-muted-foreground line-through">{formatGHC(oldPrice)}</p>
-              <span className="text-[10px] font-semibold text-success">Save {product.discount}%</span>
-            </div>
-          )}
-        </div>
-
-        <div className="mt-2 flex items-center gap-1">
+        <div className="mt-1.5 flex items-center gap-1">
           <div className="flex text-warning">
             {[1, 2, 3, 4, 5].map((i) => (
               <Star key={i} size={11} fill="currentColor" strokeWidth={0} />
@@ -84,45 +75,50 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
 
         {product.stock ? (
-          <div className="mt-2">
-            <p className="text-[11px] font-semibold text-primary">Only {product.stock} left</p>
-            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full bg-primary"
-                style={{ width: `${Math.min(product.stock * 10, 100)}%` }}
-              />
-            </div>
-          </div>
+          <p className="mt-1.5 text-[11px] font-semibold text-primary">
+            Only {product.stock} left
+          </p>
         ) : null}
 
-        <div className="mt-auto pt-3">
+        <div className="mt-auto flex items-end justify-between gap-2 pt-3">
+          <div className="min-w-0">
+            <p className="truncate text-lg font-extrabold text-foreground">
+              {formatGHC(product.price)}
+            </p>
+            {oldPrice && (
+              <p className="truncate text-xs text-muted-foreground line-through">
+                {formatGHC(oldPrice)}
+              </p>
+            )}
+          </div>
+
           {qty === 0 ? (
             <button
               onClick={() => {
                 addToCart(product);
                 toast.success(`${product.name} added to cart`);
               }}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-[13px] font-semibold text-primary-foreground shadow-sm transition-all duration-300 hover:bg-primary/90 active:scale-[0.98]"
+              aria-label={`Add ${product.name} to cart`}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full gradient-primary text-primary-foreground shadow-soft transition active:scale-95"
             >
-              <ShoppingBag size={15} />
-              Add to Cart
+              <Plus size={18} strokeWidth={2.6} />
             </button>
           ) : (
-            <div className="flex w-full items-center justify-between overflow-hidden rounded-xl border border-primary/30 bg-muted">
+            <div className="flex shrink-0 items-center gap-1 rounded-full bg-primary-soft p-1">
               <button
                 onClick={() => updateQty(product.id, qty - 1)}
-                className="flex h-10 w-10 items-center justify-center text-primary transition hover:bg-primary/10"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-card text-primary transition active:scale-95"
                 aria-label="Decrease quantity"
               >
-                <Minus size={15} />
+                <Minus size={14} />
               </button>
-              <span className="text-[13px] font-bold text-foreground">{qty} in cart</span>
+              <span className="min-w-4 text-center text-[13px] font-bold text-foreground">{qty}</span>
               <button
                 onClick={() => updateQty(product.id, qty + 1)}
-                className="flex h-10 w-10 items-center justify-center text-primary transition hover:bg-primary/10"
+                className="flex h-8 w-8 items-center justify-center rounded-full gradient-primary text-primary-foreground transition active:scale-95"
                 aria-label="Increase quantity"
               >
-                <Plus size={15} />
+                <Plus size={14} />
               </button>
             </div>
           )}

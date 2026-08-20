@@ -84,6 +84,20 @@ function useGroupedProducts() {
   });
 }
 
+function SectionHead({ title, to }: { title: string; to?: string }) {
+  return (
+    <div className="mb-3 flex items-center justify-between gap-3 px-4">
+      <h2 className="truncate text-base font-extrabold tracking-tight text-foreground">{title}</h2>
+      <Link
+        to={to ?? "/categories"}
+        className="flex shrink-0 items-center gap-0.5 text-xs font-bold text-primary"
+      >
+        View All <ChevronRight size={14} />
+      </Link>
+    </div>
+  );
+}
+
 function CategoryBand({
   title,
   products,
@@ -93,20 +107,12 @@ function CategoryBand({
 }) {
   if (products.length === 0) return null;
   return (
-    <section className="mt-4">
-      <div className="bg-teal text-teal-foreground px-4 py-3 flex items-center justify-between">
-        <h2 className="font-bold text-base">{title}</h2>
-        <Link
-          to="/categories"
-          className="text-sm font-semibold flex items-center gap-0.5 opacity-90 hover:opacity-100"
-        >
-          See All <ChevronRight size={16} />
-        </Link>
-      </div>
-      <div className="overflow-x-auto scrollbar-none bg-card">
-        <div className="flex gap-3 px-3 py-3">
+    <section className="mt-7">
+      <SectionHead title={title} />
+      <div className="overflow-x-auto scrollbar-none">
+        <div className="flex gap-3 px-4 pb-2">
           {products.slice(0, 10).map((p) => (
-            <div key={p.id} className="min-w-[150px] max-w-[160px]">
+            <div key={p.id} className="min-w-[160px] max-w-[170px]">
               <ProductCard product={p} />
             </div>
           ))}
@@ -122,104 +128,122 @@ function Home() {
   const { data: grouped } = useGroupedProducts();
 
   return (
-    <div className="bg-background min-h-screen pb-8">
-      {/* CALL TO ORDER BAR */}
-      <div className="bg-primary py-2.5 text-center text-sm font-bold text-primary-foreground flex items-center justify-center gap-2">
-        <Phone size={15} /> Call to Order: 025 757 3471 or 055 247 4242
-      </div>
-
+    <div className="min-h-screen bg-background pb-10">
       {/* HERO */}
-      <div className="px-3 pt-3">
-        <div className="relative rounded-2xl overflow-hidden shadow-lg">
+      <div className="px-4 pt-1">
+        <div className="relative overflow-hidden rounded-3xl shadow-elevated">
           <img
             src={banner}
             alt="Kivora anniversary sale banner"
-            className="w-full aspect-[2/1] object-cover"
+            className="aspect-[16/10] w-full object-cover sm:aspect-[5/2]"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent p-4 flex flex-col justify-center">
-            <div className="text-white">
-              <p className="text-xs font-bold tracking-[0.25em] uppercase text-primary">
-                KIVORA GHANA
-              </p>
-              <h1 className="text-3xl font-extrabold mt-2 leading-tight">
-                Everything
-                <br />
-                You Need
-              </h1>
-              <span className="inline-block mt-4 bg-primary text-primary-foreground rounded-full px-5 py-2 text-xs font-bold shadow-lg">
-                UP TO 70% OFF
-              </span>
-            </div>
+          <div className="absolute inset-0 flex flex-col justify-center bg-gradient-to-r from-black/85 via-black/50 to-transparent p-5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">
+              Limited time
+            </p>
+            <h1 className="mt-2 text-3xl font-extrabold leading-[1.05] text-white">
+              Everything
+              <br />
+              You Need.
+            </h1>
+            <p className="mt-2 text-xs font-medium text-white/80">
+              Up to 70% off. Fast delivery across Ghana.
+            </p>
+            <Link
+              to="/categories"
+              className="mt-4 inline-flex w-fit items-center gap-2 rounded-full gradient-primary px-5 py-2.5 text-xs font-bold text-primary-foreground shadow-elevated"
+            >
+              Shop Now <ChevronRight size={14} />
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* CATEGORY QUICK GRID */}
+      {/* CATEGORY CIRCLES */}
       {categories.length > 0 && (
-        <div className="mt-4 px-3 grid grid-cols-4 gap-3">
-          {categories.slice(0, 8).map((c) => (
-            <Link
-              key={c.id}
-              to="/categories"
-              className="flex flex-col items-center gap-1.5 text-center"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-primary-soft overflow-hidden flex items-center justify-center">
-                {c.image_url ? (
-                  <img src={c.image_url} alt={c.name} className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-lg font-extrabold text-primary">
-                    {c.name.charAt(0)}
-                  </span>
-                )}
-              </div>
-              <span className="text-[11px] font-medium text-foreground leading-tight line-clamp-2">
-                {c.name}
-              </span>
-            </Link>
-          ))}
+        <div className="mt-5 overflow-x-auto scrollbar-none">
+          <div className="flex gap-4 px-4">
+            {categories.slice(0, 10).map((c) => (
+              <Link
+                key={c.id}
+                to="/categories"
+                className="flex w-16 shrink-0 flex-col items-center gap-1.5 text-center"
+              >
+                <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 border-transparent bg-card shadow-soft transition hover:border-primary">
+                  {c.image_url ? (
+                    <img src={c.image_url} alt={c.name} className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="text-lg font-extrabold text-primary">{c.name.charAt(0)}</span>
+                  )}
+                </div>
+                <span className="line-clamp-2 text-[11px] font-semibold leading-tight text-foreground">
+                  {c.name}
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* FLASH SALES BAND */}
-      <div className="mt-4 bg-flash text-flash-foreground px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Zap size={22} fill="currentColor" />
-          <div>
-            <p className="font-extrabold text-lg leading-none">Flash Sales</p>
-            <p className="text-[11px] mt-1 font-semibold">
-              TIME LEFT: <Countdown />
-            </p>
+      {/* FLASH SALES */}
+      <section className="mt-7">
+        <div className="px-4">
+          <div className="flex items-center justify-between gap-3 rounded-3xl bg-flash px-4 py-3 text-flash-foreground shadow-soft">
+            <div className="flex min-w-0 items-center gap-3">
+              <Zap size={20} fill="currentColor" className="shrink-0" />
+              <div className="min-w-0">
+                <p className="text-sm font-extrabold leading-none">Flash Sales</p>
+                <p className="mt-1 text-[11px] font-semibold opacity-90">
+                  <Countdown />
+                </p>
+              </div>
+            </div>
+            <Link to="/categories" className="shrink-0 text-xs font-bold">
+              View All
+            </Link>
           </div>
         </div>
-        <Link to="/categories" className="text-sm font-bold">
-          See All
-        </Link>
-      </div>
 
-      {/* FLASH PRODUCTS */}
-      <div className="overflow-x-auto scrollbar-none bg-card">
-        <div className="flex gap-3 px-3 py-3">
-          {isLoading
-            ? Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="min-w-[150px] max-w-[160px]">
-                  <ProductCardSkeleton />
-                </div>
-              ))
-            : products.slice(0, 8).map((p: Product) => (
-                <div key={p.id} className="min-w-[150px] max-w-[160px]">
-                  <ProductCard product={p} />
-                </div>
-              ))}
+        <div className="mt-3 overflow-x-auto scrollbar-none">
+          <div className="flex gap-3 px-4 pb-2">
+            {isLoading
+              ? Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="min-w-[160px] max-w-[170px]">
+                    <ProductCardSkeleton />
+                  </div>
+                ))
+              : products.slice(0, 8).map((p: Product) => (
+                  <div key={p.id} className="min-w-[160px] max-w-[170px]">
+                    <ProductCard product={p} />
+                  </div>
+                ))}
+          </div>
         </div>
+      </section>
+
+      {/* CALL TO ORDER */}
+      <div className="mt-6 px-4">
+        <a
+          href="tel:0257573471"
+          className="flex items-center gap-3 rounded-3xl bg-primary-soft px-4 py-3.5 shadow-soft"
+        >
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full gradient-primary text-primary-foreground">
+            <Phone size={17} />
+          </span>
+          <span className="min-w-0">
+            <span className="block text-sm font-extrabold text-foreground">Call to order</span>
+            <span className="block truncate text-xs text-muted-foreground">
+              025 757 3471 · 055 247 4242
+            </span>
+          </span>
+        </a>
       </div>
 
       {/* RECOMMENDED */}
-      <section className="mt-4">
-        <div className="bg-teal text-teal-foreground px-4 py-3">
-          <h2 className="font-bold text-base">Recommended For You</h2>
-        </div>
+      <section className="mt-7">
+        <SectionHead title="Recommended For You" />
         {isLoading ? (
-          <div className="px-3 mt-3">
+          <div className="px-4">
             <ProductGridSkeleton count={10} />
           </div>
         ) : products.length === 0 ? (
@@ -229,7 +253,7 @@ function Home() {
             description="Check back soon for new arrivals and amazing deals."
           />
         ) : (
-          <div className="px-3 mt-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 gap-3 px-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {products.slice(0, 12).map((p: Product) => (
               <ProductCard key={p.id} product={p} />
             ))}
@@ -245,3 +269,4 @@ function Home() {
     </div>
   );
 }
+

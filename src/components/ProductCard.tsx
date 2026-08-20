@@ -18,12 +18,12 @@ export function ProductCard({ product }: { product: Product }) {
     : null;
 
   return (
-    <div className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated hover:border-primary/40">
+    <div className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border/60 bg-card text-card-foreground shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated">
       {/* IMAGE */}
       <Link
         to="/products/$id"
         params={{ id: product.id }}
-        className="relative block aspect-square overflow-hidden bg-muted/40"
+        className="relative m-2 block aspect-square overflow-hidden rounded-2xl bg-muted/50"
       >
         <img
           src={product.image}
@@ -33,7 +33,7 @@ export function ProductCard({ product }: { product: Product }) {
         />
 
         {product.discount && (
-          <div className="absolute left-2 top-2 rounded-full bg-flash px-2 py-1 text-[10px] font-bold text-flash-foreground shadow">
+          <div className="absolute left-2 top-2 rounded-full bg-flash px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-flash-foreground shadow">
             -{product.discount}%
           </div>
         )}
@@ -46,16 +46,17 @@ export function ProductCard({ product }: { product: Product }) {
           }}
           aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
           aria-pressed={wished}
-          className={`absolute right-2 top-2 rounded-full p-2 shadow-sm backdrop-blur transition ${
+          className={`absolute right-2 top-2 rounded-full p-2 shadow-soft backdrop-blur transition ${
             wished
               ? "bg-primary text-primary-foreground"
-              : "bg-background/90 text-foreground hover:bg-primary hover:text-primary-foreground"
+              : "bg-card/90 text-foreground hover:bg-primary hover:text-primary-foreground"
           }`}
         >
           <Heart size={15} fill={wished ? "currentColor" : "none"} />
         </button>
 
       </Link>
+
 
       {/* CONTENT */}
       <div className="flex flex-1 flex-col p-3">

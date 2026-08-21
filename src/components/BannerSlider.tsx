@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useBanners } from "@/lib/banners";
 
@@ -77,15 +76,10 @@ export function BannerSlider() {
               );
             }
 
-            const external = /^https?:\/\//i.test(b.link_url);
-            return external ? (
+            return (
               <a key={b.id} href={b.link_url} className="w-full shrink-0">
                 {content}
               </a>
-            ) : (
-              <Link key={b.id} to={b.link_url} className="w-full shrink-0">
-                {content}
-              </Link>
             );
           })}
         </div>

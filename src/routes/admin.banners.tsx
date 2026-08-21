@@ -51,7 +51,13 @@ function AdminBanners() {
 
   const upload = async (file: File) => {
     setUploading(true);
-    const path = `banners/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, "")}`;
+    const { data: auth } = await supabase.auth.getUser();
+    const uid = auth.user?.id;
+    if (!uid) {
+      setUploading(false);
+      return toast.error("You must be signed in to upload");
+    }
+    const path = `${uid}/banners/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, "")}`;
     const { error } = await supabase.storage.from("product-images").upload(path, file, {
       upsert: true,
       contentType: file.type,

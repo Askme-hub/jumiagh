@@ -6,13 +6,13 @@ import { Zap, Phone, ChevronRight, PackageOpen } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductCardSkeleton, ProductGridSkeleton } from "@/components/ProductCardSkeleton";
 import { EmptyState } from "@/components/EmptyState";
+import { BannerSlider } from "@/components/BannerSlider";
 
 import { useProducts, toProduct, type DbProduct } from "@/lib/products";
 import { useCategories } from "@/lib/categories";
 import { supabase } from "@/integrations/supabase/client";
 import type { Product } from "@/lib/store";
 
-import banner from "@/assets/banner-anniversary.jpg";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -129,35 +129,8 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-background pb-10">
-      {/* HERO */}
-      <div className="px-4 pt-1">
-        <div className="relative overflow-hidden rounded-3xl shadow-elevated">
-          <img
-            src={banner}
-            alt="Kivora anniversary sale banner"
-            className="aspect-[16/10] w-full object-cover sm:aspect-[5/2]"
-          />
-          <div className="absolute inset-0 flex flex-col justify-center bg-gradient-to-r from-black/85 via-black/50 to-transparent p-5">
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">
-              Limited time
-            </p>
-            <h1 className="mt-2 text-3xl font-extrabold leading-[1.05] text-white">
-              Everything
-              <br />
-              You Need.
-            </h1>
-            <p className="mt-2 text-xs font-medium text-white/80">
-              Up to 70% off. Fast delivery across Ghana.
-            </p>
-            <Link
-              to="/categories"
-              className="mt-4 inline-flex w-fit items-center gap-2 rounded-full gradient-primary px-5 py-2.5 text-xs font-bold text-primary-foreground shadow-elevated"
-            >
-              Shop Now <ChevronRight size={14} />
-            </Link>
-          </div>
-        </div>
-      </div>
+      {/* HERO / BANNER SLIDER */}
+      <BannerSlider />
 
       {/* CATEGORY CIRCLES */}
       {categories.length > 0 && (

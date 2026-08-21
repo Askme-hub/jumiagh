@@ -37,6 +37,7 @@ import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminMessagesRouteImport } from './routes/admin.messages'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
+import { Route as AdminBannersRouteImport } from './routes/admin.banners'
 import { Route as SellerProductsIndexRouteImport } from './routes/seller.products.index'
 import { Route as SellerOrdersIndexRouteImport } from './routes/seller.orders.index'
 import { Route as SellerProductsNewRouteImport } from './routes/seller.products.new'
@@ -185,6 +186,11 @@ const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
   path: '/categories',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminBannersRoute = AdminBannersRouteImport.update({
+  id: '/banners',
+  path: '/banners',
+  getParentRoute: () => AdminRoute,
+} as any)
 const SellerProductsIndexRoute = SellerProductsIndexRouteImport.update({
   id: '/products/',
   path: '/products/',
@@ -235,6 +241,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/seller': typeof SellerRouteWithChildren
   '/wishlist': typeof WishlistRoute
+  '/admin/banners': typeof AdminBannersRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/orders': typeof AdminOrdersRoute
@@ -269,6 +276,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/search': typeof SearchRoute
   '/wishlist': typeof WishlistRoute
+  '/admin/banners': typeof AdminBannersRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/orders': typeof AdminOrdersRoute
@@ -307,6 +315,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/seller': typeof SellerRouteWithChildren
   '/wishlist': typeof WishlistRoute
+  '/admin/banners': typeof AdminBannersRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/orders': typeof AdminOrdersRoute
@@ -346,6 +355,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/seller'
     | '/wishlist'
+    | '/admin/banners'
     | '/admin/categories'
     | '/admin/messages'
     | '/admin/orders'
@@ -380,6 +390,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/search'
     | '/wishlist'
+    | '/admin/banners'
     | '/admin/categories'
     | '/admin/messages'
     | '/admin/orders'
@@ -417,6 +428,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/seller'
     | '/wishlist'
+    | '/admin/banners'
     | '/admin/categories'
     | '/admin/messages'
     | '/admin/orders'
@@ -659,6 +671,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCategoriesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/banners': {
+      id: '/admin/banners'
+      path: '/banners'
+      fullPath: '/admin/banners'
+      preLoaderRoute: typeof AdminBannersRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/seller/products/': {
       id: '/seller/products/'
       path: '/products'
@@ -712,6 +731,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminBannersRoute: typeof AdminBannersRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
   AdminMessagesRoute: typeof AdminMessagesRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
@@ -722,6 +742,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminBannersRoute: AdminBannersRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
   AdminMessagesRoute: AdminMessagesRoute,
   AdminOrdersRoute: AdminOrdersRoute,

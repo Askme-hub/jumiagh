@@ -129,6 +129,8 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-background pb-10">
+      <h1 className="sr-only">Kivora Ghana — shop electronics, fashion, groceries and more</h1>
+
       {/* HERO / BANNER SLIDER */}
       <BannerSlider />
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Upload, X, ImagePlus, Loader2, ChevronDown, Check } from "lucide-react";
+import { X, ImagePlus, Loader2, ChevronDown, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useCategories } from "@/lib/categories";
@@ -378,5 +378,3 @@ function Field({
     </div>
   );
 }
-
-export { Upload };

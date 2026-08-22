@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { SearchBar } from "@/components/SearchBar";
 import { formatGHC } from "@/lib/store";
 
 export const Route = createFileRoute("/orders/")({
@@ -42,7 +41,6 @@ function Orders() {
 
   return (
     <div>
-      <SearchBar />
       <h1 className="px-4 py-4 text-2xl font-bold border-t border-border">Orders</h1>
 
       <div className="flex border-b border-border bg-card">

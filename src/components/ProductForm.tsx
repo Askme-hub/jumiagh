@@ -107,7 +107,8 @@ export function ProductForm({
     if (!validate()) return toast.error("Please fix the highlighted fields");
 
     setBusy(true);
-    const payload: Record<string, unknown> = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const payload: any = {
       name: name.trim(),
       description: description?.trim() || null,
       price: Number(price),
@@ -123,7 +124,7 @@ export function ProductForm({
     }
     const { error } = initial?.id
       ? await supabase.from("products").update(payload).eq("id", initial.id)
-      : await supabase.from("products").insert(payload as never);
+      : await supabase.from("products").insert(payload);
     setBusy(false);
     if (error) return toast.error(error.message);
     toast.success(initial?.id ? "Product updated" : "Product submitted for approval");

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WishlistRouteImport } from './routes/wishlist'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SellerRouteImport } from './routes/seller'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as OrdersRouteImport } from './routes/orders'
@@ -49,6 +50,11 @@ import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/publi
 const WishlistRoute = WishlistRouteImport.update({
   id: '/wishlist',
   path: '/wishlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SellerRoute = SellerRouteImport.update({
@@ -240,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/orders': typeof OrdersRouteWithChildren
   '/search': typeof SearchRoute
   '/seller': typeof SellerRouteWithChildren
+  '/settings': typeof SettingsRoute
   '/wishlist': typeof WishlistRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -275,6 +282,7 @@ export interface FileRoutesByTo {
   '/inbox': typeof InboxRoute
   '/login': typeof LoginRoute
   '/search': typeof SearchRoute
+  '/settings': typeof SettingsRoute
   '/wishlist': typeof WishlistRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -314,6 +322,7 @@ export interface FileRoutesById {
   '/orders': typeof OrdersRouteWithChildren
   '/search': typeof SearchRoute
   '/seller': typeof SellerRouteWithChildren
+  '/settings': typeof SettingsRoute
   '/wishlist': typeof WishlistRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -354,6 +363,7 @@ export interface FileRouteTypes {
     | '/orders'
     | '/search'
     | '/seller'
+    | '/settings'
     | '/wishlist'
     | '/admin/banners'
     | '/admin/categories'
@@ -389,6 +399,7 @@ export interface FileRouteTypes {
     | '/inbox'
     | '/login'
     | '/search'
+    | '/settings'
     | '/wishlist'
     | '/admin/banners'
     | '/admin/categories'
@@ -427,6 +438,7 @@ export interface FileRouteTypes {
     | '/orders'
     | '/search'
     | '/seller'
+    | '/settings'
     | '/wishlist'
     | '/admin/banners'
     | '/admin/categories'
@@ -466,6 +478,7 @@ export interface RootRouteChildren {
   OrdersRoute: typeof OrdersRouteWithChildren
   SearchRoute: typeof SearchRoute
   SellerRoute: typeof SellerRouteWithChildren
+  SettingsRoute: typeof SettingsRoute
   WishlistRoute: typeof WishlistRoute
   PaymentCallbackRoute: typeof PaymentCallbackRoute
   ProductsIdRoute: typeof ProductsIdRoute
@@ -480,6 +493,13 @@ declare module '@tanstack/react-router' {
       path: '/wishlist'
       fullPath: '/wishlist'
       preLoaderRoute: typeof WishlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/seller': {
@@ -808,6 +828,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrdersRoute: OrdersRouteWithChildren,
   SearchRoute: SearchRoute,
   SellerRoute: SellerRouteWithChildren,
+  SettingsRoute: SettingsRoute,
   WishlistRoute: WishlistRoute,
   PaymentCallbackRoute: PaymentCallbackRoute,
   ProductsIdRoute: ProductsIdRoute,

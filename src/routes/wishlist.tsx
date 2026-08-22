@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ShoppingCart } from "lucide-react";
-import { SearchBar } from "@/components/SearchBar";
 import { formatGHC, useShop } from "@/lib/store";
 import { toast } from "sonner";
 
@@ -16,7 +15,6 @@ function Wishlist() {
 
   return (
     <div>
-      <SearchBar back />
       <h1 className="px-4 py-3 text-2xl font-bold">Wishlist</h1>
 
       {wishlist.length === 0 ? (

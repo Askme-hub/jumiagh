@@ -3,7 +3,6 @@ import {
   MessageCircle, MessageSquare, Info, Package, Mail, Star,
   Ticket, Heart, Store, History, Search as SearchIcon, ChevronRight, Wallet, Shield,
 } from "lucide-react";
-import { SearchBar } from "@/components/SearchBar";
 import { useAuth, useIsAdmin } from "@/hooks/use-auth";
 import { useIsSeller } from "@/hooks/use-seller";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,7 +32,6 @@ function Account() {
   if (!user) {
     return (
       <div>
-        <SearchBar />
         <div className="px-4 py-10 text-center">
           <h1 className="text-xl font-bold">You're not logged in</h1>
           <p className="text-muted-foreground text-sm mt-2">Sign in to view your account, orders and inbox.</p>
@@ -58,7 +56,6 @@ function Account() {
 
   return (
     <div>
-      <SearchBar />
       <div className="px-4 py-4 border-t border-border">
         <h1 className="text-2xl font-bold">Welcome {user.user_metadata?.display_name ?? user.email?.split("@")[0]}!</h1>
         <p className="text-primary mt-1">{user.email}</p>

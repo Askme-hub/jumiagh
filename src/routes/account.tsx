@@ -19,6 +19,21 @@ function Account() {
   const { user, loading } = useAuth();
   const { data: isAdmin } = useIsAdmin(user);
   const { data: isSeller } = useIsSeller(user);
+  const { data: profile } = useQuery({
+    queryKey: ["profile", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("display_name, avatar_url")
+        .eq("id", user!.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+  const avatarUrl = profile?.avatar_url ?? null;
+
 
 
   const logout = async () => {

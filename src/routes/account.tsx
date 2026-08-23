@@ -3,6 +3,7 @@ import {
   MessageCircle, MessageSquare, Info, Package, Mail, Star,
   Ticket, Heart, Store, History, Search as SearchIcon, ChevronRight, Wallet, Shield, Settings,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth, useIsAdmin } from "@/hooks/use-auth";
 import { useIsSeller } from "@/hooks/use-seller";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +20,21 @@ function Account() {
   const { user, loading } = useAuth();
   const { data: isAdmin } = useIsAdmin(user);
   const { data: isSeller } = useIsSeller(user);
+  const { data: profile } = useQuery({
+    queryKey: ["profile", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("display_name, avatar_url")
+        .eq("id", user!.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+  const avatarUrl = profile?.avatar_url ?? null;
+
 
 
   const logout = async () => {
@@ -61,9 +77,17 @@ function Account() {
     <div>
       <div className="px-4 py-4 border-t border-border">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center text-2xl font-extrabold shrink-0">
-            {(name ?? "K").charAt(0).toUpperCase()}
-          </div>
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt={`${name}'s profile picture`}
+              className="w-16 h-16 rounded-full object-cover border-2 border-border shrink-0"
+            />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center text-2xl font-extrabold shrink-0">
+              {(name ?? "K").charAt(0).toUpperCase()}
+            </div>
+          )}
           <div className="min-w-0 flex-1">
             <h1 className="text-xl font-bold truncate">Welcome {name}!</h1>
             <p className="text-sm text-muted-foreground truncate">{user.email}</p>

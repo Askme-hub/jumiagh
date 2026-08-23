@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import {
   MessageCircle, MessageSquare, Info, Package, Mail, Star,
-  Ticket, Heart, Store, History, Search as SearchIcon, ChevronRight, Wallet, Shield,
+  Ticket, Heart, Store, History, Search as SearchIcon, ChevronRight, Wallet, Shield, Settings,
 } from "lucide-react";
 import { useAuth, useIsAdmin } from "@/hooks/use-auth";
 import { useIsSeller } from "@/hooks/use-seller";
@@ -44,6 +44,7 @@ function Account() {
   }
 
   const accountItems: { icon: any; label: string; to?: AccountLink; soon?: boolean }[] = [
+    { icon: Settings, label: "Account Settings", to: "/settings" },
     { icon: Package, label: "Orders", to: "/orders" },
     { icon: Mail, label: "Inbox", to: "/inbox" },
     { icon: Heart, label: "Wishlist", to: "/wishlist" },
@@ -116,7 +117,7 @@ function Account() {
   );
 }
 
-type AccountLink = "/wishlist" | "/orders" | "/inbox" | "/categories" | "/seller";
+type AccountLink = "/wishlist" | "/orders" | "/inbox" | "/categories" | "/seller" | "/settings";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (

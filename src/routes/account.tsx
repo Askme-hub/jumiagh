@@ -61,9 +61,17 @@ function Account() {
     <div>
       <div className="px-4 py-4 border-t border-border">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center text-2xl font-extrabold shrink-0">
-            {(name ?? "K").charAt(0).toUpperCase()}
-          </div>
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt={`${name}'s profile picture`}
+              className="w-16 h-16 rounded-full object-cover border-2 border-border shrink-0"
+            />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center text-2xl font-extrabold shrink-0">
+              {(name ?? "K").charAt(0).toUpperCase()}
+            </div>
+          )}
           <div className="min-w-0 flex-1">
             <h1 className="text-xl font-bold truncate">Welcome {name}!</h1>
             <p className="text-sm text-muted-foreground truncate">{user.email}</p>

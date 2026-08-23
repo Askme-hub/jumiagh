@@ -3,6 +3,7 @@ import {
   MessageCircle, MessageSquare, Info, Package, Mail, Star,
   Ticket, Heart, Store, History, Search as SearchIcon, ChevronRight, Wallet, Shield, Settings,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth, useIsAdmin } from "@/hooks/use-auth";
 import { useIsSeller } from "@/hooks/use-seller";
 import { supabase } from "@/integrations/supabase/client";

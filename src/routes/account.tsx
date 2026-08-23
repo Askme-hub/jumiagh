@@ -58,11 +58,24 @@ function Account() {
   return (
     <div>
       <div className="px-4 py-4 border-t border-border">
-        <h1 className="text-2xl font-bold">Welcome {user.user_metadata?.display_name ?? user.email?.split("@")[0]}!</h1>
-        <p className="text-primary mt-1">{user.email}</p>
-        <div className="flex items-center gap-2 mt-3">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center text-2xl font-extrabold shrink-0">
+            {(name ?? "K").charAt(0).toUpperCase()}
+          </div>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl font-bold truncate">Welcome {name}!</h1>
+            <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+          </div>
+          <Link
+            to="/settings"
+            className="shrink-0 rounded-full border-2 border-primary text-primary text-xs font-bold px-4 py-2"
+          >
+            Edit profile
+          </Link>
+        </div>
+        <div className="flex items-center gap-2 mt-4 rounded-2xl bg-muted px-4 py-3">
           <Wallet size={22} className="text-primary" />
-          <p className="text-primary font-semibold">Kivora store credit balance: GH₵ 0</p>
+          <p className="text-primary font-semibold text-sm">Kivora store credit balance: GH₵ 0</p>
         </div>
       </div>
 

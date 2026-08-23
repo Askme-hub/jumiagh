@@ -43,6 +43,8 @@ function Account() {
     );
   }
 
+  const name = user.user_metadata?.display_name ?? user.email?.split("@")[0] ?? "there";
+
   const accountItems: { icon: any; label: string; to?: AccountLink; soon?: boolean }[] = [
     { icon: Settings, label: "Account Settings", to: "/settings" },
     { icon: Package, label: "Orders", to: "/orders" },

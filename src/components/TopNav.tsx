@@ -6,6 +6,7 @@ import { useAuth, useIsAdmin } from "@/hooks/use-auth";
 import { useIsSeller } from "@/hooks/use-seller";
 import { useSearchUI } from "@/lib/search-ui";
 import kivoraIcon from "@/assets/kivora-icon.png";
+import { UserAvatar } from "@/components/UserAvatar";
 
 const baseItems = [
   { to: "/" as const, label: "Home", icon: Home },
@@ -47,7 +48,7 @@ export function TopNav() {
             const active = to === "/" ? path === "/" : path.startsWith(to);
             return (
               <Link key={to} to={to} className={linkCls(active)}>
-                <Icon size={18} />
+                {to === "/account" && user ? <UserAvatar user={user} size={20} /> : <Icon size={18} />}
                 {label}
               </Link>
             );

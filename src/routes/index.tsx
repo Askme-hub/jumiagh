@@ -7,6 +7,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { ProductCardSkeleton, ProductGridSkeleton } from "@/components/ProductCardSkeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { BannerSlider } from "@/components/BannerSlider";
+import { InstallAppButton } from "@/components/InstallAppButton";
 
 import { useProducts, toProduct, type DbProduct } from "@/lib/products";
 import { useCategories } from "@/lib/categories";
@@ -133,6 +134,10 @@ function Home() {
 
       {/* HERO / BANNER SLIDER */}
       <BannerSlider />
+
+      <div className="px-4 mt-4">
+        <InstallAppButton />
+      </div>
 
       {/* CATEGORY CIRCLES */}
       {categories.length > 0 && (

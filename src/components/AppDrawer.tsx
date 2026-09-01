@@ -172,6 +172,10 @@ export function AppDrawer() {
             )}
           </div>
 
+          <div className="px-4 pt-3">
+            <InstallAppButton />
+          </div>
+
           <SectionLabel>Our Services</SectionLabel>
           <div className="px-2 space-y-0.5">
             <NavLink to="/seller" label="Sell on Kivora" icon={Store} active={path.startsWith("/seller")} />

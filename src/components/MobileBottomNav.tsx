@@ -80,14 +80,10 @@ export function MobileBottomNav() {
           </span>
         </div>
 
-        {showInstall ? (
-          <>
-            <Item {...right[0]} />
-            <InstallAppButton variant="nav" />
-          </>
-        ) : (
-          right.map((i) => <Item key={i.to} {...i} />)
-        )}
+        {right.map((i) => (
+          <Item key={i.to} {...i} />
+        ))}
+        {showInstall && <InstallAppButton variant="nav" />}
       </div>
     </nav>
   );

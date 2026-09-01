@@ -7,7 +7,6 @@ import { useIsSeller } from "@/hooks/use-seller";
 import { useSearchUI } from "@/lib/search-ui";
 import kivoraIcon from "@/assets/kivora-icon.png";
 import { UserAvatar } from "@/components/UserAvatar";
-import { InstallAppButton } from "@/components/InstallAppButton";
 
 const baseItems = [
   { to: "/" as const, label: "Home", icon: Home },

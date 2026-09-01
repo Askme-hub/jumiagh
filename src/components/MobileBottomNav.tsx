@@ -2,6 +2,8 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Home, LayoutGrid, ShoppingBag, Heart, UserCircle2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useShop } from "@/lib/store";
+import { InstallAppButton } from "@/components/InstallAppButton";
+import { useInstallPrompt } from "@/lib/pwa";
 
 const left = [
   { to: "/" as const, label: "Home", icon: Home, exact: true },
@@ -13,9 +15,15 @@ const right = [
   { to: "/account" as const, label: "Profile", icon: UserCircle2 },
 ];
 
+function mountedSafe(available: boolean, installed: boolean, isIOS: boolean) {
+  return !installed && (available || isIOS);
+}
+
 export function MobileBottomNav() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const count = useShop((s) => s.cartCount());
+  const { available, installed, isIOS } = useInstallPrompt();
+  const showInstall = mountedSafe(available, installed, isIOS);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -72,9 +80,14 @@ export function MobileBottomNav() {
           </span>
         </div>
 
-        {right.map((i) => (
-          <Item key={i.to} {...i} />
-        ))}
+        {showInstall ? (
+          <>
+            <Item {...right[0]} />
+            <InstallAppButton variant="nav" />
+          </>
+        ) : (
+          right.map((i) => <Item key={i.to} {...i} />)
+        )}
       </div>
     </nav>
   );

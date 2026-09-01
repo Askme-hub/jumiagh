@@ -29,6 +29,8 @@ import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useSearchUI } from "@/lib/search-ui";
 import kivoraIcon from "@/assets/kivora-icon.png";
+import { UserAvatar } from "@/components/UserAvatar";
+import { InstallAppButton } from "@/components/InstallAppButton";
 
 const accountItems = [
   { to: "/orders" as const, label: "Orders", icon: Package },
@@ -117,7 +119,11 @@ export function AppDrawer() {
       >
         {/* Brand header */}
         <div className="bg-primary text-primary-foreground p-5 flex items-center gap-3">
-          <img src={kivoraIcon} alt="Kivora" className="w-11 h-11 rounded-xl" />
+          {user ? (
+            <UserAvatar user={user} size={44} className="ring-2 ring-primary-foreground/50" />
+          ) : (
+            <img src={kivoraIcon} alt="Kivora" className="w-11 h-11 rounded-xl" />
+          )}
           <div className="flex-1 min-w-0">
             <p className="text-lg font-extrabold leading-tight">Kivora</p>
             <p className="text-xs opacity-90 truncate">

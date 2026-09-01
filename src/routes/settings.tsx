@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2, MapPin, Trash2, Plus, Camera } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useProfile, profileQueryKey } from "@/lib/profile";
 import { useAuth } from "@/hooks/use-auth";
 import { useAddresses, useDeleteAddress } from "@/lib/addresses";
 import { PageHeader } from "@/components/PageHeader";
@@ -75,18 +76,7 @@ function ProfileCard({ userId, email }: { userId: string; email: string }) {
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
 
-  const { data: profile } = useQuery({
-    queryKey: ["profile", userId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("display_name, email, avatar_url")
-        .eq("id", userId)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { data: profile } = useProfile(userId);
 
   useEffect(() => {
     if (profile?.display_name) setName(profile.display_name);
@@ -99,7 +89,7 @@ function ProfileCard({ userId, email }: { userId: string; email: string }) {
     const { error } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", userId);
     if (error) throw error;
     await supabase.auth.updateUser({ data: { avatar_url: url } });
-    qc.invalidateQueries({ queryKey: ["profile", userId] });
+    await qc.invalidateQueries({ queryKey: profileQueryKey(userId) });
   };
 
   const onPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -147,7 +137,7 @@ function ProfileCard({ userId, email }: { userId: string; email: string }) {
     if (!error) await supabase.auth.updateUser({ data: { display_name: trimmed } });
     setBusy(false);
     if (error) return toast.error(error.message);
-    qc.invalidateQueries({ queryKey: ["profile", userId] });
+    await qc.invalidateQueries({ queryKey: profileQueryKey(userId) });
     toast.success("Profile updated");
   };
 

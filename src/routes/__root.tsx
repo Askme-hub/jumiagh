@@ -13,9 +13,11 @@ import { TopNav } from "@/components/TopNav";
 import { Footer } from "@/components/Footer";
 import { SearchOverlay } from "@/components/SearchOverlay";
 import { Preloader } from "@/components/Preloader";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import { Toaster } from "@/components/ui/sonner";
 import { themeInitScript } from "@/lib/theme";
-import { useState } from "react";
+import { registerServiceWorker } from "@/lib/register-sw";
+import { useEffect, useState } from "react";
 
 import appCss from "../styles.css?url";
 
@@ -102,6 +104,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.ico" },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      { rel: "apple-touch-startup-image", href: "/splash-1170x2532.png", media: "(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" },
+      { rel: "apple-touch-startup-image", href: "/splash-1284x2778.png", media: "(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)" },
+      { rel: "apple-touch-startup-image", href: "/splash-1125x2436.png", media: "(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" },
+      { rel: "apple-touch-startup-image", href: "/splash-828x1792.png", media: "(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" },
+      { rel: "apple-touch-startup-image", href: "/splash-1536x2048.png", media: "(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)" },
       { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
     ],
   }),
@@ -130,6 +137,10 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    void registerServiceWorker();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       {loading && <Preloader onDone={() => setLoading(false)} />}
@@ -144,6 +155,7 @@ function RootComponent() {
         <MobileBottomNav />
       </div>
 
+      <OfflineBanner />
       <Toaster position="top-center" />
     </QueryClientProvider>
   );

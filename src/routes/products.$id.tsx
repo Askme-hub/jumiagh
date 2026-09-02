@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
@@ -87,6 +87,20 @@ function ProductDetails() {
   const updateQty = useShop((s) => s.updateQty);
   const toggleWishlist = useShop((s) => s.toggleWishlist);
   const [activeImg, setActiveImg] = useState(0);
+  const productId = data?.id;
+
+  useEffect(() => {
+    if (!productId) return;
+    const channel = supabase
+      .channel(`product-${productId}-${Math.random().toString(36).slice(2)}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "products", filter: `id=eq.${productId}` },
+        () => { void router.invalidate(); }
+      )
+      .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [productId, router]);
 
   const wished = useShop((s) => (data ? s.wishlist.some((w) => w.id === data.id) : false));
   const cartQty = useShop((s) => (data ? s.cart.find((c) => c.product.id === data.id)?.qty ?? 0 : 0));
@@ -142,8 +156,9 @@ function ProductDetails() {
           <button
             disabled={data.stock <= 0}
             onClick={() => {
-              addToCart(product);
-              toast.success("Added to cart");
+              const ok = addToCart(product);
+              if (ok) toast.success("Added to cart");
+              else toast.error(`Only ${product.stock ?? 0} in stock`);
             }}
             className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3 font-bold text-primary-foreground transition active:scale-[0.98] disabled:opacity-50"
           >
@@ -162,8 +177,12 @@ function ProductDetails() {
             </button>
             <span className="text-sm font-bold text-foreground">{cartQty} in cart</span>
             <button
-              onClick={() => updateQty(product.id, cartQty + 1)}
-              className="flex h-12 w-12 items-center justify-center text-primary transition hover:bg-primary/10"
+              disabled={cartQty >= (product.stock ?? Infinity)}
+              onClick={() => {
+                const ok = updateQty(product.id, cartQty + 1);
+                if (!ok) toast.error(`Only ${product.stock ?? 0} in stock`);
+              }}
+              className="flex h-12 w-12 items-center justify-center text-primary transition hover:bg-primary/10 disabled:opacity-40"
               aria-label="Increase quantity"
             >
               <Plus size={18} />

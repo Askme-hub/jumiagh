@@ -15,9 +15,10 @@ export type Product = {
 type Store = {
   cart: { product: Product; qty: number }[];
   wishlist: Product[];
-  addToCart: (p: Product) => void;
+  addToCart: (p: Product, qty?: number) => boolean;
   removeFromCart: (id: string) => void;
-  updateQty: (id: string, qty: number) => void;
+  updateQty: (id: string, qty: number) => boolean;
+  syncStock: (stocks: Record<string, number>) => void;
   clearCart: () => void;
   toggleWishlist: (p: Product) => void;
   isWishlisted: (id: string) => boolean;
@@ -30,25 +31,52 @@ export const useShop = create<Store>()(
     (set, get) => ({
       cart: [],
       wishlist: [],
-      addToCart: (p) =>
-        set((s) => {
-          const existing = s.cart.find((c) => c.product.id === p.id);
-          if (existing)
-            return {
-              cart: s.cart.map((c) =>
-                c.product.id === p.id ? { ...c, qty: c.qty + 1 } : c
-              ),
-            };
-          return { cart: [...s.cart, { product: p, qty: 1 }] };
-        }),
+      addToCart: (p, qty = 1) => {
+        const s = get();
+        const max = p.stock ?? Infinity;
+        if (max <= 0) return false;
+        const existing = s.cart.find((c) => c.product.id === p.id);
+        const desired = (existing?.qty ?? 0) + qty;
+        const next = Math.min(desired, max);
+        set({
+          cart: existing
+            ? s.cart.map((c) =>
+                c.product.id === p.id ? { product: p, qty: next } : c
+              )
+            : [...s.cart, { product: p, qty: next }],
+        });
+        return next === desired;
+      },
       removeFromCart: (id) =>
         set((s) => ({ cart: s.cart.filter((c) => c.product.id !== id) })),
-      updateQty: (id, qty) =>
+      updateQty: (id, qty) => {
+        const s = get();
+        const item = s.cart.find((c) => c.product.id === id);
+        if (!item) return false;
+        if (qty <= 0) {
+          set({ cart: s.cart.filter((c) => c.product.id !== id) });
+          return true;
+        }
+        const max = item.product.stock ?? Infinity;
+        const next = Math.min(qty, max);
+        set({
+          cart: s.cart.map((c) => (c.product.id === id ? { ...c, qty: next } : c)),
+        });
+        return next === qty;
+      },
+      syncStock: (stocks) =>
         set((s) => ({
-          cart:
-            qty <= 0
-              ? s.cart.filter((c) => c.product.id !== id)
-              : s.cart.map((c) => (c.product.id === id ? { ...c, qty } : c)),
+          cart: s.cart.flatMap((c) => {
+            const stock = stocks[c.product.id];
+            if (stock === undefined) return [c];
+            if (stock <= 0) return [];
+            return [
+              {
+                product: { ...c.product, stock },
+                qty: Math.min(c.qty, stock),
+              },
+            ];
+          }),
         })),
       clearCart: () => set({ cart: [] }),
       toggleWishlist: (p) =>

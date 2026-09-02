@@ -1,6 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { Product } from "./store";
+import { useShop, type Product } from "./store";
 
 export type DbProduct = {
   id: string;
@@ -37,4 +38,46 @@ export function useProducts(category?: string) {
       return (data as DbProduct[]).map(toProduct);
     },
   });
+}
+
+/**
+ * Keeps product stock in sync in real time: listens to `products` table changes,
+ * refreshes product queries and clamps cart quantities to what's still available.
+ */
+export function useLiveStock() {
+  const qc = useQueryClient();
+  const syncStock = useShop((s) => s.syncStock);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const refresh = async () => {
+      const ids = useShop.getState().cart.map((c) => c.product.id);
+      if (ids.length === 0) return;
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, stock")
+        .in("id", ids);
+      if (error || cancelled || !data) return;
+      const map: Record<string, number> = {};
+      for (const row of data as { id: string; stock: number }[]) map[row.id] = row.stock;
+      syncStock(map);
+    };
+
+    refresh();
+
+    const channel = supabase
+      .channel(`products-stock-${Math.random().toString(36).slice(2)}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "products" }, () => {
+        qc.invalidateQueries({ queryKey: ["products"] });
+        qc.invalidateQueries({ queryKey: ["products-grouped"] });
+        refresh();
+      })
+      .subscribe();
+
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(channel);
+    };
+  }, [qc, syncStock]);
 }

@@ -101,8 +101,12 @@ function Cart() {
                   </button>
                   <span className="w-6 text-center font-semibold">{qty}</span>
                   <button
-                    onClick={() => updateQty(product.id, qty + 1)}
-                    className="w-8 h-8 rounded bg-primary-soft text-foreground flex items-center justify-center"
+                    disabled={product.stock != null && qty >= product.stock}
+                    onClick={() => {
+                      const ok = updateQty(product.id, qty + 1);
+                      if (!ok) toast.error(`Only ${product.stock} in stock`);
+                    }}
+                    className="w-8 h-8 rounded bg-primary-soft text-foreground flex items-center justify-center disabled:opacity-40"
                     aria-label="Increase"
                   >
                     <Plus size={16} />

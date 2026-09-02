@@ -155,6 +155,7 @@ function RootComponent() {
         <MobileBottomNav />
       </div>
 
+      <OfflineBanner />
       <Toaster position="top-center" />
     </QueryClientProvider>
   );

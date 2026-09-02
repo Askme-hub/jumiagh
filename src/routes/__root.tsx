@@ -14,6 +14,7 @@ import { Footer } from "@/components/Footer";
 import { SearchOverlay } from "@/components/SearchOverlay";
 import { Preloader } from "@/components/Preloader";
 import { OfflineBanner } from "@/components/OfflineBanner";
+import { useLiveStock } from "@/lib/products";
 import { Toaster } from "@/components/ui/sonner";
 import { themeInitScript } from "@/lib/theme";
 import { registerServiceWorker } from "@/lib/register-sw";
@@ -143,6 +144,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <LiveStockSync />
       {loading && <Preloader onDone={() => setLoading(false)} />}
       <div className="min-h-screen flex flex-col bg-background">
         <MobileTopBar />
@@ -159,4 +161,9 @@ function RootComponent() {
       <Toaster position="top-center" />
     </QueryClientProvider>
   );
+}
+
+function LiveStockSync() {
+  useLiveStock();
+  return null;
 }

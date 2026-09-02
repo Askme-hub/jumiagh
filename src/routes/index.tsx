@@ -153,7 +153,7 @@ function Home() {
                   {c.image_url ? (
                     <img src={c.image_url} alt={c.name} className="h-full w-full object-cover" />
                   ) : (
-                    <span className="text-lg font-extrabold text-primary">{c.name.charAt(0)}</span>
+                    <PackageOpen size={22} className="text-primary" />
                   )}
                 </div>
                 <span className="line-clamp-2 text-[11px] font-semibold leading-tight text-foreground">

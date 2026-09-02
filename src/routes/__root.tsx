@@ -13,9 +13,11 @@ import { TopNav } from "@/components/TopNav";
 import { Footer } from "@/components/Footer";
 import { SearchOverlay } from "@/components/SearchOverlay";
 import { Preloader } from "@/components/Preloader";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import { Toaster } from "@/components/ui/sonner";
 import { themeInitScript } from "@/lib/theme";
-import { useState } from "react";
+import { registerServiceWorker } from "@/lib/register-sw";
+import { useEffect, useState } from "react";
 
 import appCss from "../styles.css?url";
 

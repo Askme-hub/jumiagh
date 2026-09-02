@@ -137,6 +137,10 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    void registerServiceWorker();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       {loading && <Preloader onDone={() => setLoading(false)} />}

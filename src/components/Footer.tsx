@@ -6,7 +6,7 @@ const cols = [
   {
     title: "Help",
     links: [
-      { to: "/", label: "Help Center" },
+      { to: "/help", label: "Help Center" },
       { to: "/orders", label: "Track Order" },
       { to: "/account", label: "My Account" },
       { to: "/seller", label: "Sell on Kivora" },
@@ -15,10 +15,10 @@ const cols = [
   {
     title: "Policies",
     links: [
-      { to: "/", label: "Terms of Service" },
-      { to: "/", label: "Privacy Policy" },
-      { to: "/", label: "Return Policy" },
-      { to: "/", label: "Shipping Info" },
+      { to: "/terms", label: "Terms of Service" },
+      { to: "/privacy", label: "Privacy Policy" },
+      { to: "/returns", label: "Return Policy" },
+      { to: "/shipping", label: "Shipping Info" },
     ],
   },
 ] as const;

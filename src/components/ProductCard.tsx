@@ -78,9 +78,25 @@ export function ProductCard({ product }: { product: Product }) {
 
       {/* CONTENT */}
       <div className="flex flex-1 flex-col px-3 pb-3 pt-1">
-        <h3 className="line-clamp-2 min-h-[40px] text-sm font-semibold leading-5 text-foreground">
+        {product.category ? (
+          <span className="mb-1 w-fit rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {product.category}
+          </span>
+        ) : null}
+
+        <Link
+          to="/products/$id"
+          params={{ id: product.id }}
+          className="line-clamp-2 min-h-[40px] text-sm font-semibold leading-5 text-foreground hover:text-primary"
+        >
           {product.name}
-        </h3>
+        </Link>
+
+        {product.description ? (
+          <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-muted-foreground">
+            {product.description}
+          </p>
+        ) : null}
 
         <div className="mt-1.5 flex items-center gap-1">
           <div className="flex text-warning">
@@ -92,11 +108,23 @@ export function ProductCard({ product }: { product: Product }) {
           <span className="text-[10px] text-muted-foreground/70">(24)</span>
         </div>
 
-        {product.stock ? (
-          <p className="mt-1.5 text-[11px] font-semibold text-primary">
-            Only {product.stock} left
-          </p>
-        ) : null}
+        <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-medium text-muted-foreground">
+          <span className="inline-flex items-center gap-1">
+            <Truck size={11} /> Fast delivery
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <ShieldCheck size={11} /> Buyer protection
+          </span>
+        </div>
+
+        <p
+          className={`mt-1.5 text-[11px] font-semibold ${
+            outOfStock ? "text-muted-foreground" : lowStock ? "text-flash" : "text-primary"
+          }`}
+        >
+          {outOfStock ? "Out of stock" : lowStock ? `Only ${stock} left` : `${stock} in stock`}
+        </p>
+
 
         <div className="mt-auto flex items-end justify-between gap-2 pt-3">
           <div className="min-w-0">

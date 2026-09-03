@@ -10,12 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WishlistRouteImport } from './routes/wishlist'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as ShippingRouteImport } from './routes/shipping'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SellerRouteImport } from './routes/seller'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as ReturnsRouteImport } from './routes/returns'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InboxRouteImport } from './routes/inbox'
+import { Route as HelpRouteImport } from './routes/help'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as CartRouteImport } from './routes/cart'
@@ -52,6 +57,16 @@ const WishlistRoute = WishlistRouteImport.update({
   path: '/wishlist',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShippingRoute = ShippingRouteImport.update({
+  id: '/shipping',
+  path: '/shipping',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -67,6 +82,16 @@ const SearchRoute = SearchRouteImport.update({
   path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReturnsRoute = ReturnsRouteImport.update({
+  id: '/returns',
+  path: '/returns',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrdersRoute = OrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
@@ -80,6 +105,11 @@ const LoginRoute = LoginRouteImport.update({
 const InboxRoute = InboxRouteImport.update({
   id: '/inbox',
   path: '/inbox',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -241,12 +271,17 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/checkout': typeof CheckoutRoute
+  '/help': typeof HelpRoute
   '/inbox': typeof InboxRoute
   '/login': typeof LoginRoute
   '/orders': typeof OrdersRouteWithChildren
+  '/privacy': typeof PrivacyRoute
+  '/returns': typeof ReturnsRoute
   '/search': typeof SearchRoute
   '/seller': typeof SellerRouteWithChildren
   '/settings': typeof SettingsRoute
+  '/shipping': typeof ShippingRoute
+  '/terms': typeof TermsRoute
   '/wishlist': typeof WishlistRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -279,10 +314,15 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/checkout': typeof CheckoutRoute
+  '/help': typeof HelpRoute
   '/inbox': typeof InboxRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
+  '/returns': typeof ReturnsRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
+  '/shipping': typeof ShippingRoute
+  '/terms': typeof TermsRoute
   '/wishlist': typeof WishlistRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -317,12 +357,17 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/checkout': typeof CheckoutRoute
+  '/help': typeof HelpRoute
   '/inbox': typeof InboxRoute
   '/login': typeof LoginRoute
   '/orders': typeof OrdersRouteWithChildren
+  '/privacy': typeof PrivacyRoute
+  '/returns': typeof ReturnsRoute
   '/search': typeof SearchRoute
   '/seller': typeof SellerRouteWithChildren
   '/settings': typeof SettingsRoute
+  '/shipping': typeof ShippingRoute
+  '/terms': typeof TermsRoute
   '/wishlist': typeof WishlistRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -358,12 +403,17 @@ export interface FileRouteTypes {
     | '/cart'
     | '/categories'
     | '/checkout'
+    | '/help'
     | '/inbox'
     | '/login'
     | '/orders'
+    | '/privacy'
+    | '/returns'
     | '/search'
     | '/seller'
     | '/settings'
+    | '/shipping'
+    | '/terms'
     | '/wishlist'
     | '/admin/banners'
     | '/admin/categories'
@@ -396,10 +446,15 @@ export interface FileRouteTypes {
     | '/cart'
     | '/categories'
     | '/checkout'
+    | '/help'
     | '/inbox'
     | '/login'
+    | '/privacy'
+    | '/returns'
     | '/search'
     | '/settings'
+    | '/shipping'
+    | '/terms'
     | '/wishlist'
     | '/admin/banners'
     | '/admin/categories'
@@ -433,12 +488,17 @@ export interface FileRouteTypes {
     | '/cart'
     | '/categories'
     | '/checkout'
+    | '/help'
     | '/inbox'
     | '/login'
     | '/orders'
+    | '/privacy'
+    | '/returns'
     | '/search'
     | '/seller'
     | '/settings'
+    | '/shipping'
+    | '/terms'
     | '/wishlist'
     | '/admin/banners'
     | '/admin/categories'
@@ -473,12 +533,17 @@ export interface RootRouteChildren {
   CartRoute: typeof CartRoute
   CategoriesRoute: typeof CategoriesRoute
   CheckoutRoute: typeof CheckoutRoute
+  HelpRoute: typeof HelpRoute
   InboxRoute: typeof InboxRoute
   LoginRoute: typeof LoginRoute
   OrdersRoute: typeof OrdersRouteWithChildren
+  PrivacyRoute: typeof PrivacyRoute
+  ReturnsRoute: typeof ReturnsRoute
   SearchRoute: typeof SearchRoute
   SellerRoute: typeof SellerRouteWithChildren
   SettingsRoute: typeof SettingsRoute
+  ShippingRoute: typeof ShippingRoute
+  TermsRoute: typeof TermsRoute
   WishlistRoute: typeof WishlistRoute
   PaymentCallbackRoute: typeof PaymentCallbackRoute
   ProductsIdRoute: typeof ProductsIdRoute
@@ -493,6 +558,20 @@ declare module '@tanstack/react-router' {
       path: '/wishlist'
       fullPath: '/wishlist'
       preLoaderRoute: typeof WishlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shipping': {
+      id: '/shipping'
+      path: '/shipping'
+      fullPath: '/shipping'
+      preLoaderRoute: typeof ShippingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -516,6 +595,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/returns': {
+      id: '/returns'
+      path: '/returns'
+      fullPath: '/returns'
+      preLoaderRoute: typeof ReturnsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/orders': {
       id: '/orders'
       path: '/orders'
@@ -535,6 +628,13 @@ declare module '@tanstack/react-router' {
       path: '/inbox'
       fullPath: '/inbox'
       preLoaderRoute: typeof InboxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -823,12 +923,17 @@ const rootRouteChildren: RootRouteChildren = {
   CartRoute: CartRoute,
   CategoriesRoute: CategoriesRoute,
   CheckoutRoute: CheckoutRoute,
+  HelpRoute: HelpRoute,
   InboxRoute: InboxRoute,
   LoginRoute: LoginRoute,
   OrdersRoute: OrdersRouteWithChildren,
+  PrivacyRoute: PrivacyRoute,
+  ReturnsRoute: ReturnsRoute,
   SearchRoute: SearchRoute,
   SellerRoute: SellerRouteWithChildren,
   SettingsRoute: SettingsRoute,
+  ShippingRoute: ShippingRoute,
+  TermsRoute: TermsRoute,
   WishlistRoute: WishlistRoute,
   PaymentCallbackRoute: PaymentCallbackRoute,
   ProductsIdRoute: ProductsIdRoute,

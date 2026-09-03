@@ -131,21 +131,27 @@ export function ProductCard({ product }: { product: Product }) {
             <p className="truncate text-lg font-extrabold text-foreground">
               {formatGHC(product.price)}
             </p>
-            {oldPrice && (
-              <p className="truncate text-xs text-muted-foreground line-through">
-                {formatGHC(oldPrice)}
+            {oldPrice ? (
+              <p className="truncate text-xs text-muted-foreground">
+                <span className="line-through">{formatGHC(oldPrice)}</span>
+                {saving > 0 && (
+                  <span className="ml-1 font-semibold text-flash">
+                    save {formatGHC(saving)}
+                  </span>
+                )}
               </p>
-            )}
+            ) : null}
           </div>
 
           {qty === 0 ? (
             <button
+              disabled={outOfStock}
               onClick={() => {
                 addToCart(product);
                 toast.success(`${product.name} added to cart`);
               }}
               aria-label={`Add ${product.name} to cart`}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full gradient-primary text-primary-foreground shadow-soft transition active:scale-95"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full gradient-primary text-primary-foreground shadow-soft transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Plus size={18} strokeWidth={2.6} />
             </button>
@@ -160,14 +166,17 @@ export function ProductCard({ product }: { product: Product }) {
               </button>
               <span className="min-w-4 text-center text-[13px] font-bold text-foreground">{qty}</span>
               <button
+                disabled={atMax}
                 onClick={() => updateQty(product.id, qty + 1)}
-                className="flex h-8 w-8 items-center justify-center rounded-full gradient-primary text-primary-foreground transition active:scale-95"
+                className="flex h-8 w-8 items-center justify-center rounded-full gradient-primary text-primary-foreground transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Increase quantity"
               >
                 <Plus size={14} />
               </button>
             </div>
           )}
+        </div>
+
         </div>
       </div>
     </div>

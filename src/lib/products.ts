@@ -25,6 +25,8 @@ export const toProduct = (p: DbProduct): Product => ({
   stock: p.stock,
   discount: p.discount ?? undefined,
   sellerId: p.seller_id ?? undefined,
+  category: p.category ?? undefined,
+  description: p.description ?? undefined,
 });
 
 export function useProducts(category?: string) {

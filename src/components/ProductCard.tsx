@@ -1,5 +1,5 @@
 import { Product, formatGHC, useShop } from "@/lib/store";
-import { Heart, Star, Minus, Plus } from "lucide-react";
+import { Heart, Star, Minus, Plus, Truck, ShieldCheck } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
@@ -12,10 +12,16 @@ export function ProductCard({ product }: { product: Product }) {
   const qty = cartItem?.qty ?? 0;
   const wished = useShop((s) => s.wishlist.some((w) => w.id === product.id));
 
+  const oldPrice =
+    product.oldPrice ??
+    (product.discount ? product.price + (product.price * product.discount) / 100 : null);
+  const saving = oldPrice ? oldPrice - product.price : 0;
 
-  const oldPrice = product.discount
-    ? product.price + (product.price * product.discount) / 100
-    : null;
+  const stock = product.stock ?? 0;
+  const outOfStock = stock <= 0;
+  const lowStock = !outOfStock && stock <= 5;
+  const atMax = qty >= stock;
+
 
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border/60 bg-card text-card-foreground shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated">

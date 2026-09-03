@@ -10,6 +10,8 @@ export type Product = {
   stock?: number;
   discount?: number;
   sellerId?: string;
+  category?: string;
+  description?: string;
 };
 
 type Store = {

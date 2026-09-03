@@ -38,11 +38,23 @@ export function ProductCard({ product }: { product: Product }) {
           className="h-full w-full object-contain p-3 transition-transform duration-500 group-hover:scale-105"
         />
 
-        {product.discount && (
-          <div className="absolute left-2 top-2 rounded-full bg-flash px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-flash-foreground shadow">
-            -{product.discount}%
-          </div>
-        )}
+        <div className="absolute left-2 top-2 flex flex-col items-start gap-1">
+          {product.discount ? (
+            <span className="rounded-full bg-flash px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-flash-foreground shadow">
+              -{product.discount}%
+            </span>
+          ) : null}
+          {outOfStock ? (
+            <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground shadow">
+              Sold out
+            </span>
+          ) : lowStock ? (
+            <span className="rounded-full bg-warning px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-warning-foreground shadow">
+              Low stock
+            </span>
+          ) : null}
+        </div>
+
 
         <button
           onClick={(e) => {

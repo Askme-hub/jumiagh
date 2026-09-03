@@ -1,5 +1,5 @@
 import { Product, formatGHC, useShop } from "@/lib/store";
-import { Heart, Star, Minus, Plus } from "lucide-react";
+import { Heart, Star, Minus, Plus, Truck, ShieldCheck } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
@@ -12,10 +12,16 @@ export function ProductCard({ product }: { product: Product }) {
   const qty = cartItem?.qty ?? 0;
   const wished = useShop((s) => s.wishlist.some((w) => w.id === product.id));
 
+  const oldPrice =
+    product.oldPrice ??
+    (product.discount ? product.price + (product.price * product.discount) / 100 : null);
+  const saving = oldPrice ? oldPrice - product.price : 0;
 
-  const oldPrice = product.discount
-    ? product.price + (product.price * product.discount) / 100
-    : null;
+  const stock = product.stock ?? 0;
+  const outOfStock = stock <= 0;
+  const lowStock = !outOfStock && stock <= 5;
+  const atMax = qty >= stock;
+
 
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border/60 bg-card text-card-foreground shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated">
@@ -32,11 +38,23 @@ export function ProductCard({ product }: { product: Product }) {
           className="h-full w-full object-contain p-3 transition-transform duration-500 group-hover:scale-105"
         />
 
-        {product.discount && (
-          <div className="absolute left-2 top-2 rounded-full bg-flash px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-flash-foreground shadow">
-            -{product.discount}%
-          </div>
-        )}
+        <div className="absolute left-2 top-2 flex flex-col items-start gap-1">
+          {product.discount ? (
+            <span className="rounded-full bg-flash px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-flash-foreground shadow">
+              -{product.discount}%
+            </span>
+          ) : null}
+          {outOfStock ? (
+            <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground shadow">
+              Sold out
+            </span>
+          ) : lowStock ? (
+            <span className="rounded-full bg-warning px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-warning-foreground shadow">
+              Low stock
+            </span>
+          ) : null}
+        </div>
+
 
         <button
           onClick={(e) => {
@@ -60,9 +78,25 @@ export function ProductCard({ product }: { product: Product }) {
 
       {/* CONTENT */}
       <div className="flex flex-1 flex-col px-3 pb-3 pt-1">
-        <h3 className="line-clamp-2 min-h-[40px] text-sm font-semibold leading-5 text-foreground">
+        {product.category ? (
+          <span className="mb-1 w-fit rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {product.category}
+          </span>
+        ) : null}
+
+        <Link
+          to="/products/$id"
+          params={{ id: product.id }}
+          className="line-clamp-2 min-h-[40px] text-sm font-semibold leading-5 text-foreground hover:text-primary"
+        >
           {product.name}
-        </h3>
+        </Link>
+
+        {product.description ? (
+          <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-muted-foreground">
+            {product.description}
+          </p>
+        ) : null}
 
         <div className="mt-1.5 flex items-center gap-1">
           <div className="flex text-warning">
@@ -74,32 +108,50 @@ export function ProductCard({ product }: { product: Product }) {
           <span className="text-[10px] text-muted-foreground/70">(24)</span>
         </div>
 
-        {product.stock ? (
-          <p className="mt-1.5 text-[11px] font-semibold text-primary">
-            Only {product.stock} left
-          </p>
-        ) : null}
+        <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-medium text-muted-foreground">
+          <span className="inline-flex items-center gap-1">
+            <Truck size={11} /> Fast delivery
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <ShieldCheck size={11} /> Buyer protection
+          </span>
+        </div>
+
+        <p
+          className={`mt-1.5 text-[11px] font-semibold ${
+            outOfStock ? "text-muted-foreground" : lowStock ? "text-flash" : "text-primary"
+          }`}
+        >
+          {outOfStock ? "Out of stock" : lowStock ? `Only ${stock} left` : `${stock} in stock`}
+        </p>
+
 
         <div className="mt-auto flex items-end justify-between gap-2 pt-3">
           <div className="min-w-0">
             <p className="truncate text-lg font-extrabold text-foreground">
               {formatGHC(product.price)}
             </p>
-            {oldPrice && (
-              <p className="truncate text-xs text-muted-foreground line-through">
-                {formatGHC(oldPrice)}
+            {oldPrice ? (
+              <p className="truncate text-xs text-muted-foreground">
+                <span className="line-through">{formatGHC(oldPrice)}</span>
+                {saving > 0 && (
+                  <span className="ml-1 font-semibold text-flash">
+                    save {formatGHC(saving)}
+                  </span>
+                )}
               </p>
-            )}
+            ) : null}
           </div>
 
           {qty === 0 ? (
             <button
+              disabled={outOfStock}
               onClick={() => {
                 addToCart(product);
                 toast.success(`${product.name} added to cart`);
               }}
               aria-label={`Add ${product.name} to cart`}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full gradient-primary text-primary-foreground shadow-soft transition active:scale-95"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full gradient-primary text-primary-foreground shadow-soft transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Plus size={18} strokeWidth={2.6} />
             </button>
@@ -114,8 +166,9 @@ export function ProductCard({ product }: { product: Product }) {
               </button>
               <span className="min-w-4 text-center text-[13px] font-bold text-foreground">{qty}</span>
               <button
+                disabled={atMax}
                 onClick={() => updateQty(product.id, qty + 1)}
-                className="flex h-8 w-8 items-center justify-center rounded-full gradient-primary text-primary-foreground transition active:scale-95"
+                className="flex h-8 w-8 items-center justify-center rounded-full gradient-primary text-primary-foreground transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Increase quantity"
               >
                 <Plus size={14} />

@@ -9,16 +9,43 @@ import { useProducts } from "@/lib/products";
 
 export const Route = createFileRoute("/categories")({
   component: Categories,
-  head: () => ({ meta: [{ title: "Categories – Kivora Ghana" }] }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    c: typeof search.c === "string" ? search.c : undefined,
+  }),
+  head: () => ({
+    meta: [
+      { title: "Shop by Category – Kivora Ghana" },
+      {
+        name: "description",
+        content:
+          "Browse Kivora Ghana by category — electronics, fashion, groceries, beauty and more, with fast delivery across Ghana.",
+      },
+      { property: "og:title", content: "Shop by Category – Kivora Ghana" },
+      {
+        property: "og:description",
+        content: "Find exactly what you need on Kivora Ghana, category by category.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
 });
 
 function Categories() {
   const { data: categories = [], isLoading } = useCategories();
-  const [active, setActive] = useState<string>("");
+  const navigate = Route.useNavigate();
+  const { c } = Route.useSearch();
+  const [fallback, setFallback] = useState<string>("");
+  const active = c ?? fallback;
+
+  const setActive = (name: string) => {
+    setFallback(name);
+    navigate({ search: { c: name }, replace: true });
+  };
 
   useEffect(() => {
-    if (!active && categories.length > 0) setActive(categories[0].name);
-  }, [categories, active]);
+    if (!c && !fallback && categories.length > 0) setFallback(categories[0].name);
+  }, [categories, c, fallback]);
 
   const { data: products = [], isLoading: loadingProducts } = useProducts(active || undefined);
 

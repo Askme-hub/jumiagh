@@ -85,12 +85,13 @@ function useGroupedProducts() {
   });
 }
 
-function SectionHead({ title, to }: { title: string; to?: string }) {
+function SectionHead({ title, category }: { title: string; category?: string }) {
   return (
     <div className="mb-3 flex items-center justify-between gap-3 px-4">
       <h2 className="truncate text-base font-extrabold tracking-tight text-foreground">{title}</h2>
       <Link
-        to={to ?? "/categories"}
+        to="/categories"
+        search={category ? { c: category } : {}}
         className="flex shrink-0 items-center gap-0.5 text-xs font-bold text-primary"
       >
         View All <ChevronRight size={14} />
@@ -109,7 +110,7 @@ function CategoryBand({
   if (products.length === 0) return null;
   return (
     <section className="mt-7">
-      <SectionHead title={title} />
+      <SectionHead title={title} category={title} />
       <div className="overflow-x-auto scrollbar-none">
         <div className="flex gap-3 px-4 pb-2">
           {products.slice(0, 10).map((p) => (

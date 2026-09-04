@@ -163,6 +163,7 @@ export function AppDrawer() {
                 <Link
                   key={c.id}
                   to="/categories"
+                  search={{ c: c.name }}
                   className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-foreground/80 hover:bg-muted transition"
                 >
                   <Tag size={18} className="text-muted-foreground" />

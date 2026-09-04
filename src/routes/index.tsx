@@ -91,7 +91,7 @@ function SectionHead({ title, category }: { title: string; category?: string }) 
       <h2 className="truncate text-base font-extrabold tracking-tight text-foreground">{title}</h2>
       <Link
         to="/categories"
-        search={category ? { c: category } : {}}
+        search={category ? { c: category } : ({} as { c?: string })}
         className="flex shrink-0 items-center gap-0.5 text-xs font-bold text-primary"
       >
         View All <ChevronRight size={14} />

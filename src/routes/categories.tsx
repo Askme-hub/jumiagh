@@ -9,9 +9,8 @@ import { useProducts } from "@/lib/products";
 
 export const Route = createFileRoute("/categories")({
   component: Categories,
-  validateSearch: (search: Record<string, unknown>) => ({
-    c: typeof search.c === "string" ? search.c : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { c?: string } =>
+    typeof search.c === "string" && search.c ? { c: search.c } : {},
   head: () => ({
     meta: [
       { title: "Shop by Category – Kivora Ghana" },

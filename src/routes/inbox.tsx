@@ -1,7 +1,20 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, ChevronRight, Mail, MailOpen, CheckCheck } from "lucide-react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+type InboxMessage = {
+  id: string;
+  title: string;
+  body: string;
+  product_name: string | null;
+  product_image: string | null;
+  read: boolean;
+  created_at: string;
+};
 
 export const Route = createFileRoute("/inbox")({
   component: Inbox,

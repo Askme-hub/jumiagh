@@ -148,6 +148,7 @@ function Home() {
               <Link
                 key={c.id}
                 to="/categories"
+                search={{ c: c.name }}
                 className="flex w-16 shrink-0 flex-col items-center gap-1.5 text-center"
               >
                 <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 border-transparent bg-card shadow-soft transition hover:border-primary">

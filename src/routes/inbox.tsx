@@ -28,6 +28,7 @@ export const Route = createFileRoute("/inbox")({
 
 function Inbox() {
   const qc = useQueryClient();
+  const [selected, setSelected] = useState<InboxMessage | null>(null);
   const { data, isLoading } = useQuery({
     queryKey: ["inbox"],
     queryFn: async () => {
@@ -93,7 +94,10 @@ function Inbox() {
           return (
             <button
               key={m.id}
-              onClick={() => !m.read && markRead(m.id)}
+              onClick={() => {
+                if (!m.read) markRead(m.id);
+                setSelected(m as InboxMessage);
+              }}
               className={`w-full text-left border-b border-border p-4 transition ${
                 m.read ? "bg-background" : "bg-primary/5"
               }`}
@@ -143,6 +147,57 @@ function Inbox() {
         })
       )}
       <div className="h-6" />
+
+      <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
+        <DialogContent className="max-w-lg p-0 overflow-hidden">
+          {selected && (
+            <>
+              <DialogHeader className="p-5 pb-3 border-b border-border">
+                <p className="text-xs text-muted-foreground">
+                  {new Date(selected.created_at).toLocaleDateString("en-GB", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}{" "}
+                  ·{" "}
+                  {new Date(selected.created_at).toLocaleTimeString("en-GB", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+                <DialogTitle className="text-lg font-bold text-foreground leading-snug flex items-center gap-2">
+                  {/cancel/i.test(selected.title) && (
+                    <AlertTriangle size={18} className="text-destructive shrink-0" />
+                  )}
+                  {selected.title}
+                </DialogTitle>
+              </DialogHeader>
+              <ScrollArea className="max-h-[60vh]">
+                <div className="p-5 space-y-4">
+                  <p className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">
+                    {selected.body}
+                  </p>
+                  {selected.product_name && (
+                    <div className="border border-border rounded-xl p-3 flex gap-3 items-center bg-card shadow-soft">
+                      {selected.product_image && (
+                        <img
+                          src={selected.product_image}
+                          alt={selected.product_name}
+                          className="w-14 h-14 object-contain rounded-lg bg-muted"
+                        />
+                      )}
+                      <p className="text-sm font-semibold text-foreground">
+                        {selected.product_name}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

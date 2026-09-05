@@ -31,6 +31,7 @@ import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as SubscriptionCallbackRouteImport } from './routes/subscription.callback'
+import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
 import { Route as SellerWalletRouteImport } from './routes/seller.wallet'
 import { Route as SellerSubscriptionRouteImport } from './routes/seller.subscription'
 import { Route as SellerProfileRouteImport } from './routes/seller.profile'
@@ -160,6 +161,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const SubscriptionCallbackRoute = SubscriptionCallbackRouteImport.update({
   id: '/subscription/callback',
   path: '/subscription/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopSlugRoute = ShopSlugRouteImport.update({
+  id: '/shop/$slug',
+  path: '/shop/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SellerWalletRoute = SellerWalletRouteImport.update({
@@ -296,6 +302,7 @@ export interface FileRoutesByFullPath {
   '/seller/profile': typeof SellerProfileRoute
   '/seller/subscription': typeof SellerSubscriptionRoute
   '/seller/wallet': typeof SellerWalletRoute
+  '/shop/$slug': typeof ShopSlugRoute
   '/subscription/callback': typeof SubscriptionCallbackRoute
   '/admin/': typeof AdminIndexRoute
   '/orders/': typeof OrdersIndexRoute
@@ -337,6 +344,7 @@ export interface FileRoutesByTo {
   '/seller/profile': typeof SellerProfileRoute
   '/seller/subscription': typeof SellerSubscriptionRoute
   '/seller/wallet': typeof SellerWalletRoute
+  '/shop/$slug': typeof ShopSlugRoute
   '/subscription/callback': typeof SubscriptionCallbackRoute
   '/admin': typeof AdminIndexRoute
   '/orders': typeof OrdersIndexRoute
@@ -382,6 +390,7 @@ export interface FileRoutesById {
   '/seller/profile': typeof SellerProfileRoute
   '/seller/subscription': typeof SellerSubscriptionRoute
   '/seller/wallet': typeof SellerWalletRoute
+  '/shop/$slug': typeof ShopSlugRoute
   '/subscription/callback': typeof SubscriptionCallbackRoute
   '/admin/': typeof AdminIndexRoute
   '/orders/': typeof OrdersIndexRoute
@@ -428,6 +437,7 @@ export interface FileRouteTypes {
     | '/seller/profile'
     | '/seller/subscription'
     | '/seller/wallet'
+    | '/shop/$slug'
     | '/subscription/callback'
     | '/admin/'
     | '/orders/'
@@ -469,6 +479,7 @@ export interface FileRouteTypes {
     | '/seller/profile'
     | '/seller/subscription'
     | '/seller/wallet'
+    | '/shop/$slug'
     | '/subscription/callback'
     | '/admin'
     | '/orders'
@@ -513,6 +524,7 @@ export interface FileRouteTypes {
     | '/seller/profile'
     | '/seller/subscription'
     | '/seller/wallet'
+    | '/shop/$slug'
     | '/subscription/callback'
     | '/admin/'
     | '/orders/'
@@ -547,6 +559,7 @@ export interface RootRouteChildren {
   WishlistRoute: typeof WishlistRoute
   PaymentCallbackRoute: typeof PaymentCallbackRoute
   ProductsIdRoute: typeof ProductsIdRoute
+  ShopSlugRoute: typeof ShopSlugRoute
   SubscriptionCallbackRoute: typeof SubscriptionCallbackRoute
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
 }
@@ -705,6 +718,13 @@ declare module '@tanstack/react-router' {
       path: '/subscription/callback'
       fullPath: '/subscription/callback'
       preLoaderRoute: typeof SubscriptionCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop/$slug': {
+      id: '/shop/$slug'
+      path: '/shop/$slug'
+      fullPath: '/shop/$slug'
+      preLoaderRoute: typeof ShopSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/seller/wallet': {
@@ -937,6 +957,7 @@ const rootRouteChildren: RootRouteChildren = {
   WishlistRoute: WishlistRoute,
   PaymentCallbackRoute: PaymentCallbackRoute,
   ProductsIdRoute: ProductsIdRoute,
+  ShopSlugRoute: ShopSlugRoute,
   SubscriptionCallbackRoute: SubscriptionCallbackRoute,
   ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
 }

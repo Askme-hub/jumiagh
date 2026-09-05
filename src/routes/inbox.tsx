@@ -94,7 +94,10 @@ function Inbox() {
           return (
             <button
               key={m.id}
-              onClick={() => !m.read && markRead(m.id)}
+              onClick={() => {
+                if (!m.read) markRead(m.id);
+                setSelected(m as InboxMessage);
+              }}
               className={`w-full text-left border-b border-border p-4 transition ${
                 m.read ? "bg-background" : "bg-primary/5"
               }`}

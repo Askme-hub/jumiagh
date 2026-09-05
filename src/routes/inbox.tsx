@@ -28,6 +28,7 @@ export const Route = createFileRoute("/inbox")({
 
 function Inbox() {
   const qc = useQueryClient();
+  const [selected, setSelected] = useState<InboxMessage | null>(null);
   const { data, isLoading } = useQuery({
     queryKey: ["inbox"],
     queryFn: async () => {

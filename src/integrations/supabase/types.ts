@@ -440,9 +440,12 @@ export type Database = {
       }
       seller_profiles: {
         Row: {
+          banner_url: string | null
           bio: string | null
+          business_category: string | null
           created_at: string
           door_delivery_fee: number
+          location: string | null
           logo_url: string | null
           phone: string | null
           pickup_enabled: boolean
@@ -450,14 +453,19 @@ export type Database = {
           pickup_region: string | null
           pickup_station: string | null
           shop_name: string
+          slug: string | null
           status: string
           updated_at: string
           user_id: string
+          whatsapp_number: string | null
         }
         Insert: {
+          banner_url?: string | null
           bio?: string | null
+          business_category?: string | null
           created_at?: string
           door_delivery_fee?: number
+          location?: string | null
           logo_url?: string | null
           phone?: string | null
           pickup_enabled?: boolean
@@ -465,14 +473,19 @@ export type Database = {
           pickup_region?: string | null
           pickup_station?: string | null
           shop_name: string
+          slug?: string | null
           status?: string
           updated_at?: string
           user_id: string
+          whatsapp_number?: string | null
         }
         Update: {
+          banner_url?: string | null
           bio?: string | null
+          business_category?: string | null
           created_at?: string
           door_delivery_fee?: number
+          location?: string | null
           logo_url?: string | null
           phone?: string | null
           pickup_enabled?: boolean
@@ -480,9 +493,11 @@ export type Database = {
           pickup_region?: string | null
           pickup_station?: string | null
           shop_name?: string
+          slug?: string | null
           status?: string
           updated_at?: string
           user_id?: string
+          whatsapp_number?: string | null
         }
         Relationships: []
       }
@@ -679,6 +694,40 @@ export type Database = {
       is_order_seller: {
         Args: { _order_id: string; _user_id: string }
         Returns: boolean
+      }
+      public_store: {
+        Args: { _slug: string }
+        Returns: {
+          banner_url: string
+          bio: string
+          business_category: string
+          created_at: string
+          location: string
+          logo_url: string
+          product_count: number
+          shop_name: string
+          slug: string
+          status: string
+          user_id: string
+          whatsapp_number: string
+        }[]
+      }
+      public_stores: {
+        Args: never
+        Returns: {
+          banner_url: string
+          business_category: string
+          location: string
+          logo_url: string
+          product_count: number
+          shop_name: string
+          slug: string
+        }[]
+      }
+      slugify: { Args: { _txt: string }; Returns: string }
+      unique_shop_slug: {
+        Args: { _name: string; _user_id: string }
+        Returns: string
       }
     }
     Enums: {

@@ -19,6 +19,12 @@ function SellerProfilePage() {
   const [shop, setShop] = useState("");
   const [bio, setBio] = useState("");
   const [phone, setPhone] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [location, setLocation] = useState("");
+  const [bizCat, setBizCat] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
+  const [bannerUrl, setBannerUrl] = useState("");
+  const [uploading, setUploading] = useState<"logo" | "banner" | null>(null);
   const [doorFee, setDoorFee] = useState("25");
   const [pickupEnabled, setPickupEnabled] = useState(false);
   const [pickupStation, setPickupStation] = useState("");
@@ -31,6 +37,11 @@ function SellerProfilePage() {
       setShop(profile.shop_name ?? "");
       setBio(profile.bio ?? "");
       setPhone(profile.phone ?? "");
+      setWhatsapp((profile as any).whatsapp_number ?? "");
+      setLocation((profile as any).location ?? "");
+      setBizCat((profile as any).business_category ?? "");
+      setLogoUrl((profile as any).logo_url ?? "");
+      setBannerUrl((profile as any).banner_url ?? "");
       setDoorFee(String((profile as any).door_delivery_fee ?? 25));
       setPickupEnabled(Boolean((profile as any).pickup_enabled));
       setPickupStation((profile as any).pickup_station ?? "");
@@ -41,6 +52,20 @@ function SellerProfilePage() {
 
   if (!user) return <p className="p-6 text-sm">Please log in.</p>;
   if (!profile) return <p className="p-6 text-sm">No shop yet — submit an application from the Dashboard.</p>;
+
+  const upload = async (file: File, kind: "logo" | "banner") => {
+    setUploading(kind);
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${user.id}/store/${kind}-${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("product-images").upload(path, file, { upsert: true });
+    setUploading(null);
+    if (error) return toast.error(error.message);
+    const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+    if (kind === "logo") setLogoUrl(data.publicUrl);
+    else setBannerUrl(data.publicUrl);
+    toast.success(`${kind === "logo" ? "Logo" : "Cover"} uploaded — remember to save`);
+  };
+
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +79,13 @@ function SellerProfilePage() {
         shop_name: shop,
         bio: bio || null,
         phone: phone || null,
+        whatsapp_number: whatsapp || null,
+        location: location || null,
+        business_category: bizCat || null,
+        logo_url: logoUrl || null,
+        banner_url: bannerUrl || null,
         door_delivery_fee: Math.max(0, Number(doorFee) || 0),
+
         pickup_enabled: pickupEnabled,
         pickup_station: pickupEnabled ? pickupStation.trim() : null,
         pickup_region: pickupEnabled ? pickupRegion : null,
@@ -73,11 +104,57 @@ function SellerProfilePage() {
     <form onSubmit={save} className="p-4 max-w-md mx-auto space-y-3">
       <h2 className="text-xl font-bold text-foreground">Shop Details</h2>
       <p className="text-xs text-muted-foreground">Status: <span className="font-bold uppercase">{profile.status}</span></p>
+
+      {(profile as any).slug && (
+        <div className="rounded-xl bg-primary-soft px-4 py-3">
+          <p className="text-xs font-semibold text-muted-foreground">Your public store link</p>
+          <a
+            href={`/shop/${(profile as any).slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="break-all text-sm font-bold text-primary"
+          >
+            /shop/{(profile as any).slug}
+          </a>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            {profile.status === "approved"
+              ? "Live — share it with your customers."
+              : "Visible to shoppers once your shop is approved."}
+          </p>
+        </div>
+      )}
+
       <input value={shop} onChange={(e) => setShop(e.target.value)} placeholder="Shop name" className={inputCls} />
-      <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" className={inputCls} />
+      <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone (private)" className={inputCls} />
+      <input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="WhatsApp number (shown on your store)" className={inputCls} />
+      <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Location e.g. Adum, Kumasi" className={inputCls} />
+      <input value={bizCat} onChange={(e) => setBizCat(e.target.value)} placeholder="Business category e.g. Electronics" className={inputCls} />
       <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={4} placeholder="About your shop" className={inputCls} />
 
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1 block text-xs font-semibold text-muted-foreground">Shop logo</label>
+          {logoUrl && <img src={logoUrl} alt="Shop logo" className="mb-2 h-16 w-16 rounded-xl object-cover" />}
+          <input
+            type="file" accept="image/*"
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f, "logo"); }}
+            className="w-full text-xs text-muted-foreground"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-semibold text-muted-foreground">Cover image</label>
+          {bannerUrl && <img src={bannerUrl} alt="Store cover" className="mb-2 h-16 w-full rounded-xl object-cover" />}
+          <input
+            type="file" accept="image/*"
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f, "banner"); }}
+            className="w-full text-xs text-muted-foreground"
+          />
+        </div>
+      </div>
+      {uploading && <p className="text-xs text-muted-foreground">Uploading {uploading}…</p>}
+
       <div className="pt-2 border-t border-border space-y-3">
+
         <h3 className="font-bold text-foreground">Delivery Settings</h3>
 
         <div>

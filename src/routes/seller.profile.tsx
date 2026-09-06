@@ -104,11 +104,57 @@ function SellerProfilePage() {
     <form onSubmit={save} className="p-4 max-w-md mx-auto space-y-3">
       <h2 className="text-xl font-bold text-foreground">Shop Details</h2>
       <p className="text-xs text-muted-foreground">Status: <span className="font-bold uppercase">{profile.status}</span></p>
+
+      {(profile as any).slug && (
+        <div className="rounded-xl bg-primary-soft px-4 py-3">
+          <p className="text-xs font-semibold text-muted-foreground">Your public store link</p>
+          <a
+            href={`/shop/${(profile as any).slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="break-all text-sm font-bold text-primary"
+          >
+            /shop/{(profile as any).slug}
+          </a>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            {profile.status === "approved"
+              ? "Live — share it with your customers."
+              : "Visible to shoppers once your shop is approved."}
+          </p>
+        </div>
+      )}
+
       <input value={shop} onChange={(e) => setShop(e.target.value)} placeholder="Shop name" className={inputCls} />
-      <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" className={inputCls} />
+      <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone (private)" className={inputCls} />
+      <input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="WhatsApp number (shown on your store)" className={inputCls} />
+      <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Location e.g. Adum, Kumasi" className={inputCls} />
+      <input value={bizCat} onChange={(e) => setBizCat(e.target.value)} placeholder="Business category e.g. Electronics" className={inputCls} />
       <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={4} placeholder="About your shop" className={inputCls} />
 
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1 block text-xs font-semibold text-muted-foreground">Shop logo</label>
+          {logoUrl && <img src={logoUrl} alt="Shop logo" className="mb-2 h-16 w-16 rounded-xl object-cover" />}
+          <input
+            type="file" accept="image/*"
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f, "logo"); }}
+            className="w-full text-xs text-muted-foreground"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-semibold text-muted-foreground">Cover image</label>
+          {bannerUrl && <img src={bannerUrl} alt="Store cover" className="mb-2 h-16 w-full rounded-xl object-cover" />}
+          <input
+            type="file" accept="image/*"
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f, "banner"); }}
+            className="w-full text-xs text-muted-foreground"
+          />
+        </div>
+      </div>
+      {uploading && <p className="text-xs text-muted-foreground">Uploading {uploading}…</p>}
+
       <div className="pt-2 border-t border-border space-y-3">
+
         <h3 className="font-bold text-foreground">Delivery Settings</h3>
 
         <div>

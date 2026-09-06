@@ -79,7 +79,13 @@ function SellerProfilePage() {
         shop_name: shop,
         bio: bio || null,
         phone: phone || null,
+        whatsapp_number: whatsapp || null,
+        location: location || null,
+        business_category: bizCat || null,
+        logo_url: logoUrl || null,
+        banner_url: bannerUrl || null,
         door_delivery_fee: Math.max(0, Number(doorFee) || 0),
+
         pickup_enabled: pickupEnabled,
         pickup_station: pickupEnabled ? pickupStation.trim() : null,
         pickup_region: pickupEnabled ? pickupRegion : null,

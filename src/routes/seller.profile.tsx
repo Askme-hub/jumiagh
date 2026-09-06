@@ -19,6 +19,12 @@ function SellerProfilePage() {
   const [shop, setShop] = useState("");
   const [bio, setBio] = useState("");
   const [phone, setPhone] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [location, setLocation] = useState("");
+  const [bizCat, setBizCat] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
+  const [bannerUrl, setBannerUrl] = useState("");
+  const [uploading, setUploading] = useState<"logo" | "banner" | null>(null);
   const [doorFee, setDoorFee] = useState("25");
   const [pickupEnabled, setPickupEnabled] = useState(false);
   const [pickupStation, setPickupStation] = useState("");
@@ -31,6 +37,11 @@ function SellerProfilePage() {
       setShop(profile.shop_name ?? "");
       setBio(profile.bio ?? "");
       setPhone(profile.phone ?? "");
+      setWhatsapp((profile as any).whatsapp_number ?? "");
+      setLocation((profile as any).location ?? "");
+      setBizCat((profile as any).business_category ?? "");
+      setLogoUrl((profile as any).logo_url ?? "");
+      setBannerUrl((profile as any).banner_url ?? "");
       setDoorFee(String((profile as any).door_delivery_fee ?? 25));
       setPickupEnabled(Boolean((profile as any).pickup_enabled));
       setPickupStation((profile as any).pickup_station ?? "");
@@ -41,6 +52,20 @@ function SellerProfilePage() {
 
   if (!user) return <p className="p-6 text-sm">Please log in.</p>;
   if (!profile) return <p className="p-6 text-sm">No shop yet — submit an application from the Dashboard.</p>;
+
+  const upload = async (file: File, kind: "logo" | "banner") => {
+    setUploading(kind);
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${user.id}/store/${kind}-${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("product-images").upload(path, file, { upsert: true });
+    setUploading(null);
+    if (error) return toast.error(error.message);
+    const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+    if (kind === "logo") setLogoUrl(data.publicUrl);
+    else setBannerUrl(data.publicUrl);
+    toast.success(`${kind === "logo" ? "Logo" : "Cover"} uploaded — remember to save`);
+  };
+
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();

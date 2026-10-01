@@ -15,7 +15,30 @@ export type PublicStore = {
   status: string;
   created_at: string;
   product_count: number;
+  verification_status: string;
 };
+
+export type SellerBadge = {
+  shop_name: string;
+  slug: string | null;
+  logo_url: string | null;
+  verified: boolean;
+};
+
+/** Public lookup of a seller's shop name/link and Kivora Verified state (approved shops only). */
+export function useSellerBadge(sellerId: string | null | undefined) {
+  return useQuery({
+    queryKey: ["seller-badge", sellerId],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).rpc("public_seller_badge", {
+        _seller_id: sellerId!,
+      });
+      if (error) throw error;
+      return ((data as SellerBadge[] | null) ?? [])[0] ?? null;
+    },
+    enabled: !!sellerId,
+  });
+}
 
 export function usePublicStore(slug: string) {
   return useQuery({

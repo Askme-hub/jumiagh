@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
-  BadgeCheck, MapPin, Phone, Search, Store, PackageOpen, Star, ShieldAlert,
+  MapPin, Phone, Search, Store, PackageOpen, Star, ShieldAlert,
 } from "lucide-react";
 import { fetchPublicStore } from "@/lib/stores.functions";
 import { useStoreProducts } from "@/lib/stores";
@@ -9,6 +9,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { ShareStore } from "@/components/ShareStore";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 
 const SITE = "https://kivoragh.lovable.app";
 
@@ -122,9 +123,9 @@ function StorePage() {
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-1.5">
                 <h1 className="truncate text-lg font-extrabold text-foreground">{store.shop_name}</h1>
-                <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-2 py-0.5 text-[10px] font-bold uppercase text-primary">
-                  <BadgeCheck size={12} /> Kivora Verified
-                </span>
+                {store.verification_status === "verified" && (
+                  <VerifiedBadge explainable />
+                )}
               </div>
 
               <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">

@@ -6,6 +6,8 @@ import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatGHC, useShop } from "@/lib/store";
 import { toProduct, type DbProduct } from "@/lib/products";
+import { useSellerBadge } from "@/lib/stores";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { Heart, ShoppingCart, Star, Truck, Shield, PackageX, Minus, Plus, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 
@@ -278,6 +280,8 @@ function ProductDetails() {
               <div className="mt-4 hidden lg:block">{buyBox}</div>
             </div>
 
+            <SellerCard sellerId={data.seller_id ?? null} />
+
             <div className="mt-2 space-y-3 bg-card p-4 lg:mt-0 lg:rounded-2xl lg:border lg:border-border">
               <div className="flex items-center gap-3 text-sm">
                 <Truck size={18} className="text-primary" />
@@ -306,3 +310,47 @@ function ProductDetails() {
   );
 }
 
+
+function SellerCard({ sellerId }: { sellerId: string | null }) {
+  const { data: seller } = useSellerBadge(sellerId);
+  if (!seller) return null;
+  return (
+    <div className="mt-2 bg-card p-4 lg:mt-0 lg:rounded-2xl lg:border lg:border-border">
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        Sold by
+      </p>
+      <div className="mt-2 flex items-center gap-3">
+        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-muted">
+          {seller.logo_url ? (
+            <img src={seller.logo_url} alt={seller.shop_name} className="h-full w-full object-cover" />
+          ) : null}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            {seller.slug ? (
+              <Link
+                to="/shop/$slug"
+                params={{ slug: seller.slug }}
+                className="truncate text-sm font-bold text-foreground hover:text-primary"
+              >
+                {seller.shop_name}
+              </Link>
+            ) : (
+              <span className="truncate text-sm font-bold text-foreground">{seller.shop_name}</span>
+            )}
+            {seller.verified && <VerifiedBadge explainable />}
+          </div>
+          {seller.slug && (
+            <Link
+              to="/shop/$slug"
+              params={{ slug: seller.slug }}
+              className="text-xs font-semibold text-primary"
+            >
+              Visit store
+            </Link>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

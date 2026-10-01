@@ -457,6 +457,11 @@ export type Database = {
           status: string
           updated_at: string
           user_id: string
+          verification_note: string | null
+          verification_requested_at: string | null
+          verification_status: string
+          verified_at: string | null
+          verified_by: string | null
           whatsapp_number: string | null
         }
         Insert: {
@@ -477,6 +482,11 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id: string
+          verification_note?: string | null
+          verification_requested_at?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
           whatsapp_number?: string | null
         }
         Update: {
@@ -497,6 +507,11 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
+          verification_note?: string | null
+          verification_requested_at?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
           whatsapp_number?: string | null
         }
         Relationships: []
@@ -534,6 +549,39 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      seller_verification_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          id: string
+          new_status: string
+          note: string | null
+          old_status: string | null
+          seller_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          new_status: string
+          note?: string | null
+          old_status?: string | null
+          seller_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          new_status?: string
+          note?: string | null
+          old_status?: string | null
+          seller_id?: string
         }
         Relationships: []
       }
@@ -695,6 +743,15 @@ export type Database = {
         Args: { _order_id: string; _user_id: string }
         Returns: boolean
       }
+      public_seller_badge: {
+        Args: { _seller_id: string }
+        Returns: {
+          logo_url: string
+          shop_name: string
+          slug: string
+          verified: boolean
+        }[]
+      }
       public_store: {
         Args: { _slug: string }
         Returns: {
@@ -709,6 +766,7 @@ export type Database = {
           slug: string
           status: string
           user_id: string
+          verification_status: string
           whatsapp_number: string
         }[]
       }
@@ -722,6 +780,7 @@ export type Database = {
           product_count: number
           shop_name: string
           slug: string
+          verification_status: string
         }[]
       }
       slugify: { Args: { _txt: string }; Returns: string }

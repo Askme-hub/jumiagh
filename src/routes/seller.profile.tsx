@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useSellerProfile } from "@/hooks/use-seller";
+import { SellerVerification } from "@/components/SellerVerification";
 
 export const Route = createFileRoute("/seller/profile")({ component: SellerProfilePage });
 
@@ -104,6 +105,13 @@ function SellerProfilePage() {
     <form onSubmit={save} className="p-4 max-w-md mx-auto space-y-3">
       <h2 className="text-xl font-bold text-foreground">Shop Details</h2>
       <p className="text-xs text-muted-foreground">Status: <span className="font-bold uppercase">{profile.status}</span></p>
+
+      <SellerVerification
+        userId={user.id}
+        status={profile.status}
+        verificationStatus={(profile as any).verification_status ?? "not_verified"}
+        onChanged={() => refetch()}
+      />
 
       {(profile as any).slug && (
         <div className="rounded-xl bg-primary-soft px-4 py-3">

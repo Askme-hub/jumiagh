@@ -6,6 +6,7 @@ import { Package, Clock, CheckCircle2, Store } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useIsSeller, useSellerProfile } from "@/hooks/use-seller";
+import { SellerVerification } from "@/components/SellerVerification";
 import { formatGHC } from "@/lib/store";
 
 export const Route = createFileRoute("/seller/")({ component: SellerDashboard });
@@ -42,7 +43,21 @@ function SellerDashboard() {
     );
   }
 
-  return <Overview userId={user.id} shopName={profile?.shop_name ?? "Your shop"} />;
+  return (
+    <div>
+      {profile && (
+        <div className="p-4 pb-0">
+          <SellerVerification
+            userId={user.id}
+            status={profile.status}
+            verificationStatus={(profile as any).verification_status ?? "not_verified"}
+            onChanged={() => refetch()}
+          />
+        </div>
+      )}
+      <Overview userId={user.id} shopName={profile?.shop_name ?? "Your shop"} />
+    </div>
+  );
 }
 
 function Overview({ userId, shopName }: { userId: string; shopName: string }) {

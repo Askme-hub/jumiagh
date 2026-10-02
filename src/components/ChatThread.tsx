@@ -49,7 +49,7 @@ export function ChatThread({
             <ArrowLeft size={18} />
           </button>
         )}
-        <UserAvatar name={conversation.other_name} size="sm" />
+        <UserAvatar name={conversation.other_name} size={36} />
         <div className="min-w-0">
           <p className="truncate text-sm font-bold text-foreground">{conversation.other_name}</p>
           <p className="text-[11px] text-muted-foreground">Chat on Kivora</p>

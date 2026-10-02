@@ -16,6 +16,7 @@ import {
   Search,
   HelpCircle,
   Tag,
+  MessageCircle,
 
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -35,6 +36,7 @@ import { InstallAppButton } from "@/components/InstallAppButton";
 const accountItems = [
   { to: "/orders" as const, label: "Orders", icon: Package },
   { to: "/inbox" as const, label: "Inbox", icon: Mail },
+  { to: "/messages" as const, label: "Messages", icon: MessageCircle },
   { to: "/wishlist" as const, label: "Wishlist", icon: Heart },
   { to: "/cart" as const, label: "Cart", icon: ShoppingCart },
 ];
@@ -190,6 +192,7 @@ export function AppDrawer() {
                 <NavLink to="/seller" label="Overview" icon={Store} active={path === "/seller"} />
                 <NavLink to="/seller/products" label="My Products" icon={Package} active={path.startsWith("/seller/products")} />
                 <NavLink to="/seller/orders" label="Orders" icon={ShoppingCart} active={path.startsWith("/seller/orders")} />
+                <NavLink to="/seller/messages" label="Messages" icon={MessageCircle} active={path.startsWith("/seller/messages")} />
                 <NavLink to="/seller/wallet" label="Wallet" icon={Wallet} active={path.startsWith("/seller/wallet")} />
                 <NavLink to="/seller/subscription" label="Plans" icon={Tag} active={path.startsWith("/seller/subscription")} />
                 <NavLink to="/seller/profile" label="Store Settings" icon={UserCircle2} active={path.startsWith("/seller/profile")} />

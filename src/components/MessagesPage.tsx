@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { MessageCircle } from "lucide-react";
 import { useConversations, type Conversation } from "@/lib/messages";
-import { ChatThread } from "@/components/ChatThread";
+import { ChatThread, ChatAvatar } from "@/components/ChatThread";
 
 import { EmptyState } from "@/components/EmptyState";
 

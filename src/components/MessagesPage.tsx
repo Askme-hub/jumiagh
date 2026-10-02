@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { MessageCircle } from "lucide-react";
 import { useConversations, type Conversation } from "@/lib/messages";
 import { ChatThread } from "@/components/ChatThread";
-import { UserAvatar } from "@/components/UserAvatar";
+
 import { EmptyState } from "@/components/EmptyState";
 
 export function MessagesPage({
@@ -82,7 +82,7 @@ function ConversationRow({ c, active, onClick }: { c: Conversation; active: bool
       onClick={onClick}
       className={`flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-muted/60 ${active ? "bg-primary/5" : ""}`}
     >
-      <UserAvatar name={c.other_name} size={36} />
+      <ChatAvatar name={c.other_name} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
           <p className="truncate text-sm font-bold text-foreground">{c.other_name}</p>

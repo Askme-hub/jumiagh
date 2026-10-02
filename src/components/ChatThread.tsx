@@ -2,7 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, SendHorizonal } from "lucide-react";
 import { toast } from "sonner";
 import { useMessages, useSendMessage, markConversationRead, type Conversation } from "@/lib/messages";
-import { UserAvatar } from "@/components/UserAvatar";
+function ChatAvatar({ name }: { name?: string | null }) {
+  const initial = (name ?? "K").charAt(0).toUpperCase();
+  return (
+    <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary">
+      {initial}
+    </span>
+  );
+}
 
 export function ChatThread({
   conversation,

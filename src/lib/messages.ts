@@ -35,14 +35,14 @@ export async function startConversation(input: {
 }) {
   const { customerId, sellerId, productId = null, orderId = null } = input;
 
-  const { data: existing } = await supabase
+  let query = supabase
     .from("conversations")
     .select("id")
     .eq("customer_id", customerId)
-    .eq("seller_id", sellerId)
-    .is("product_id", productId)
-    .is("order_id", orderId)
-    .maybeSingle();
+    .eq("seller_id", sellerId);
+  query = productId ? query.eq("product_id", productId) : query.is("product_id", null);
+  query = orderId ? query.eq("order_id", orderId) : query.is("order_id", null);
+  const { data: existing } = await query.maybeSingle();
   if (existing) return existing.id;
 
   const { data, error } = await supabase

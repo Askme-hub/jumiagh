@@ -8,6 +8,7 @@ import { formatGHC, useShop } from "@/lib/store";
 import { toProduct, type DbProduct } from "@/lib/products";
 import { useSellerBadge } from "@/lib/stores";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { MessageSellerButton } from "@/components/MessageSellerButton";
 import { Heart, ShoppingCart, Star, Truck, Shield, PackageX, Minus, Plus, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 
@@ -351,6 +352,11 @@ function SellerCard({ sellerId, productId }: { sellerId: string | null; productI
           )}
         </div>
       </div>
+      {sellerId && (
+        <div className="mt-3">
+          <MessageSellerButton sellerId={sellerId} productId={productId} />
+        </div>
+      )}
     </div>
   );
 }

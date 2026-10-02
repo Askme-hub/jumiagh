@@ -18,6 +18,7 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as ReturnsRouteImport } from './routes/returns'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as OrdersRouteImport } from './routes/orders'
+import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as HelpRouteImport } from './routes/help'
@@ -35,6 +36,7 @@ import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
 import { Route as SellerWalletRouteImport } from './routes/seller.wallet'
 import { Route as SellerSubscriptionRouteImport } from './routes/seller.subscription'
 import { Route as SellerProfileRouteImport } from './routes/seller.profile'
+import { Route as SellerMessagesRouteImport } from './routes/seller.messages'
 import { Route as ProductsIdRouteImport } from './routes/products.$id'
 import { Route as PaymentCallbackRouteImport } from './routes/payment.callback'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
@@ -96,6 +98,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const OrdersRoute = OrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -181,6 +188,11 @@ const SellerSubscriptionRoute = SellerSubscriptionRouteImport.update({
 const SellerProfileRoute = SellerProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerMessagesRoute = SellerMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
   getParentRoute: () => SellerRoute,
 } as any)
 const ProductsIdRoute = ProductsIdRouteImport.update({
@@ -280,6 +292,7 @@ export interface FileRoutesByFullPath {
   '/help': typeof HelpRoute
   '/inbox': typeof InboxRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/returns': typeof ReturnsRoute
@@ -299,6 +312,7 @@ export interface FileRoutesByFullPath {
   '/orders/$id': typeof OrdersIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
+  '/seller/messages': typeof SellerMessagesRoute
   '/seller/profile': typeof SellerProfileRoute
   '/seller/subscription': typeof SellerSubscriptionRoute
   '/seller/wallet': typeof SellerWalletRoute
@@ -324,6 +338,7 @@ export interface FileRoutesByTo {
   '/help': typeof HelpRoute
   '/inbox': typeof InboxRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/privacy': typeof PrivacyRoute
   '/returns': typeof ReturnsRoute
   '/search': typeof SearchRoute
@@ -341,6 +356,7 @@ export interface FileRoutesByTo {
   '/orders/$id': typeof OrdersIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
+  '/seller/messages': typeof SellerMessagesRoute
   '/seller/profile': typeof SellerProfileRoute
   '/seller/subscription': typeof SellerSubscriptionRoute
   '/seller/wallet': typeof SellerWalletRoute
@@ -368,6 +384,7 @@ export interface FileRoutesById {
   '/help': typeof HelpRoute
   '/inbox': typeof InboxRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/orders': typeof OrdersRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/returns': typeof ReturnsRoute
@@ -387,6 +404,7 @@ export interface FileRoutesById {
   '/orders/$id': typeof OrdersIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
+  '/seller/messages': typeof SellerMessagesRoute
   '/seller/profile': typeof SellerProfileRoute
   '/seller/subscription': typeof SellerSubscriptionRoute
   '/seller/wallet': typeof SellerWalletRoute
@@ -415,6 +433,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/inbox'
     | '/login'
+    | '/messages'
     | '/orders'
     | '/privacy'
     | '/returns'
@@ -434,6 +453,7 @@ export interface FileRouteTypes {
     | '/orders/$id'
     | '/payment/callback'
     | '/products/$id'
+    | '/seller/messages'
     | '/seller/profile'
     | '/seller/subscription'
     | '/seller/wallet'
@@ -459,6 +479,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/inbox'
     | '/login'
+    | '/messages'
     | '/privacy'
     | '/returns'
     | '/search'
@@ -476,6 +497,7 @@ export interface FileRouteTypes {
     | '/orders/$id'
     | '/payment/callback'
     | '/products/$id'
+    | '/seller/messages'
     | '/seller/profile'
     | '/seller/subscription'
     | '/seller/wallet'
@@ -502,6 +524,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/inbox'
     | '/login'
+    | '/messages'
     | '/orders'
     | '/privacy'
     | '/returns'
@@ -521,6 +544,7 @@ export interface FileRouteTypes {
     | '/orders/$id'
     | '/payment/callback'
     | '/products/$id'
+    | '/seller/messages'
     | '/seller/profile'
     | '/seller/subscription'
     | '/seller/wallet'
@@ -548,6 +572,7 @@ export interface RootRouteChildren {
   HelpRoute: typeof HelpRoute
   InboxRoute: typeof InboxRoute
   LoginRoute: typeof LoginRoute
+  MessagesRoute: typeof MessagesRoute
   OrdersRoute: typeof OrdersRouteWithChildren
   PrivacyRoute: typeof PrivacyRoute
   ReturnsRoute: typeof ReturnsRoute
@@ -627,6 +652,13 @@ declare module '@tanstack/react-router' {
       path: '/orders'
       fullPath: '/orders'
       preLoaderRoute: typeof OrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -746,6 +778,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/seller/profile'
       preLoaderRoute: typeof SellerProfileRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/messages': {
+      id: '/seller/messages'
+      path: '/messages'
+      fullPath: '/seller/messages'
+      preLoaderRoute: typeof SellerMessagesRouteImport
       parentRoute: typeof SellerRoute
     }
     '/products/$id': {
@@ -910,6 +949,7 @@ const OrdersRouteWithChildren =
   OrdersRoute._addFileChildren(OrdersRouteChildren)
 
 interface SellerRouteChildren {
+  SellerMessagesRoute: typeof SellerMessagesRoute
   SellerProfileRoute: typeof SellerProfileRoute
   SellerSubscriptionRoute: typeof SellerSubscriptionRoute
   SellerWalletRoute: typeof SellerWalletRoute
@@ -922,6 +962,7 @@ interface SellerRouteChildren {
 }
 
 const SellerRouteChildren: SellerRouteChildren = {
+  SellerMessagesRoute: SellerMessagesRoute,
   SellerProfileRoute: SellerProfileRoute,
   SellerSubscriptionRoute: SellerSubscriptionRoute,
   SellerWalletRoute: SellerWalletRoute,
@@ -946,6 +987,7 @@ const rootRouteChildren: RootRouteChildren = {
   HelpRoute: HelpRoute,
   InboxRoute: InboxRoute,
   LoginRoute: LoginRoute,
+  MessagesRoute: MessagesRoute,
   OrdersRoute: OrdersRouteWithChildren,
   PrivacyRoute: PrivacyRoute,
   ReturnsRoute: ReturnsRoute,

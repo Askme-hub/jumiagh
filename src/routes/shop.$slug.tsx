@@ -10,6 +10,7 @@ import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { ShareStore } from "@/components/ShareStore";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { MessageSellerButton } from "@/components/MessageSellerButton";
 
 const SITE = "https://kivoragh.lovable.app";
 
@@ -154,6 +155,7 @@ function StorePage() {
 
           <div className="mt-4 flex flex-wrap gap-2">
             <ShareStore shopName={store.shop_name} url={url} />
+            <MessageSellerButton sellerId={store.user_id} />
             {waNumber && (
               <a
                 href={`https://wa.me/${waNumber}?text=${encodeURIComponent(`Hello ${store.shop_name}, I found your store on Kivora Ghana.`)}`}

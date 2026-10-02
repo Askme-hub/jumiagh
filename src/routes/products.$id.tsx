@@ -8,6 +8,7 @@ import { formatGHC, useShop } from "@/lib/store";
 import { toProduct, type DbProduct } from "@/lib/products";
 import { useSellerBadge } from "@/lib/stores";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { MessageSellerButton } from "@/components/MessageSellerButton";
 import { Heart, ShoppingCart, Star, Truck, Shield, PackageX, Minus, Plus, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 
@@ -280,7 +281,7 @@ function ProductDetails() {
               <div className="mt-4 hidden lg:block">{buyBox}</div>
             </div>
 
-            <SellerCard sellerId={data.seller_id ?? null} />
+            <SellerCard sellerId={data.seller_id ?? null} productId={data.id} />
 
             <div className="mt-2 space-y-3 bg-card p-4 lg:mt-0 lg:rounded-2xl lg:border lg:border-border">
               <div className="flex items-center gap-3 text-sm">
@@ -311,7 +312,7 @@ function ProductDetails() {
 }
 
 
-function SellerCard({ sellerId }: { sellerId: string | null }) {
+function SellerCard({ sellerId, productId }: { sellerId: string | null; productId?: string }) {
   const { data: seller } = useSellerBadge(sellerId);
   if (!seller) return null;
   return (
@@ -351,6 +352,11 @@ function SellerCard({ sellerId }: { sellerId: string | null }) {
           )}
         </div>
       </div>
+      {sellerId && (
+        <div className="mt-3">
+          <MessageSellerButton sellerId={sellerId} productId={productId} />
+        </div>
+      )}
     </div>
   );
 }

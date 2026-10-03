@@ -66,7 +66,7 @@ export function ChatThread({
       </div>
 
       {/* messages */}
-      <div className="flex-1 space-y-2 overflow-y-auto bg-background px-3 py-4">
+      <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto bg-background px-3 py-4">
         {isLoading ? (
           <div className="space-y-2">
             {Array.from({ length: 4 }).map((_, i) => (

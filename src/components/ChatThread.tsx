@@ -24,9 +24,11 @@ export function ChatThread({
   const send = useSendMessage(conversation.id);
   const [text, setText] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [messages?.length]);
 
   useEffect(() => {

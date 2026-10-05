@@ -82,7 +82,8 @@
   --color-teal: var(--teal);
   --color-teal-foreground: var(--teal-foreground);
 
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-sans: "Figtree", system-ui, sans-serif;
+  --font-display: "Outfit", "Figtree", system-ui, sans-serif;
 }
 
 /* =========================================
@@ -173,6 +174,8 @@
 
   --sidebar-border: oklch(0.9 0.003 40);
   --sidebar-ring: oklch(0.72 0.21 45);
+  --dashboard-surface: oklch(0.982 0.006 75);
+  --dashboard-ink: oklch(0.2 0.01 40);
 }
 
 /* =========================================
@@ -232,6 +235,8 @@
 
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.72 0.21 45);
+  --dashboard-surface: oklch(0.16 0.01 40);
+  --dashboard-ink: oklch(0.97 0.002 85);
 }
 
 /* =========================================
@@ -307,6 +312,39 @@
   box-shadow:
     0 0 0 1px rgba(255, 122, 0, 0.1),
     0 0 30px rgba(255, 122, 0, 0.18);
+}
+
+.workspace-shell {
+  min-height: min(820px, calc(100vh - 76px));
+  overflow: hidden;
+  background: var(--dashboard-surface);
+}
+
+.workspace-admin {
+  --sidebar: oklch(0.2 0.012 35);
+  --sidebar-foreground: oklch(0.98 0.002 85);
+  --sidebar-accent: oklch(0.27 0.015 35);
+  --sidebar-accent-foreground: oklch(0.98 0.002 85);
+}
+
+.dashboard-canvas {
+  color: var(--dashboard-ink);
+}
+
+.dashboard-stat,
+.dashboard-panel {
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--card);
+  box-shadow: 0 12px 36px color-mix(in oklab, var(--foreground) 6%, transparent);
+}
+
+.dashboard-stat { padding: 1rem; }
+.dashboard-panel { padding: 1rem; }
+
+@media (min-width: 768px) {
+  .workspace-shell { border-radius: 1rem; }
+  .dashboard-stat, .dashboard-panel { padding: 1.25rem; }
 }
 
 /* =========================================

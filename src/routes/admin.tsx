@@ -1,10 +1,18 @@
-import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tanstack/react-router";
-import { Package, ShoppingBag, Mail, ArrowLeft, Store, ArrowDownToLine, LayoutGrid, Image as ImageIcon } from "lucide-react";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { Package, ShoppingBag, Mail, Store, ArrowDownToLine, LayoutGrid, Image as ImageIcon, Gauge } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { WorkspaceShell, type WorkspaceItem } from "@/components/WorkspaceShell";
 
 export const Route = createFileRoute("/admin")({
   component: AdminLayout,
-  head: () => ({ meta: [{ title: "Admin – Kivora" }] }),
+  head: () => ({ meta: [
+    { title: "Admin Workspace — Kivora Ghana" },
+    { name: "description", content: "Kivora marketplace operations and administration workspace." },
+    { property: "og:title", content: "Admin Workspace — Kivora Ghana" },
+    { property: "og:description", content: "Kivora marketplace operations workspace." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   beforeLoad: async () => {
     if (typeof window === "undefined") return;
     const { data, error } = await supabase.auth.getUser();
@@ -20,8 +28,8 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminLayout() {
-  const path = useRouterState({ select: (s) => s.location.pathname });
-  const tabs = [
+  const tabs: WorkspaceItem[] = [
+    { to: "/admin" as const, label: "Overview", icon: Gauge, exact: true },
     { to: "/admin/products" as const, label: "Products", icon: Package },
     { to: "/admin/categories" as const, label: "Categories", icon: LayoutGrid },
     { to: "/admin/banners" as const, label: "Banners", icon: ImageIcon },
@@ -32,36 +40,8 @@ function AdminLayout() {
   ];
 
   return (
-    <div>
-      <div className="bg-gradient-to-r from-zinc-900 to-zinc-700 text-white px-4 py-5 flex items-center gap-3 shadow-md">
-        <Link to="/" aria-label="Back"><ArrowLeft size={22} /></Link>
-        <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center">
-          <Store size={20} />
-        </div>
-        <div>
-          <h1 className="font-extrabold text-lg leading-tight">Admin Panel</h1>
-          <p className="text-xs opacity-80">Platform management</p>
-        </div>
-      </div>
-      <div className="sticky top-14 md:top-[60px] z-30 flex gap-1 border-b border-border bg-background/95 backdrop-blur-xl px-2 py-2 overflow-x-auto scrollbar-none">
-        <div className="flex gap-1 min-w-max">
-        {tabs.map(({ to, label, icon: Icon }) => {
-          const active = path.startsWith(to);
-          return (
-            <Link
-              key={to}
-              to={to}
-              className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-xs font-semibold transition ${
-                active ? "bg-foreground text-background shadow" : "text-muted-foreground hover:bg-muted"
-              }`}
-            >
-              <Icon size={16} /> {label}
-            </Link>
-          );
-        })}
-        </div>
-      </div>
+    <WorkspaceShell role="Admin workspace" title="Kivora Control" subtitle="Marketplace operations" items={tabs} tone="admin">
       <Outlet />
-    </div>
+    </WorkspaceShell>
   );
 }

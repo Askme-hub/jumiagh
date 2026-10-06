@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
@@ -141,6 +142,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const [loading, setLoading] = useState(true);
+  const workspace = useRouterState({ select: (state) => state.location.pathname.startsWith("/seller") || state.location.pathname.startsWith("/admin") });
 
   useEffect(() => {
     void registerServiceWorker();
@@ -151,14 +153,14 @@ function RootComponent() {
       <LiveStockSync />
       {loading && <Preloader onDone={() => setLoading(false)} />}
       <div className="min-h-screen flex flex-col bg-background">
-        <MobileTopBar />
-        <TopNav />
+        {!workspace && <MobileTopBar />}
+        {!workspace && <TopNav />}
         <SearchOverlay />
-        <main className="flex-1 w-full max-w-md md:max-w-7xl mx-auto md:px-4 pb-24 md:pb-0">
+        <main className={workspace ? "flex-1 w-full max-w-[1440px] mx-auto md:p-3" : "flex-1 w-full max-w-md md:max-w-7xl mx-auto md:px-4 pb-24 md:pb-0"}>
           <Outlet />
         </main>
-        <Footer />
-        <MobileBottomNav />
+        {!workspace && <Footer />}
+        {!workspace && <MobileBottomNav />}
       </div>
 
       <OfflineBanner />

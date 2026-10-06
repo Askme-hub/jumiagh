@@ -1,15 +1,28 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Package, Clock, CheckCircle2, Store } from "lucide-react";
+import { Package, Clock, CheckCircle2, Store, ArrowRight, MessageCircle, ShoppingBag, Wallet, Plus, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useIsSeller, useSellerProfile } from "@/hooks/use-seller";
 import { SellerVerification } from "@/components/SellerVerification";
 import { formatGHC } from "@/lib/store";
+import { getSellerOrders } from "@/lib/seller-orders.functions";
+import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/seller/")({ component: SellerDashboard });
+export const Route = createFileRoute("/seller/")({
+  component: SellerDashboard,
+  head: () => ({ meta: [
+    { title: "Seller Overview — Kivora Ghana" },
+    { name: "description", content: "Track your Kivora shop performance, orders, inventory and wallet." },
+    { property: "og:title", content: "Seller Overview — Kivora Ghana" },
+    { property: "og:description", content: "Your Kivora seller business overview." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+});
 
 function SellerDashboard() {
   const { user } = useAuth();
@@ -61,6 +74,7 @@ function SellerDashboard() {
 }
 
 function Overview({ userId, shopName }: { userId: string; shopName: string }) {
+  const fetchOrders = useServerFn(getSellerOrders);
   const { data: products } = useQuery({
     queryKey: ["seller-products-summary", userId],
     queryFn: async () => {
@@ -71,6 +85,17 @@ function Overview({ userId, shopName }: { userId: string; shopName: string }) {
       return data ?? [];
     },
   });
+  const { data: wallet } = useQuery({
+    queryKey: ["seller-dashboard-wallet", userId],
+    queryFn: async () => {
+      const { data } = await supabase.from("seller_wallets").select("balance, pending, total_earned").eq("user_id", userId).maybeSingle();
+      return data;
+    },
+  });
+  const { data: orders = [] } = useQuery({
+    queryKey: ["seller-dashboard-orders", userId],
+    queryFn: () => fetchOrders(),
+  });
 
   const approved = products?.filter((p) => p.approval_status === "approved").length ?? 0;
   const pending = products?.filter((p) => p.approval_status === "pending").length ?? 0;
@@ -78,31 +103,75 @@ function Overview({ userId, shopName }: { userId: string; shopName: string }) {
   const totalValue = products?.reduce((s, p) => s + Number(p.price) * (p.stock ?? 0), 0) ?? 0;
 
   return (
-    <div className="p-4 space-y-4">
-      <div className="flex items-center gap-3 bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-100">
-        <div className="w-12 h-12 rounded-full bg-[#ff7a00] flex items-center justify-center text-white">
-          <Store size={22} />
+    <div className="dashboard-canvas p-4 md:p-6">
+      <div className="mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
+        <div className="min-w-0">
+          <p className="text-xs font-bold text-primary">KIVORA SELLER</p>
+          <h1 className="mt-1 truncate font-display text-2xl font-bold md:text-3xl">Hello, {shopName}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Your shop at a glance today.</p>
         </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Welcome to</p>
-          <h2 className="font-bold text-lg">{shopName}</h2>
-        </div>
+        <Button asChild size="icon" className="rounded-xl"><Link to="/seller/products/new" aria-label="Add product"><Plus /></Link></Button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Stat label="Approved" value={approved} icon={CheckCircle2} color="text-green-600" />
-        <Stat label="Pending" value={pending} icon={Clock} color="text-amber-600" />
-        <Stat label="Rejected" value={rejected} icon={Package} color="text-red-600" />
-        <Stat label="Inventory" value={formatGHC(totalValue)} icon={Package} color="text-primary" />
+      <section className="relative overflow-hidden rounded-2xl bg-secondary p-5 text-secondary-foreground shadow-xl md:p-6">
+        <div className="absolute -bottom-12 -right-8 h-40 w-40 rounded-full bg-primary/20" />
+        <div className="relative grid gap-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+          <div>
+            <div className="flex items-center gap-2 text-sm opacity-75"><Wallet size={16} /> Available balance</div>
+            <p className="mt-2 font-display text-3xl font-bold md:text-4xl">{formatGHC(Number(wallet?.balance ?? 0))}</p>
+            <p className="mt-2 text-xs opacity-65">{formatGHC(Number(wallet?.pending ?? 0))} pending · {formatGHC(Number(wallet?.total_earned ?? 0))} earned</p>
+          </div>
+          <div className="flex gap-2">
+            <Button asChild variant="outline" className="border-secondary-foreground/20 bg-secondary-foreground/10 text-secondary-foreground hover:bg-secondary-foreground/20"><Link to="/seller/wallet">Withdraw</Link></Button>
+            <Button asChild><Link to="/seller/wallet">Details</Link></Button>
+          </div>
+        </div>
+      </section>
+
+      <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Stat label="Approved" value={approved} icon={CheckCircle2} color="text-success" />
+        <Stat label="Pending" value={pending} icon={Clock} color="text-warning" />
+        <Stat label="Rejected" value={rejected} icon={Package} color="text-destructive" />
+        <Stat label="Inventory value" value={formatGHC(totalValue)} icon={TrendingUp} color="text-primary" />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Link to="/seller/products" className="bg-primary text-primary-foreground rounded-xl p-4 font-bold text-center">
-          Manage Products
-        </Link>
-        <Link to="/seller/products/new" className="bg-foreground text-background rounded-xl p-4 font-bold text-center">
-          + Add Product
-        </Link>
+      <section className="mt-6">
+        <div className="mb-3 flex items-center justify-between"><h2 className="font-display text-lg font-bold">Quick actions</h2><Link to="/seller/products" className="text-xs font-bold text-primary">View products</Link></div>
+        <div className="grid grid-cols-4 gap-2 sm:gap-3">
+          {[{ to: "/seller/products/new", label: "Add item", icon: Plus }, { to: "/seller/orders", label: "Orders", icon: ShoppingBag }, { to: "/seller/messages", label: "Messages", icon: MessageCircle }, { to: "/seller/wallet", label: "Wallet", icon: Wallet }].map(({ to, label, icon: Icon }, index) => (
+            <Link key={to} to={to} className="group flex min-w-0 flex-col items-center gap-2 text-center text-xs font-semibold text-muted-foreground">
+              <span className={`grid aspect-square w-full max-w-16 place-items-center rounded-xl border border-border transition group-hover:-translate-y-0.5 ${index === 0 ? "bg-primary text-primary-foreground" : "bg-card text-foreground"}`}><Icon size={21} /></span>
+              <span className="w-full truncate">{label}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <div className="mt-6 grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,.75fr)]">
+        <section className="dashboard-panel">
+          <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-primary">LATEST SALES</p><h2 className="font-display text-xl font-bold">Recent orders</h2></div><Link to="/seller/orders" className="text-xs font-bold text-primary">View all</Link></div>
+          <div className="mt-3 divide-y divide-border">
+            {orders.slice(0, 4).map((order) => (
+              <Link key={order.id} to="/seller/orders/$id" params={{ id: order.id }} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 py-3">
+                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary"><Package size={19} /></div>
+                <div className="min-w-0"><p className="truncate text-sm font-bold">{order.items.map((item) => item.name).join(", ")}</p><p className="text-xs text-muted-foreground">#{order.order_number} · {new Date(order.created_at).toLocaleDateString()}</p></div>
+                <div className="text-right"><p className="text-sm font-bold">{formatGHC(order.subtotal)}</p><p className="text-[10px] font-bold uppercase text-primary">{order.status}</p></div>
+              </Link>
+            ))}
+            {orders.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">Your recent orders will appear here.</p>}
+          </div>
+        </section>
+
+        <section className="dashboard-panel">
+          <p className="text-xs font-bold text-primary">SHOP HEALTH</p>
+          <h2 className="font-display text-xl font-bold">Catalogue status</h2>
+          <div className="mt-5 space-y-4">
+            <HealthRow label="Live products" value={approved} total={products?.length ?? 0} />
+            <HealthRow label="Awaiting approval" value={pending} total={products?.length ?? 0} />
+            <HealthRow label="Stock units" value={products?.reduce((sum, product) => sum + (product.stock ?? 0), 0) ?? 0} total={Math.max(1, products?.reduce((sum, product) => sum + (product.stock ?? 0), 0) ?? 0)} />
+          </div>
+          <Link to="/seller/products" className="mt-5 flex items-center justify-center gap-2 rounded-lg border border-border py-3 text-sm font-bold">Manage catalogue <ArrowRight size={15} /></Link>
+        </section>
       </div>
     </div>
   );
@@ -110,10 +179,20 @@ function Overview({ userId, shopName }: { userId: string; shopName: string }) {
 
 function Stat({ label, value, icon: Icon, color }: { label: string; value: any; icon: any; color: string }) {
   return (
-    <div className="bg-card border border-border rounded-xl p-3">
-      <Icon size={18} className={color} />
-      <p className="text-2xl font-bold mt-1">{value}</p>
+    <div className="dashboard-stat">
+      <div className="grid h-9 w-9 place-items-center rounded-lg bg-muted"><Icon size={18} className={color} /></div>
+      <p className="mt-4 font-display text-xl font-bold md:text-2xl">{value}</p>
       <p className="text-xs text-muted-foreground">{label}</p>
+    </div>
+  );
+}
+
+function HealthRow({ label, value, total }: { label: string; value: number; total: number }) {
+  const width = total > 0 ? Math.min(100, Math.round((value / total) * 100)) : 0;
+  return (
+    <div>
+      <div className="mb-1 flex justify-between text-xs"><span className="text-muted-foreground">{label}</span><span className="font-bold">{value}</span></div>
+      <div className="h-2 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${width}%` }} /></div>
     </div>
   );
 }

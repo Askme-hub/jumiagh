@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowDownToLine, ArrowRight, Box, CircleDollarSign, Clock, PackageCheck, ShoppingBag, Store, Users } from "lucide-react";
+import { ArrowDownToLine, ArrowRight, Box, Clock, PackageCheck, ShoppingBag, Store, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatGHC } from "@/lib/store";
 
@@ -23,7 +23,7 @@ function AdminOverview() {
       const [products, sellers, orders, withdrawals] = await Promise.all([
         supabase.from("products").select("id, approval_status", { count: "exact" }).limit(5),
         supabase.from("seller_profiles").select("user_id, shop_name, status, created_at", { count: "exact" }).order("created_at", { ascending: false }).limit(4),
-        supabase.from("orders").select("id, total_amount, status, created_at, order_number", { count: "exact" }).order("created_at", { ascending: false }).limit(4),
+        supabase.from("orders").select("id, total, status, created_at, order_number", { count: "exact" }).order("created_at", { ascending: false }).limit(4),
         supabase.from("withdrawal_requests").select("id", { count: "exact" }).eq("status", "pending").limit(1),
       ]);
       return {
@@ -76,7 +76,7 @@ function AdminOverview() {
               <div key={order.id} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 py-3">
                 <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-muted"><PackageCheck size={18} /></div>
                 <div className="min-w-0"><p className="truncate text-sm font-bold">Order #{order.order_number}</p><p className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</p></div>
-                <div className="text-right"><p className="text-sm font-bold">{formatGHC(Number(order.total_amount))}</p><p className="text-[10px] font-bold uppercase text-primary">{order.status}</p></div>
+                <div className="text-right"><p className="text-sm font-bold">{formatGHC(Number(order.total))}</p><p className="text-[10px] font-bold uppercase text-primary">{order.status}</p></div>
               </div>
             ))}
             {(data?.recentOrders.length ?? 0) === 0 && <p className="py-8 text-center text-sm text-muted-foreground">No recent orders.</p>}

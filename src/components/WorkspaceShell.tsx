@@ -99,7 +99,7 @@ export function WorkspaceShell({
             <p className="truncate font-display text-lg font-bold">{path === "/seller" || path === "/admin" ? "Overview" : items.find(active)?.label ?? "Workspace"}</p>
           </div>
           <Button asChild variant="outline" size="icon">
-            <Link to="/search" aria-label="Search marketplace"><Search /></Link>
+            <Link to="/search" search={{ q: "" }} aria-label="Search marketplace"><Search /></Link>
           </Button>
         </header>
         <div className="min-w-0">{children}</div>

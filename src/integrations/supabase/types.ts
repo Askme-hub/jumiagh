@@ -518,6 +518,66 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          order_item_id: string | null
+          product_id: string
+          rating: number
+          seller_id: string | null
+          seller_replied_at: string | null
+          seller_reply: string | null
+          updated_at: string
+          user_id: string
+          verified_purchase: boolean
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          order_item_id?: string | null
+          product_id: string
+          rating: number
+          seller_id?: string | null
+          seller_replied_at?: string | null
+          seller_reply?: string | null
+          updated_at?: string
+          user_id: string
+          verified_purchase?: boolean
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          order_item_id?: string | null
+          product_id?: string
+          rating?: number
+          seller_id?: string | null
+          seller_replied_at?: string | null
+          seller_reply?: string | null
+          updated_at?: string
+          user_id?: string
+          verified_purchase?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_order_item_id_fkey"
+            columns: ["order_item_id"]
+            isOneToOne: false
+            referencedRelation: "order_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       seller_profiles: {
         Row: {
           banner_url: string | null

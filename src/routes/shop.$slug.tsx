@@ -5,6 +5,8 @@ import {
 } from "lucide-react";
 import { fetchPublicStore } from "@/lib/stores.functions";
 import { useStoreProducts } from "@/lib/stores";
+import { useSellerRating } from "@/lib/reviews";
+import { StarRating } from "@/components/StarRating";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
 import { EmptyState } from "@/components/EmptyState";
@@ -72,6 +74,7 @@ function StorePage() {
   const store = Route.useLoaderData();
   const { slug } = Route.useParams();
   const { data: products, isLoading } = useStoreProducts(store?.user_id);
+  const { data: rating } = useSellerRating(store?.user_id);
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string | null>(null);
 
@@ -141,9 +144,16 @@ function StorePage() {
                     <MapPin size={12} /> {store.location}
                   </span>
                 )}
-                <span className="inline-flex items-center gap-1">
-                  <Star size={12} className="text-warning" fill="currentColor" strokeWidth={0} /> New seller
-                </span>
+                {rating ? (
+                  <span className="inline-flex items-center gap-1">
+                    <StarRating value={rating.avg} size={12} />
+                    {rating.avg} · {rating.count} review{rating.count === 1 ? "" : "s"}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1">
+                    <Star size={12} className="text-muted-foreground" /> New seller
+                  </span>
+                )}
                 <span className="inline-flex items-center gap-1">
                   <PackageOpen size={12} /> {count} product{count === 1 ? "" : "s"}
                 </span>

@@ -43,6 +43,7 @@ import { Route as ProductsIdRouteImport } from './routes/products.$id'
 import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as SellerMessagesRouteImport } from './routes/seller.messages'
 import { Route as SellerProfileRouteImport } from './routes/seller.profile'
+import { Route as SellerReviewsRouteImport } from './routes/seller.reviews'
 import { Route as SellerSubscriptionRouteImport } from './routes/seller.subscription'
 import { Route as SellerWalletRouteImport } from './routes/seller.wallet'
 import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
@@ -225,6 +226,11 @@ const SellerProfileRoute = SellerProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => SellerRoute,
 } as any)
+const SellerReviewsRoute = SellerReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => SellerRoute,
+} as any)
 const SellerSubscriptionRoute = SellerSubscriptionRouteImport.update({
   id: '/subscription',
   path: '/subscription',
@@ -314,6 +320,7 @@ export interface FileRoutesByFullPath {
   '/products/$id': typeof ProductsIdRoute
   '/seller/messages': typeof SellerMessagesRoute
   '/seller/profile': typeof SellerProfileRoute
+  '/seller/reviews': typeof SellerReviewsRoute
   '/seller/subscription': typeof SellerSubscriptionRoute
   '/seller/wallet': typeof SellerWalletRoute
   '/shop/$slug': typeof ShopSlugRoute
@@ -358,6 +365,7 @@ export interface FileRoutesByTo {
   '/products/$id': typeof ProductsIdRoute
   '/seller/messages': typeof SellerMessagesRoute
   '/seller/profile': typeof SellerProfileRoute
+  '/seller/reviews': typeof SellerReviewsRoute
   '/seller/subscription': typeof SellerSubscriptionRoute
   '/seller/wallet': typeof SellerWalletRoute
   '/shop/$slug': typeof ShopSlugRoute
@@ -406,6 +414,7 @@ export interface FileRoutesById {
   '/products/$id': typeof ProductsIdRoute
   '/seller/messages': typeof SellerMessagesRoute
   '/seller/profile': typeof SellerProfileRoute
+  '/seller/reviews': typeof SellerReviewsRoute
   '/seller/subscription': typeof SellerSubscriptionRoute
   '/seller/wallet': typeof SellerWalletRoute
   '/shop/$slug': typeof ShopSlugRoute
@@ -455,6 +464,7 @@ export interface FileRouteTypes {
     | '/products/$id'
     | '/seller/messages'
     | '/seller/profile'
+    | '/seller/reviews'
     | '/seller/subscription'
     | '/seller/wallet'
     | '/shop/$slug'
@@ -499,6 +509,7 @@ export interface FileRouteTypes {
     | '/products/$id'
     | '/seller/messages'
     | '/seller/profile'
+    | '/seller/reviews'
     | '/seller/subscription'
     | '/seller/wallet'
     | '/shop/$slug'
@@ -546,6 +557,7 @@ export interface FileRouteTypes {
     | '/products/$id'
     | '/seller/messages'
     | '/seller/profile'
+    | '/seller/reviews'
     | '/seller/subscription'
     | '/seller/wallet'
     | '/shop/$slug'
@@ -829,6 +841,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerProfileRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/seller/reviews': {
+      id: '/seller/reviews'
+      path: '/reviews'
+      fullPath: '/seller/reviews'
+      preLoaderRoute: typeof SellerReviewsRouteImport
+      parentRoute: typeof SellerRoute
+    }
     '/seller/subscription': {
       id: '/seller/subscription'
       path: '/subscription'
@@ -951,6 +970,7 @@ const OrdersRouteWithChildren =
 interface SellerRouteChildren {
   SellerMessagesRoute: typeof SellerMessagesRoute
   SellerProfileRoute: typeof SellerProfileRoute
+  SellerReviewsRoute: typeof SellerReviewsRoute
   SellerSubscriptionRoute: typeof SellerSubscriptionRoute
   SellerWalletRoute: typeof SellerWalletRoute
   SellerIndexRoute: typeof SellerIndexRoute
@@ -964,6 +984,7 @@ interface SellerRouteChildren {
 const SellerRouteChildren: SellerRouteChildren = {
   SellerMessagesRoute: SellerMessagesRoute,
   SellerProfileRoute: SellerProfileRoute,
+  SellerReviewsRoute: SellerReviewsRoute,
   SellerSubscriptionRoute: SellerSubscriptionRoute,
   SellerWalletRoute: SellerWalletRoute,
   SellerIndexRoute: SellerIndexRoute,

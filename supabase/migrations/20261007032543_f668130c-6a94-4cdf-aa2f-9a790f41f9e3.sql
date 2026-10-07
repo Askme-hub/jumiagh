@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.set_review_seller() FROM PUBLIC, anon, authenticated;

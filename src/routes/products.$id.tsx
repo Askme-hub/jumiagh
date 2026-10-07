@@ -89,6 +89,11 @@ function ProductSkeleton() {
 function ProductDetails() {
   const { product: data } = Route.useLoaderData();
   const router = useRouter();
+  const { data: reviewData } = useProductReviews(data?.id);
+  const reviewCount = reviewData?.length ?? 0;
+  const avgRating = reviewCount > 0
+    ? Math.round((reviewData!.reduce((a, r) => a + r.rating, 0) / reviewCount) * 10) / 10
+    : null;
   const addToCart = useShop((s) => s.addToCart);
   const updateQty = useShop((s) => s.updateQty);
   const toggleWishlist = useShop((s) => s.toggleWishlist);
@@ -258,17 +263,25 @@ function ProductDetails() {
                 {data.description ?? "No description provided for this product."}
               </p>
             </div>
+
+            <ProductReviews productId={data.id} />
           </div>
 
           {/* RIGHT: buy box */}
           <div className="lg:space-y-4">
             <div className="mt-2 bg-card p-4 lg:mt-0 lg:rounded-2xl lg:border lg:border-border lg:shadow-soft">
               <h1 className="text-lg font-semibold text-foreground lg:text-xl">{product.name}</h1>
-              <div className="mt-2 flex items-center gap-1 text-warning">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <Star key={i} size={14} fill="currentColor" strokeWidth={0} />
-                ))}
-                <span className="ml-1 text-xs text-muted-foreground">4.9 · (24 reviews)</span>
+              <div className="mt-2 flex items-center gap-1">
+                {avgRating !== null ? (
+                  <>
+                    <StarRating value={avgRating} />
+                    <span className="ml-1 text-xs text-muted-foreground">
+                      {avgRating} · ({reviewCount} review{reviewCount === 1 ? "" : "s"})
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-xs text-muted-foreground">No reviews yet</span>
+                )}
               </div>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="text-2xl font-bold text-primary">{formatGHC(product.price)}</span>

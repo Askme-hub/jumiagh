@@ -9,6 +9,9 @@ import { toProduct, type DbProduct } from "@/lib/products";
 import { useSellerBadge } from "@/lib/stores";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { MessageSellerButton } from "@/components/MessageSellerButton";
+import { ProductReviews } from "@/components/ProductReviews";
+import { StarRating } from "@/components/StarRating";
+import { useProductReviews } from "@/lib/reviews";
 import { Heart, ShoppingCart, Star, Truck, Shield, PackageX, Minus, Plus, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 

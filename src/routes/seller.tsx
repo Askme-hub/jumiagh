@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { Package, Store, Plus, User, ShoppingBag, Wallet, Crown, MessageCircle } from "lucide-react";
+import { Package, Store, Plus, User, ShoppingBag, Wallet, Crown, MessageCircle, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { WorkspaceShell, type WorkspaceItem } from "@/components/WorkspaceShell";
 
@@ -30,6 +30,7 @@ function SellerLayout() {
     { to: "/seller/products/new" as const, label: "Add", icon: Plus },
     { to: "/seller/profile" as const, label: "Shop", icon: User },
     { to: "/seller/messages" as const, label: "Messages", icon: MessageCircle },
+    { to: "/seller/reviews" as const, label: "Reviews", icon: Star },
   ];
   return (
     <WorkspaceShell role="Seller workspace" title="Kivora Seller" subtitle="Your business, one place" items={tabs}>

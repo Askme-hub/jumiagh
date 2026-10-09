@@ -3,6 +3,7 @@ import { ArrowLeft, Menu, Search, X } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { NotificationBell } from "@/components/NotificationBell";
 import { cn } from "@/lib/utils";
 
 export type WorkspaceItem = {
@@ -98,9 +99,12 @@ export function WorkspaceShell({
             <p className="text-[10px] font-bold uppercase text-primary">{role}</p>
             <p className="truncate font-display text-lg font-bold">{path === "/seller" || path === "/admin" ? "Overview" : items.find(active)?.label ?? "Workspace"}</p>
           </div>
-          <Button asChild variant="outline" size="icon">
-            <Link to="/search" search={{ q: "" }} aria-label="Search marketplace"><Search /></Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <Button asChild variant="outline" size="icon">
+              <Link to="/search" search={{ q: "" }} aria-label="Search marketplace"><Search /></Link>
+            </Button>
+          </div>
         </header>
         <div className="min-w-0">{children}</div>
       </div>

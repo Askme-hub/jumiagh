@@ -3,13 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Package, Clock, CheckCircle2, Store, ArrowRight, MessageCircle, ShoppingBag, Wallet, Plus, TrendingUp } from "lucide-react";
+import { Package, Clock, CheckCircle2, Store, ArrowRight, MessageCircle, ShoppingBag, Wallet, Plus, TrendingUp, AlertTriangle } from "lucide-react";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useIsSeller, useSellerProfile } from "@/hooks/use-seller";
 import { SellerVerification } from "@/components/SellerVerification";
 import { formatGHC } from "@/lib/store";
 import { getSellerOrders } from "@/lib/seller-orders.functions";
+import { getSellerAnalytics } from "@/lib/analytics.functions";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/seller/")({
@@ -96,11 +98,17 @@ function Overview({ userId, shopName }: { userId: string; shopName: string }) {
     queryKey: ["seller-dashboard-orders", userId],
     queryFn: () => fetchOrders(),
   });
+  const fetchAnalytics = useServerFn(getSellerAnalytics);
+  const { data: analytics } = useQuery({
+    queryKey: ["seller-analytics", userId],
+    queryFn: () => fetchAnalytics(),
+  });
 
   const approved = products?.filter((p) => p.approval_status === "approved").length ?? 0;
   const pending = products?.filter((p) => p.approval_status === "pending").length ?? 0;
   const rejected = products?.filter((p) => p.approval_status === "rejected").length ?? 0;
   const totalValue = products?.reduce((s, p) => s + Number(p.price) * (p.stock ?? 0), 0) ?? 0;
+  const lowStock = products?.filter((p) => p.approval_status === "approved" && (p.stock ?? 0) <= 3) ?? [];
 
   return (
     <div className="dashboard-canvas p-4 md:p-6">
@@ -133,6 +141,110 @@ function Overview({ userId, shopName }: { userId: string; shopName: string }) {
         <Stat label="Pending" value={pending} icon={Clock} color="text-warning" />
         <Stat label="Rejected" value={rejected} icon={Package} color="text-destructive" />
         <Stat label="Inventory value" value={formatGHC(totalValue)} icon={TrendingUp} color="text-primary" />
+      </div>
+
+      {lowStock.length > 0 && (
+        <Link
+          to="/seller/products"
+          className="mt-5 flex items-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-4 transition hover:bg-warning/15"
+        >
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-warning/20 text-warning">
+            <AlertTriangle size={19} />
+          </span>
+          <div className="min-w-0">
+            <p className="text-sm font-bold">
+              {lowStock.length} product{lowStock.length === 1 ? "" : "s"} low on stock
+            </p>
+            <p className="truncate text-xs text-muted-foreground">
+              {lowStock.map((p) => p.name).join(", ")}
+            </p>
+          </div>
+          <ArrowRight size={16} className="ml-auto shrink-0 text-warning" />
+        </Link>
+      )}
+
+      <div className="mt-6 grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,.75fr)]">
+        <section className="dashboard-panel">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-bold text-primary">LAST 30 DAYS</p>
+              <h2 className="font-display text-xl font-bold">Sales performance</h2>
+            </div>
+            <div className="text-right">
+              <p className="font-display text-lg font-bold">{formatGHC(analytics?.totalRevenue ?? 0)}</p>
+              <p className="text-[10px] text-muted-foreground">
+                {analytics?.totalOrders ?? 0} orders · {analytics?.totalUnits ?? 0} units
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 h-52">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={analytics?.daily ?? []} margin={{ top: 4, right: 4, left: -18, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="salesFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.35} />
+                    <stop offset="100%" stopColor="var(--primary)" stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <XAxis
+                  dataKey="label"
+                  tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
+                  tickLine={false}
+                  axisLine={false}
+                  interval={4}
+                />
+                <YAxis
+                  tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={52}
+                  tickFormatter={(v: number) => (v >= 1000 ? `${(v / 1000).toFixed(1)}k` : `${v}`)}
+                />
+                <Tooltip
+                  formatter={(value: number) => [formatGHC(value), "Revenue"]}
+                  contentStyle={{
+                    borderRadius: 12,
+                    border: "1px solid var(--border)",
+                    background: "var(--card)",
+                    fontSize: 12,
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="var(--primary)"
+                  strokeWidth={2.5}
+                  fill="url(#salesFill)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+
+        <section className="dashboard-panel">
+          <p className="text-xs font-bold text-primary">BEST SELLERS</p>
+          <h2 className="font-display text-xl font-bold">Top products</h2>
+          <div className="mt-4 space-y-3">
+            {(analytics?.topProducts ?? []).map((p, i) => (
+              <div key={p.name} className="flex items-center gap-3">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary-soft text-xs font-extrabold text-primary">
+                  {i + 1}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold">{p.name}</p>
+                  <p className="text-[11px] text-muted-foreground">{p.qty} sold</p>
+                </div>
+                <p className="shrink-0 text-sm font-bold">{formatGHC(p.revenue)}</p>
+              </div>
+            ))}
+            {(analytics?.topProducts ?? []).length === 0 && (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                Your best-selling products will appear here once you make sales.
+              </p>
+            )}
+          </div>
+        </section>
       </div>
 
       <section className="mt-6">

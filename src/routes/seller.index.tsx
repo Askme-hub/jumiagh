@@ -98,11 +98,17 @@ function Overview({ userId, shopName }: { userId: string; shopName: string }) {
     queryKey: ["seller-dashboard-orders", userId],
     queryFn: () => fetchOrders(),
   });
+  const fetchAnalytics = useServerFn(getSellerAnalytics);
+  const { data: analytics } = useQuery({
+    queryKey: ["seller-analytics", userId],
+    queryFn: () => fetchAnalytics(),
+  });
 
   const approved = products?.filter((p) => p.approval_status === "approved").length ?? 0;
   const pending = products?.filter((p) => p.approval_status === "pending").length ?? 0;
   const rejected = products?.filter((p) => p.approval_status === "rejected").length ?? 0;
   const totalValue = products?.reduce((s, p) => s + Number(p.price) * (p.stock ?? 0), 0) ?? 0;
+  const lowStock = products?.filter((p) => p.approval_status === "approved" && (p.stock ?? 0) <= 3) ?? [];
 
   return (
     <div className="dashboard-canvas p-4 md:p-6">

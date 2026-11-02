@@ -3,13 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Package, Clock, CheckCircle2, Store, ArrowRight, MessageCircle, ShoppingBag, Wallet, Plus, TrendingUp } from "lucide-react";
+import { Package, Clock, CheckCircle2, Store, ArrowRight, MessageCircle, ShoppingBag, Wallet, Plus, TrendingUp, AlertTriangle } from "lucide-react";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useIsSeller, useSellerProfile } from "@/hooks/use-seller";
 import { SellerVerification } from "@/components/SellerVerification";
 import { formatGHC } from "@/lib/store";
 import { getSellerOrders } from "@/lib/seller-orders.functions";
+import { getSellerAnalytics } from "@/lib/analytics.functions";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/seller/")({

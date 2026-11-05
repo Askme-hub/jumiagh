@@ -358,6 +358,7 @@ export type Database = {
           created_at: string
           id: string
           link: string | null
+          pushed: boolean
           read: boolean
           title: string
           type: string
@@ -368,6 +369,7 @@ export type Database = {
           created_at?: string
           id?: string
           link?: string | null
+          pushed?: boolean
           read?: boolean
           title: string
           type: string
@@ -378,6 +380,7 @@ export type Database = {
           created_at?: string
           id?: string
           link?: string | null
+          pushed?: boolean
           read?: boolean
           title?: string
           type?: string
@@ -385,8 +388,54 @@ export type Database = {
         }
         Relationships: []
       }
+      order_issues: {
+        Row: {
+          admin_note: string | null
+          created_at: string
+          description: string
+          id: string
+          kind: string
+          order_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          kind: string
+          order_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          kind?: string
+          order_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_issues_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
+          escrow_release_at: string | null
+          escrow_released: boolean
           fulfillment_status: string
           id: string
           image_url: string | null
@@ -396,9 +445,15 @@ export type Database = {
           price: number
           product_id: string | null
           qty: number
+          rider_name: string | null
+          rider_phone: string | null
           seller_id: string | null
+          seller_net: number | null
+          tracking_note: string | null
         }
         Insert: {
+          escrow_release_at?: string | null
+          escrow_released?: boolean
           fulfillment_status?: string
           id?: string
           image_url?: string | null
@@ -408,9 +463,15 @@ export type Database = {
           price: number
           product_id?: string | null
           qty: number
+          rider_name?: string | null
+          rider_phone?: string | null
           seller_id?: string | null
+          seller_net?: number | null
+          tracking_note?: string | null
         }
         Update: {
+          escrow_release_at?: string | null
+          escrow_released?: boolean
           fulfillment_status?: string
           id?: string
           image_url?: string | null
@@ -420,7 +481,11 @@ export type Database = {
           price?: number
           product_id?: string | null
           qty?: number
+          rider_name?: string | null
+          rider_phone?: string | null
           seller_id?: string | null
+          seller_net?: number | null
+          tracking_note?: string | null
         }
         Relationships: [
           {
@@ -480,6 +545,7 @@ export type Database = {
           delivery_phone: string | null
           delivery_region: string | null
           delivery_type: string
+          delivery_zone: string | null
           discount: number
           id: string
           item_count: number
@@ -505,6 +571,7 @@ export type Database = {
           delivery_phone?: string | null
           delivery_region?: string | null
           delivery_type?: string
+          delivery_zone?: string | null
           discount?: number
           id?: string
           item_count: number
@@ -530,6 +597,7 @@ export type Database = {
           delivery_phone?: string | null
           delivery_region?: string | null
           delivery_type?: string
+          delivery_zone?: string | null
           discount?: number
           id?: string
           item_count?: number
@@ -656,6 +724,33 @@ export type Database = {
           display_name?: string | null
           email?: string | null
           id?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -871,6 +966,7 @@ export type Database = {
           balance: number
           commission_paid: number
           created_at: string
+          escrow: number
           pending: number
           total_earned: number
           total_withdrawn: number
@@ -881,6 +977,7 @@ export type Database = {
           balance?: number
           commission_paid?: number
           created_at?: string
+          escrow?: number
           pending?: number
           total_earned?: number
           total_withdrawn?: number
@@ -891,6 +988,7 @@ export type Database = {
           balance?: number
           commission_paid?: number
           created_at?: string
+          escrow?: number
           pending?: number
           total_earned?: number
           total_withdrawn?: number
@@ -1085,6 +1183,10 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["subscription_plan"]
       }
+      confirm_order_received: {
+        Args: { _order_id: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1136,6 +1238,7 @@ export type Database = {
           verification_status: string
         }[]
       }
+      release_seller_escrow: { Args: { _seller_id: string }; Returns: number }
       slugify: { Args: { _txt: string }; Returns: string }
       unique_shop_slug: {
         Args: { _name: string; _user_id: string }

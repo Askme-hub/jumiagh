@@ -58,7 +58,7 @@ function SellerOrderDetail() {
             <h1 className="text-lg font-bold">Order #{order.order_number}</h1>
             <p className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleString()}</p>
           </div>
-          <span className={`text-xs font-bold px-2 py-1 rounded ${order.payment_status === "paid" ? "bg-green-100 text-green-700" : "bg-secondary"}`}>
+          <span className={`text-xs font-bold px-2 py-1 rounded ${order.payment_status === "paid" ? "bg-success-soft text-success-ink" : "bg-secondary"}`}>
             {String(order.payment_status).toUpperCase()}
           </span>
         </div>

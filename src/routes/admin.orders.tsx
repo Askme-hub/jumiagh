@@ -53,7 +53,7 @@ function AdminOrders() {
             </div>
             <div className="text-right">
               <p className="font-bold">{formatGHC(Number(o.total))}</p>
-              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${o.payment_status === "paid" ? "bg-success text-white" : o.payment_status === "failed" ? "bg-destructive text-white" : "bg-secondary"}`}>
+              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${o.payment_status === "paid" ? "bg-success text-success-foreground" : o.payment_status === "failed" ? "bg-destructive text-destructive-foreground" : "bg-secondary"}`}>
                 {String(o.payment_status ?? "pending").toUpperCase()}
               </span>
             </div>

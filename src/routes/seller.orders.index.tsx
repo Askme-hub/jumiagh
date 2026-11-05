@@ -8,9 +8,9 @@ import { formatGHC } from "@/lib/store";
 export const Route = createFileRoute("/seller/orders/")({ component: SellerOrders });
 
 const FSTYLE: Record<string, string> = {
-  processing: "bg-amber-100 text-amber-700",
-  shipped: "bg-blue-100 text-blue-700",
-  delivered: "bg-green-100 text-green-700",
+  processing: "bg-warning-soft text-warning-ink",
+  shipped: "bg-info-soft text-info-ink",
+  delivered: "bg-success-soft text-success-ink",
 };
 
 function SellerOrders() {
@@ -53,7 +53,7 @@ function SellerOrders() {
               </div>
               <div className="text-right shrink-0">
                 <p className="font-bold">{formatGHC(o.subtotal)}</p>
-                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${o.payment_status === "paid" ? "bg-green-100 text-green-700" : "bg-secondary"}`}>
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${o.payment_status === "paid" ? "bg-success-soft text-success-ink" : "bg-secondary"}`}>
                   {String(o.payment_status).toUpperCase()}
                 </span>
               </div>

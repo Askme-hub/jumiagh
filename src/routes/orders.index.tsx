@@ -14,10 +14,10 @@ const statusLabel: Record<string, { text: string; tone: string }> = {
   placed: { text: "ORDER PLACED", tone: "bg-secondary text-foreground" },
   pending_confirmation: { text: "PENDING", tone: "bg-secondary text-foreground" },
   waiting_to_be_shipped: { text: "PROCESSING", tone: "bg-secondary text-foreground" },
-  shipped: { text: "SHIPPED", tone: "bg-[#3b82f6] text-white" },
-  available_for_pickup: { text: "READY FOR PICKUP", tone: "bg-[#3b82f6] text-white" },
-  delivered: { text: "DELIVERED", tone: "bg-success text-white" },
-  cancelled: { text: "CANCELLED", tone: "bg-destructive text-white" },
+  shipped: { text: "SHIPPED", tone: "bg-info-soft text-info-ink" },
+  available_for_pickup: { text: "READY FOR PICKUP", tone: "bg-info-soft text-info-ink" },
+  delivered: { text: "DELIVERED", tone: "bg-success text-success-foreground" },
+  cancelled: { text: "CANCELLED", tone: "bg-destructive text-destructive-foreground" },
 };
 
 function Orders() {

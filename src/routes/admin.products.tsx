@@ -10,9 +10,9 @@ import { ProductForm } from "@/components/ProductForm";
 export const Route = createFileRoute("/admin/products")({ component: AdminProducts });
 
 const STATUS_STYLES: Record<string, string> = {
-  approved: "bg-green-100 text-green-700",
-  pending: "bg-amber-100 text-amber-700",
-  rejected: "bg-red-100 text-red-700",
+  approved: "bg-success-soft text-success-ink",
+  pending: "bg-warning-soft text-warning-ink",
+  rejected: "bg-danger-soft text-danger-ink",
 };
 
 function AdminProducts() {
@@ -88,12 +88,12 @@ function AdminProducts() {
                 {p.seller_id && <span className="text-[10px] text-primary font-bold">SELLER</span>}
               </div>
               {p.approval_status !== "approved" && (
-                <button onClick={() => setApproval(p.id, "approved")} className="mt-1 text-xs text-green-600 font-bold flex items-center gap-1">
+                <button onClick={() => setApproval(p.id, "approved")} className="mt-1 text-xs text-success-ink font-bold flex items-center gap-1">
                   <Check size={12} /> Approve
                 </button>
               )}
               {p.approval_status !== "rejected" && p.seller_id && (
-                <button onClick={() => setApproval(p.id, "rejected")} className="mt-1 ml-3 text-xs text-red-600 font-bold inline-flex items-center gap-1">
+                <button onClick={() => setApproval(p.id, "rejected")} className="mt-1 ml-3 text-xs text-danger-ink font-bold inline-flex items-center gap-1">
                   <Ban size={12} /> Reject
                 </button>
               )}

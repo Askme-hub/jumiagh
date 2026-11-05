@@ -90,7 +90,7 @@ function AdminWithdrawals() {
                     <button
                       onClick={() => act(r.id, "approved")}
                       disabled={busyId === r.id}
-                      className="px-3 py-1.5 rounded-md bg-blue-600 text-white text-xs font-semibold disabled:opacity-60"
+                      className="px-3 py-1.5 rounded-md bg-info text-info-foreground text-xs font-semibold disabled:opacity-60"
                     >
                       Approve
                     </button>
@@ -98,7 +98,7 @@ function AdminWithdrawals() {
                   <button
                     onClick={() => act(r.id, "paid")}
                     disabled={busyId === r.id}
-                    className="px-3 py-1.5 rounded-md bg-green-600 text-white text-xs font-semibold disabled:opacity-60"
+                    className="px-3 py-1.5 rounded-md bg-success text-success-foreground text-xs font-semibold disabled:opacity-60"
                   >
                     Mark Paid
                   </button>
@@ -121,10 +121,10 @@ function AdminWithdrawals() {
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
-    pending: "bg-amber-100 text-amber-700",
-    approved: "bg-blue-100 text-blue-700",
-    paid: "bg-green-100 text-green-700",
-    rejected: "bg-red-100 text-red-700",
+    pending: "bg-warning-soft text-warning-ink",
+    approved: "bg-info-soft text-info-ink",
+    paid: "bg-success-soft text-success-ink",
+    rejected: "bg-danger-soft text-danger-ink",
   };
   return (
     <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${map[status] ?? "bg-muted text-muted-foreground"}`}>

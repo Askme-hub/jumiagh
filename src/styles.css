@@ -77,6 +77,16 @@
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-success-soft: var(--success-soft);
+  --color-success-ink: var(--success-ink);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-ink: var(--warning-ink);
+  --color-info-soft: var(--info-soft);
+  --color-info-ink: var(--info-ink);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-ink: var(--danger-ink);
   --color-flash: var(--flash);
   --color-flash-foreground: var(--flash-foreground);
   --color-teal: var(--teal);
@@ -139,6 +149,18 @@
   /* WARNING */
   --warning: oklch(0.8 0.16 80);
   --warning-foreground: oklch(0.28 0.08 70);
+
+  /* STATUS (soft badges, readable in both themes) */
+  --info: oklch(0.58 0.17 255);
+  --info-foreground: oklch(1 0 0);
+  --success-soft: oklch(0.94 0.05 150);
+  --success-ink: oklch(0.42 0.12 150);
+  --warning-soft: oklch(0.95 0.06 85);
+  --warning-ink: oklch(0.45 0.11 65);
+  --info-soft: oklch(0.94 0.04 255);
+  --info-ink: oklch(0.45 0.15 255);
+  --danger-soft: oklch(0.94 0.04 27);
+  --danger-ink: oklch(0.5 0.19 27);
 
   /* FLASH SALES (Jumia crimson) */
   --flash: oklch(0.55 0.22 22);
@@ -218,6 +240,16 @@
   --success-foreground: oklch(0.14 0.01 40);
   --warning: oklch(0.82 0.16 80);
   --warning-foreground: oklch(0.2 0.03 70);
+  --info: oklch(0.65 0.16 255);
+  --info-foreground: oklch(1 0 0);
+  --success-soft: oklch(0.68 0.16 150 / 18%);
+  --success-ink: oklch(0.82 0.14 150);
+  --warning-soft: oklch(0.82 0.16 80 / 18%);
+  --warning-ink: oklch(0.87 0.14 85);
+  --info-soft: oklch(0.65 0.16 255 / 20%);
+  --info-ink: oklch(0.82 0.1 255);
+  --danger-soft: oklch(0.65 0.22 27 / 20%);
+  --danger-ink: oklch(0.82 0.12 27);
 
   --flash: oklch(0.58 0.22 22);
   --flash-foreground: oklch(1 0 0);

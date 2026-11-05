@@ -1238,6 +1238,17 @@ export type Database = {
           verification_status: string
         }[]
       }
+      public_vouchers: {
+        Args: never
+        Returns: {
+          code: string
+          discount_type: string
+          expires_at: string
+          min_spend: number
+          shop_name: string
+          value: number
+        }[]
+      }
       release_seller_escrow: { Args: { _seller_id: string }; Returns: number }
       slugify: { Args: { _txt: string }; Returns: string }
       unique_shop_slug: {

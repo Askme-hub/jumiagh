@@ -24,7 +24,6 @@ export function ProductCard({ product }: { product: Product }) {
   const lowStock = !outOfStock && stock <= 5;
   const atMax = qty >= stock;
 
-  const saving = oldPrice ? oldPrice - product.price : 0;
 
   return (
     <div className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card text-card-foreground transition-shadow duration-200 hover:shadow-elevated">
@@ -74,7 +73,6 @@ export function ProductCard({ product }: { product: Product }) {
           {oldPrice ? (
             <p className="text-[11px] text-muted-foreground">
               <span className="line-through">{formatGHC(oldPrice)}</span>
-              {saving > 0 ? <span className="ml-1 text-primary">Save {formatGHC(saving)}</span> : null}
             </p>
           ) : null}
         </div>

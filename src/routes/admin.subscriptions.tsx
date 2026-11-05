@@ -38,7 +38,7 @@ function AdminSubscriptions() {
   const subs = data?.subs ?? [];
   const active = subs.filter((s) => !subscriptionState(s).expired && s.plan !== "free");
 
-  const update = async (userId: string, patch: Record<string, unknown>, msg: string) => {
+  const update = async (userId: string, patch: { plan?: PlanId; status?: string; expires_at?: string | null }, msg: string) => {
     const { error } = await supabase.from("seller_subscriptions").update(patch).eq("user_id", userId);
     if (error) return toast.error(error.message);
     toast.success(msg);

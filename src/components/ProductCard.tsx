@@ -24,38 +24,25 @@ export function ProductCard({ product }: { product: Product }) {
   const lowStock = !outOfStock && stock <= 5;
   const atMax = qty >= stock;
 
+
   return (
-    <div className="group flex h-full flex-col">
-      {/* IMAGE TILE */}
+    <div className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card text-card-foreground transition-shadow duration-200 hover:shadow-elevated">
       <Link
         to="/products/$id"
         params={{ id: product.id }}
-        className="relative block aspect-square overflow-hidden rounded-2xl bg-muted"
+        className="relative block aspect-square overflow-hidden bg-card"
       >
         <img
           src={product.image}
           alt={product.name}
           loading="lazy"
-          className={`h-full w-full object-contain p-4 mix-blend-multiply transition-transform duration-500 group-hover:scale-105 dark:mix-blend-normal ${outOfStock ? "opacity-50" : ""}`}
+          className={`h-full w-full object-contain p-3 transition-transform duration-300 group-hover:scale-105 ${outOfStock ? "opacity-50" : ""}`}
         />
-
-        <div className="absolute left-2 top-2 flex flex-col items-start gap-1">
-          {product.discount ? (
-            <span className="rounded-full bg-flash px-2 py-0.5 text-[10px] font-bold text-flash-foreground">
-              -{product.discount}%
-            </span>
-          ) : null}
-          {outOfStock ? (
-            <span className="rounded-full bg-card px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
-              Sold out
-            </span>
-          ) : lowStock ? (
-            <span className="rounded-full bg-warning px-2 py-0.5 text-[10px] font-bold text-warning-foreground">
-              Only {stock} left
-            </span>
-          ) : null}
-        </div>
-
+        {product.discount ? (
+          <span className="absolute left-2 top-2 rounded-md bg-primary-soft px-1.5 py-0.5 text-[11px] font-bold text-primary">
+            -{product.discount}%
+          </span>
+        ) : null}
         <button
           onClick={(e) => {
             e.preventDefault();
@@ -64,85 +51,82 @@ export function ProductCard({ product }: { product: Product }) {
           }}
           aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
           aria-pressed={wished}
-          className={`absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full shadow-soft transition ${
-            wished ? "bg-primary text-primary-foreground" : "bg-card text-foreground hover:text-primary"
+          className={`absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card transition ${
+            wished ? "text-primary" : "text-muted-foreground hover:text-primary"
           }`}
         >
-          <Heart size={14} fill={wished ? "currentColor" : "none"} />
+          <Heart size={15} fill={wished ? "currentColor" : "none"} />
         </button>
-
-        {/* Quick add */}
-        <div className="absolute bottom-2 right-2">
-          {qty === 0 ? (
-            <button
-              disabled={outOfStock}
-              onClick={(e) => {
-                e.preventDefault();
-                const ok = addToCart(product);
-                if (ok !== false) toast.success(`${product.name} added to cart`);
-              }}
-              aria-label={`Add ${product.name} to cart`} data-add-cart
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-soft transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              <Plus size={18} strokeWidth={2.6} />
-            </button>
-          ) : (
-            <div
-              onClick={(e) => e.preventDefault()}
-              className="flex items-center gap-1 rounded-full bg-card p-1 shadow-soft"
-            >
-              <button
-                onClick={(e) => { e.preventDefault(); updateQty(product.id, qty - 1); }}
-                className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-foreground active:scale-95"
-                aria-label="Decrease quantity"
-              >
-                <Minus size={13} />
-              </button>
-              <span className="min-w-4 text-center text-xs font-bold text-foreground">{qty}</span>
-              <button
-                disabled={atMax}
-                onClick={(e) => { e.preventDefault(); updateQty(product.id, qty + 1); }}
-                className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground active:scale-95 disabled:opacity-40"
-                aria-label="Increase quantity"
-              >
-                <Plus size={13} />
-              </button>
-            </div>
-          )}
-        </div>
       </Link>
 
-      {/* CONTENT */}
-      <div className="flex flex-1 flex-col px-0.5 pt-2.5">
+      <div className="flex flex-1 flex-col gap-1 p-2.5">
         <Link
           to="/products/$id"
           params={{ id: product.id }}
-          className="line-clamp-2 break-words text-[13px] font-medium leading-[1.35] text-foreground hover:text-primary"
+          className="line-clamp-2 min-h-[2.5rem] break-words text-[13px] leading-5 text-foreground hover:text-primary"
         >
           {product.name}
         </Link>
 
-        {product.description ? (
-          <p className="mt-0.5 line-clamp-1 text-[11px] text-muted-foreground">{product.description}</p>
-        ) : null}
-
-        <div className="mt-1 flex items-center gap-1 text-[11px]">
-          {rating ? (
-            <>
-              <Star size={11} className="text-warning" fill="currentColor" strokeWidth={0} />
-              <span className="font-semibold text-foreground">{rating.avg.toFixed(1)}</span>
-              <span className="text-muted-foreground">({rating.count})</span>
-            </>
-          ) : (
-            <span className="text-muted-foreground">{outOfStock ? "Out of stock" : `${stock} in stock`}</span>
-          )}
+        <div>
+          <p className="text-base font-bold text-foreground">{formatGHC(product.price)}</p>
+          {oldPrice ? (
+            <p className="text-[11px] text-muted-foreground">
+              <span className="line-through">{formatGHC(oldPrice)}</span>
+            </p>
+          ) : null}
         </div>
 
-        <div className="mt-auto flex flex-wrap items-baseline gap-x-1.5 pt-1">
-          <span className="text-[15px] font-extrabold text-foreground">{formatGHC(product.price)}</span>
-          {oldPrice ? (
-            <span className="text-[11px] text-muted-foreground line-through">{formatGHC(oldPrice)}</span>
+        <div className="flex items-center gap-1 text-[11px]">
+          {rating ? (
+            <>
+              <div className="flex text-warning">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Star key={i} size={11} fill={i <= Math.round(rating.avg) ? "currentColor" : "none"} />
+                ))}
+              </div>
+              <span className="text-muted-foreground">({rating.count})</span>
+            </>
           ) : null}
+        </div>
+
+        <p className={`text-[11px] font-medium ${outOfStock ? "text-destructive" : lowStock ? "text-flash" : "text-muted-foreground"}`}>
+          {outOfStock ? "Out of stock" : lowStock ? `Only ${stock} left` : "In stock"}
+        </p>
+
+        <div className="mt-auto pt-1.5">
+          {qty === 0 ? (
+            <button
+              disabled={outOfStock}
+              data-add-cart
+              onClick={() => {
+                const ok = addToCart(product);
+                if (ok !== false) toast.success(`${product.name} added to cart`);
+              }}
+              className="w-full rounded-lg bg-primary py-2 text-xs font-bold uppercase tracking-wide text-primary-foreground transition hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {outOfStock ? "Sold out" : "Add to cart"}
+            </button>
+          ) : (
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => updateQty(product.id, qty - 1)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground active:scale-95"
+                aria-label="Decrease quantity"
+              >
+                <Minus size={14} />
+              </button>
+              <span className="text-sm font-bold text-foreground">{qty}</span>
+              <button
+                disabled={atMax}
+                onClick={() => updateQty(product.id, qty + 1)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground active:scale-95 disabled:opacity-40"
+                aria-label="Increase quantity"
+              >
+                <Plus size={14} />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

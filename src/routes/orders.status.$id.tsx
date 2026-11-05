@@ -162,12 +162,12 @@ function ItemStatus() {
                     <div
                       className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors ${
                         isDelivered
-                          ? "border-success bg-success text-white"
+                          ? "border-success bg-success text-success-foreground"
                           : isCancelled
-                          ? "border-destructive bg-destructive text-white"
+                          ? "border-destructive bg-destructive text-destructive-foreground"
                           : isLast
                           ? "border-primary bg-primary text-primary-foreground"
-                          : "border-success bg-success text-white"
+                          : "border-success bg-success text-success-foreground"
                       }`}
                     >
                       {isDelivered || isCancelled ? (

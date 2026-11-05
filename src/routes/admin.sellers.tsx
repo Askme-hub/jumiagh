@@ -133,10 +133,10 @@ function AdminSellers() {
                   <span
                     className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
                       s.status === "approved"
-                        ? "bg-green-100 text-green-700"
+                        ? "bg-success-soft text-success-ink"
                         : s.status === "pending"
-                          ? "bg-amber-100 text-amber-700"
-                          : "bg-red-100 text-red-700"
+                          ? "bg-warning-soft text-warning-ink"
+                          : "bg-danger-soft text-danger-ink"
                     }`}
                   >
                     {s.status}
@@ -155,7 +155,7 @@ function AdminSellers() {
                 {s.status !== "approved" && (
                   <button
                     onClick={() => setStatus(s.user_id, "approved")}
-                    className="flex flex-1 items-center justify-center gap-1 rounded bg-green-600 py-2 text-xs font-bold text-white"
+                    className="flex flex-1 items-center justify-center gap-1 rounded bg-success py-2 text-xs font-bold text-success-foreground"
                   >
                     <Check size={14} /> Approve
                   </button>
@@ -163,7 +163,7 @@ function AdminSellers() {
                 {s.status === "approved" && (
                   <button
                     onClick={() => setStatus(s.user_id, "suspended")}
-                    className="flex flex-1 items-center justify-center gap-1 rounded bg-red-600 py-2 text-xs font-bold text-white"
+                    className="flex flex-1 items-center justify-center gap-1 rounded bg-destructive py-2 text-xs font-bold text-destructive-foreground"
                   >
                     <ShieldOff size={14} /> Suspend
                   </button>

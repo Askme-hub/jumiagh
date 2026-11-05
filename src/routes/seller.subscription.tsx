@@ -41,7 +41,7 @@ function SubscriptionPage() {
 
   return (
     <div className="p-4 space-y-5 max-w-5xl mx-auto">
-      <div className="rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100 p-5">
+      <div className="rounded-2xl bg-gradient-to-br from-primary-soft to-warning-soft border border-primary/20 p-5">
         <div className="flex items-center gap-2 text-primary">
           <Sparkles size={18} />
           <span className="text-xs font-bold uppercase tracking-wide">Your plan</span>

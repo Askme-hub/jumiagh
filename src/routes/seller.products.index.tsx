@@ -9,9 +9,9 @@ import { formatGHC } from "@/lib/store";
 export const Route = createFileRoute("/seller/products/")({ component: SellerProducts });
 
 const STATUS_STYLES: Record<string, string> = {
-  approved: "bg-green-100 text-green-700",
-  pending: "bg-amber-100 text-amber-700",
-  rejected: "bg-red-100 text-red-700",
+  approved: "bg-success-soft text-success-ink",
+  pending: "bg-warning-soft text-warning-ink",
+  rejected: "bg-danger-soft text-danger-ink",
 };
 
 function SellerProducts() {

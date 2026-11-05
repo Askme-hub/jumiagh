@@ -141,8 +141,8 @@ function SellerWallet() {
   return (
     <div className="p-4 space-y-5">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="Available" value={formatGHC(balance)} icon={Wallet} color="text-green-600" />
-        <StatCard label="Pending" value={formatGHC(Number(wallet?.pending ?? 0))} icon={Clock} color="text-amber-600" />
+        <StatCard label="Available" value={formatGHC(balance)} icon={Wallet} color="text-success-ink" />
+        <StatCard label="Pending" value={formatGHC(Number(wallet?.pending ?? 0))} icon={Clock} color="text-warning-ink" />
         <StatCard label="Total Earned" value={formatGHC(Number(wallet?.total_earned ?? 0))} icon={TrendingUp} color="text-primary" />
         <StatCard label="Withdrawn" value={formatGHC(Number(wallet?.total_withdrawn ?? 0))} icon={ArrowDownToLine} color="text-muted-foreground" />
       </div>
@@ -303,7 +303,7 @@ function SellerWallet() {
                   <p className="font-medium">{t.description ?? t.type}</p>
                   <p className="text-xs text-muted-foreground">{new Date(t.created_at).toLocaleString()}</p>
                 </div>
-                <span className={Number(t.amount) >= 0 ? "text-green-600 font-semibold" : "text-destructive font-semibold"}>
+                <span className={Number(t.amount) >= 0 ? "text-success-ink font-semibold" : "text-destructive font-semibold"}>
                   {Number(t.amount) >= 0 ? "+" : ""}{formatGHC(Number(t.amount))}
                 </span>
               </div>
@@ -329,10 +329,10 @@ function StatCard({ label, value, icon: Icon, color }: { label: string; value: s
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
-    pending: "bg-amber-100 text-amber-700",
-    approved: "bg-blue-100 text-blue-700",
-    paid: "bg-green-100 text-green-700",
-    rejected: "bg-red-100 text-red-700",
+    pending: "bg-warning-soft text-warning-ink",
+    approved: "bg-info-soft text-info-ink",
+    paid: "bg-success-soft text-success-ink",
+    rejected: "bg-danger-soft text-danger-ink",
   };
   return (
     <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${map[status] ?? "bg-muted text-muted-foreground"}`}>

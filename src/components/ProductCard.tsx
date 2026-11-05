@@ -2,6 +2,7 @@ import { Product, formatGHC, useShop } from "@/lib/store";
 import { Heart, Star, Minus, Plus, Truck, ShieldCheck } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { useProductRatingsMap } from "@/lib/reviews";
 
 export function ProductCard({ product }: { product: Product }) {
   const addToCart = useShop((s) => s.addToCart);
@@ -17,6 +18,8 @@ export function ProductCard({ product }: { product: Product }) {
     (product.discount ? product.price + (product.price * product.discount) / 100 : null);
   const saving = oldPrice ? oldPrice - product.price : 0;
 
+  const { data: ratings } = useProductRatingsMap();
+  const rating = ratings?.[product.id];
   const stock = product.stock ?? 0;
   const outOfStock = stock <= 0;
   const lowStock = !outOfStock && stock <= 5;
@@ -87,25 +90,31 @@ export function ProductCard({ product }: { product: Product }) {
         <Link
           to="/products/$id"
           params={{ id: product.id }}
-          className="line-clamp-2 min-h-[40px] text-sm font-semibold leading-5 text-foreground hover:text-primary"
+          className="min-h-[40px] break-words text-sm font-semibold leading-5 text-foreground hover:text-primary"
         >
           {product.name}
         </Link>
 
         {product.description ? (
-          <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-muted-foreground">
+          <p className="mt-1 line-clamp-3 text-[11px] leading-4 text-muted-foreground">
             {product.description}
           </p>
         ) : null}
 
         <div className="mt-1.5 flex items-center gap-1">
-          <div className="flex text-warning">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Star key={i} size={11} fill="currentColor" strokeWidth={0} />
-            ))}
-          </div>
-          <span className="text-[11px] font-medium text-muted-foreground">4.9</span>
-          <span className="text-[10px] text-muted-foreground/70">(24)</span>
+          {rating ? (
+            <>
+              <div className="flex text-warning">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Star key={i} size={11} fill={i <= Math.round(rating.avg) ? "currentColor" : "none"} strokeWidth={i <= Math.round(rating.avg) ? 0 : 1.5} />
+                ))}
+              </div>
+              <span className="text-[11px] font-medium text-foreground">{rating.avg.toFixed(1)}</span>
+              <span className="text-[10px] text-muted-foreground">({rating.count})</span>
+            </>
+          ) : (
+            <span className="text-[10px] font-medium text-muted-foreground">No reviews yet</span>
+          )}
         </div>
 
         <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-medium text-muted-foreground">
@@ -119,7 +128,7 @@ export function ProductCard({ product }: { product: Product }) {
 
         <p
           className={`mt-1.5 text-[11px] font-semibold ${
-            outOfStock ? "text-muted-foreground" : lowStock ? "text-flash" : "text-primary"
+            outOfStock ? "text-muted-foreground" : lowStock ? "text-flash" : "text-success-ink"
           }`}
         >
           {outOfStock ? "Out of stock" : lowStock ? `Only ${stock} left` : `${stock} in stock`}
@@ -127,15 +136,15 @@ export function ProductCard({ product }: { product: Product }) {
 
 
         <div className="mt-auto flex items-end justify-between gap-2 pt-3">
-          <div className="min-w-0">
-            <p className="truncate text-lg font-extrabold text-foreground">
+          <div className="min-w-0 flex-1">
+            <p className="break-words text-base font-extrabold leading-tight sm:text-lg text-foreground">
               {formatGHC(product.price)}
             </p>
             {oldPrice ? (
-              <p className="truncate text-xs text-muted-foreground">
-                <span className="line-through">{formatGHC(oldPrice)}</span>
+              <p className="mt-0.5 flex flex-wrap items-baseline gap-x-1 text-xs text-muted-foreground">
+                <span className="whitespace-nowrap line-through">{formatGHC(oldPrice)}</span>
                 {saving > 0 && (
-                  <span className="ml-1 font-semibold text-flash">
+                  <span className="whitespace-nowrap font-semibold text-flash">
                     save {formatGHC(saving)}
                   </span>
                 )}

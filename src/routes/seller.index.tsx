@@ -39,7 +39,7 @@ function SellerDashboard() {
   if (!isSeller && profile?.status === "pending") {
     return (
       <div className="p-6 max-w-md mx-auto text-center">
-        <Clock size={48} className="mx-auto text-amber-500" />
+        <Clock size={48} className="mx-auto text-warning-ink" />
         <h2 className="mt-4 text-xl font-bold">Application Pending</h2>
         <p className="text-muted-foreground mt-2 text-sm">
           Your seller application for <strong>{profile.shop_name}</strong> is under review.

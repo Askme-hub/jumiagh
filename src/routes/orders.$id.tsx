@@ -200,7 +200,7 @@ function OrderDetails() {
                           isCurrent
                             ? "border-primary bg-primary text-primary-foreground"
                             : reached
-                            ? "border-success bg-success text-white"
+                            ? "border-success bg-success text-success-foreground"
                             : "border-border bg-card text-muted-foreground"
                         }`}
                       >

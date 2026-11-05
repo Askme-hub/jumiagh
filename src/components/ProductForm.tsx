@@ -158,7 +158,7 @@ export function ProductForm({
                 <img src={imageUrl} alt="Product preview" className="h-full w-full object-contain" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-1 text-sm font-semibold text-green-600">
+                <p className="flex items-center gap-1 text-sm font-semibold text-success-ink">
                   <Check size={14} /> Photo ready
                 </p>
                 <div className="mt-2 flex gap-2">

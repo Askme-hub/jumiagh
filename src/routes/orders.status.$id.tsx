@@ -16,7 +16,7 @@ import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/orders/status/$id")({
   component: ItemStatus,
-  head: () => ({ meta: [{ title: "Order Status History – Jumia Ghana" }] }),
+  head: () => ({ meta: [{ title: "Order Status History – Kivora Ghana" }] }),
 });
 
 const LABELS: Record<string, string> = {

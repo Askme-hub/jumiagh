@@ -62,7 +62,7 @@ function HelpCenter() {
 
       <InfoSection heading="Still need us?">
         <p>Call 025 757 3471 or 055 247 4242.</p>
-        <p>Email support@kivora.gh — we reply within one working day.</p>
+        <p>Email support@kivoragh.shop — we reply within one working day.</p>
       </InfoSection>
     </InfoPage>
   );

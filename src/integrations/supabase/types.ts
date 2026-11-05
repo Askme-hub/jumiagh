@@ -187,6 +187,7 @@ export type Database = {
           discount_type: string
           expires_at: string | null
           id: string
+          is_public: boolean
           max_uses: number | null
           min_spend: number
           seller_id: string | null
@@ -200,6 +201,7 @@ export type Database = {
           discount_type: string
           expires_at?: string | null
           id?: string
+          is_public?: boolean
           max_uses?: number | null
           min_spend?: number
           seller_id?: string | null
@@ -213,6 +215,7 @@ export type Database = {
           discount_type?: string
           expires_at?: string | null
           id?: string
+          is_public?: boolean
           max_uses?: number | null
           min_spend?: number
           seller_id?: string | null

@@ -33,13 +33,13 @@ function Privacy() {
         <p>We use local storage for your cart, theme preference and sign-in session. No advertising trackers.</p>
       </InfoSection>
       <InfoSection heading="Your rights">
-        <p>You can view and edit your details in Account Settings, or request deletion of your account by emailing support@kivora.gh.</p>
+        <p>You can view and edit your details in Account Settings, or request deletion of your account by emailing support@kivoragh.shop.</p>
       </InfoSection>
       <InfoSection heading="Security">
         <p>Data is encrypted in transit and protected by row-level access rules so only you and authorised staff can read your records.</p>
       </InfoSection>
       <InfoSection heading="Contact">
-        <p>Privacy questions: support@kivora.gh, Accra, Ghana.</p>
+        <p>Privacy questions: support@kivoragh.shop, Accra, Ghana.</p>
       </InfoSection>
     </InfoPage>
   );

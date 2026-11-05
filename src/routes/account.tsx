@@ -110,13 +110,13 @@ function Account() {
 
       <div className="bg-muted px-4 py-3 flex gap-2">
         <a
-          href="tel:+233000000000"
+          href="tel:+233257573471"
           className="flex-1 bg-primary text-primary-foreground font-bold py-3 rounded-md flex items-center justify-center gap-2"
         >
           <MessageSquare size={18} /> Call Support
         </a>
         <a
-          href="https://wa.me/233000000000"
+          href="https://wa.me/233257573471"
           target="_blank"
           rel="noopener noreferrer"
           className="flex-1 bg-background border-2 border-success text-success font-bold py-3 rounded-md flex items-center justify-center gap-2"

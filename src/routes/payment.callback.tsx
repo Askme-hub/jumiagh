@@ -8,7 +8,7 @@ import { useShop } from "@/lib/store";
 
 export const Route = createFileRoute("/payment/callback")({
   component: PaymentCallback,
-  head: () => ({ meta: [{ title: "Payment – Jumia Ghana" }] }),
+  head: () => ({ meta: [{ title: "Payment – Kivora Ghana" }] }),
   validateSearch: (s: Record<string, unknown>) => ({
     ref: typeof s.ref === "string" ? s.ref : (typeof s.reference === "string" ? s.reference : ""),
   }),

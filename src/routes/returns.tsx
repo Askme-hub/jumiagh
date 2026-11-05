@@ -30,7 +30,7 @@ function Returns() {
           1. Open <Link to="/orders" className="text-primary font-semibold">Orders</Link> and select the order.
         </p>
         <p>2. Message the seller from your inbox with photos of the item.</p>
-        <p>3. If unresolved in 48 hours, email support@kivora.gh and we will step in.</p>
+        <p>3. If unresolved in 48 hours, email support@kivoragh.shop and we will step in.</p>
       </InfoSection>
       <InfoSection heading="Refunds">
         <p>Approved refunds go back to your original payment method within 5–10 working days.</p>

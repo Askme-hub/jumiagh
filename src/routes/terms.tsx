@@ -46,7 +46,7 @@ function Terms() {
         <p>We may update these terms. Continued use of Kivora after an update means you accept the new terms.</p>
       </InfoSection>
       <InfoSection heading="9. Contact">
-        <p>Questions? Email support@kivora.gh or call 025 757 3471.</p>
+        <p>Questions? Email support@kivoragh.shop or call 025 757 3471.</p>
       </InfoSection>
     </InfoPage>
   );

@@ -37,6 +37,7 @@ function SellerCoupons() {
     min_spend: "",
     max_uses: "",
     expires_at: "",
+    is_public: false,
   });
 
   const { data: coupons = [], isLoading } = useQuery({
@@ -62,6 +63,7 @@ function SellerCoupons() {
         min_spend: form.min_spend ? Number(form.min_spend) : 0,
         max_uses: form.max_uses ? Number(form.max_uses) : null,
         expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
+        is_public: form.is_public,
         seller_id: userData.user.id,
       };
       if (!payload.code || payload.code.length < 3) throw new Error("Code must be at least 3 characters");
@@ -73,7 +75,7 @@ function SellerCoupons() {
     onSuccess: () => {
       toast.success("Coupon created — share the code with your customers");
       setShowForm(false);
-      setForm({ code: "", discount_type: "percent", value: "", min_spend: "", max_uses: "", expires_at: "" });
+      setForm({ code: "", discount_type: "percent", value: "", min_spend: "", max_uses: "", expires_at: "", is_public: false });
       qc.invalidateQueries({ queryKey: ["seller-coupons"] });
     },
     onError: (e: any) => toast.error(e.message ?? "Could not create coupon"),
@@ -176,6 +178,18 @@ function SellerCoupons() {
               />
             </label>
           </div>
+          <label className="flex items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={form.is_public}
+              onChange={(e) => setForm((f) => ({ ...f, is_public: e.target.checked }))}
+              className="mt-1 accent-primary"
+            />
+            <span>
+              <span className="font-semibold">Show on the public Vouchers page</span>
+              <span className="block text-xs text-muted-foreground">Leave unticked for private codes you share only with chosen customers.</span>
+            </span>
+          </label>
           <button
             onClick={() => create.mutate()}
             disabled={create.isPending}

@@ -917,6 +917,78 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          period_end: string | null
+          plan: Database["public"]["Enums"]["subscription_plan"]
+          reference: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          period_end?: string | null
+          plan: Database["public"]["Enums"]["subscription_plan"]
+          reference: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          period_end?: string | null
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          reference?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscription_plans: {
+        Row: {
+          commission: number
+          featured_slots: number
+          features: string[]
+          highlight: boolean
+          id: Database["public"]["Enums"]["subscription_plan"]
+          name: string
+          price: number
+          product_limit: number | null
+          sort_order: number
+          tagline: string | null
+          updated_at: string
+        }
+        Insert: {
+          commission: number
+          featured_slots?: number
+          features?: string[]
+          highlight?: boolean
+          id: Database["public"]["Enums"]["subscription_plan"]
+          name: string
+          price?: number
+          product_limit?: number | null
+          sort_order?: number
+          tagline?: string | null
+          updated_at?: string
+        }
+        Update: {
+          commission?: number
+          featured_slots?: number
+          features?: string[]
+          highlight?: boolean
+          id?: Database["public"]["Enums"]["subscription_plan"]
+          name?: string
+          price?: number
+          product_limit?: number | null
+          sort_order?: number
+          tagline?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number

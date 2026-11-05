@@ -39,6 +39,7 @@ import { Route as AdminMessagesRouteImport } from './routes/admin.messages'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminSellersRouteImport } from './routes/admin.sellers'
+import { Route as AdminSubscriptionsRouteImport } from './routes/admin.subscriptions'
 import { Route as AdminWithdrawalsRouteImport } from './routes/admin.withdrawals'
 import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
@@ -211,6 +212,11 @@ const AdminSellersRoute = AdminSellersRouteImport.update({
   path: '/sellers',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSubscriptionsRoute = AdminSubscriptionsRouteImport.update({
+  id: '/subscriptions',
+  path: '/subscriptions',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminWithdrawalsRoute = AdminWithdrawalsRouteImport.update({
   id: '/withdrawals',
   path: '/withdrawals',
@@ -348,6 +354,7 @@ export interface FileRoutesByFullPath {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/sellers': typeof AdminSellersRoute
+  '/admin/subscriptions': typeof AdminSubscriptionsRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/orders/$id': typeof OrdersIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
@@ -398,6 +405,7 @@ export interface FileRoutesByTo {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/sellers': typeof AdminSellersRoute
+  '/admin/subscriptions': typeof AdminSubscriptionsRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/orders/$id': typeof OrdersIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
@@ -452,6 +460,7 @@ export interface FileRoutesById {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/sellers': typeof AdminSellersRoute
+  '/admin/subscriptions': typeof AdminSubscriptionsRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/orders/$id': typeof OrdersIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
@@ -507,6 +516,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/products'
     | '/admin/sellers'
+    | '/admin/subscriptions'
     | '/admin/withdrawals'
     | '/orders/$id'
     | '/payment/callback'
@@ -557,6 +567,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/products'
     | '/admin/sellers'
+    | '/admin/subscriptions'
     | '/admin/withdrawals'
     | '/orders/$id'
     | '/payment/callback'
@@ -610,6 +621,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/products'
     | '/admin/sellers'
+    | '/admin/subscriptions'
     | '/admin/withdrawals'
     | '/orders/$id'
     | '/payment/callback'
@@ -874,6 +886,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSellersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/subscriptions': {
+      id: '/admin/subscriptions'
+      path: '/subscriptions'
+      fullPath: '/admin/subscriptions'
+      preLoaderRoute: typeof AdminSubscriptionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/withdrawals': {
       id: '/admin/withdrawals'
       path: '/withdrawals'
@@ -1034,6 +1053,7 @@ interface AdminRouteChildren {
   AdminOrdersRoute: typeof AdminOrdersRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminSellersRoute: typeof AdminSellersRoute
+  AdminSubscriptionsRoute: typeof AdminSubscriptionsRoute
   AdminWithdrawalsRoute: typeof AdminWithdrawalsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
@@ -1048,6 +1068,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminOrdersRoute: AdminOrdersRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminSellersRoute: AdminSellersRoute,
+  AdminSubscriptionsRoute: AdminSubscriptionsRoute,
   AdminWithdrawalsRoute: AdminWithdrawalsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }

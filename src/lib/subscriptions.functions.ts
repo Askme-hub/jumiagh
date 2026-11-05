@@ -2,7 +2,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const PLAN_PRICES: Record<string, number> = { starter: 199, premium: 500 };
 
 export const initiateSubscriptionCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -19,10 +18,14 @@ export const initiateSubscriptionCheckout = createServerFn({ method: "POST" })
     const secret = process.env.PAYSTACK_SECRET_KEY;
     if (!secret) throw new Error("Payments not configured");
 
-    const amount = PLAN_PRICES[data.plan];
-    if (!amount) throw new Error("Invalid plan");
-
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: planRow } = await supabaseAdmin
+      .from("subscription_plans")
+      .select("price")
+      .eq("id", data.plan)
+      .maybeSingle();
+    const amount = Number(planRow?.price ?? 0);
+    if (!amount) throw new Error("This plan is not available for purchase");
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("email")
@@ -80,8 +83,25 @@ export const verifySubscriptionPayment = createServerFn({ method: "POST" })
     if (tx.status !== "success" || !plan) return { status: "failed" as const, plan: null };
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Idempotent: a reference is only applied once
+    const { data: already } = await supabaseAdmin
+      .from("subscription_payments")
+      .select("id")
+      .eq("reference", data.reference)
+      .maybeSingle();
+    if (already) return { status: "paid" as const, plan };
+
     const now = new Date();
-    const expires = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    // Renewing the same active plan extends from the current end date
+    const { data: existing } = await supabaseAdmin
+      .from("seller_subscriptions")
+      .select("plan, status, expires_at, started_at")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    const stillActive =
+      existing?.status === "active" && existing.plan === plan && existing.expires_at && new Date(existing.expires_at) > now;
+    const base = stillActive ? new Date(existing!.expires_at!) : now;
+    const expires = new Date(base.getTime() + 30 * 24 * 60 * 60 * 1000);
 
     const { error } = await supabaseAdmin
       .from("seller_subscriptions")
@@ -90,13 +110,21 @@ export const verifySubscriptionPayment = createServerFn({ method: "POST" })
           user_id: context.userId,
           plan,
           status: "active",
-          started_at: now.toISOString(),
+          started_at: stillActive ? existing!.started_at : now.toISOString(),
           expires_at: expires.toISOString(),
           payment_reference: data.reference,
         },
         { onConflict: "user_id" }
       );
     if (error) throw new Error(error.message);
+
+    await supabaseAdmin.from("subscription_payments").insert({
+      user_id: context.userId,
+      plan,
+      amount: Number(tx.amount) / 100,
+      reference: data.reference,
+      period_end: expires.toISOString(),
+    });
 
     // Confirmation SMS + inbox (best-effort)
     const { trySendSMS } = await import("./sms.server");

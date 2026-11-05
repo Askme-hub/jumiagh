@@ -32,12 +32,15 @@ export const Route = createFileRoute("/")({
 });
 
 function Countdown({ to }: { to?: string }) {
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
+    setNow(Date.now());
     const i = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(i);
   }, []);
+
+  if (now === null) return <span className="tabular-nums">--h : --m : --s</span>;
 
   const target = to ? new Date(to).getTime() : now + 3600_000;
   const diff = Math.max(0, target - now);

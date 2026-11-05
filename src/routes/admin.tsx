@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { Package, ShoppingBag, Mail, Store, ArrowDownToLine, LayoutGrid, Image as ImageIcon, Gauge, Wallet } from "lucide-react";
+import { Package, ShoppingBag, Mail, Store, ArrowDownToLine, LayoutGrid, Image as ImageIcon, Gauge, Wallet, TicketPercent, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { WorkspaceShell, type WorkspaceItem } from "@/components/WorkspaceShell";
 
@@ -36,6 +36,8 @@ function AdminLayout() {
     { to: "/admin/orders" as const, label: "Orders", icon: ShoppingBag },
     { to: "/admin/sellers" as const, label: "Sellers", icon: Store },
     { to: "/admin/finance" as const, label: "Finance", icon: Wallet },
+    { to: "/admin/coupons" as const, label: "Coupons", icon: TicketPercent },
+    { to: "/admin/flash-sales" as const, label: "Flash Sales", icon: Zap },
     { to: "/admin/withdrawals" as const, label: "Payouts", icon: ArrowDownToLine },
     { to: "/admin/messages" as const, label: "Messages", icon: Mail },
   ];

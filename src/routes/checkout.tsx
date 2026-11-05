@@ -2,12 +2,13 @@ import { createFileRoute, Link, redirect, useRouter } from "@tanstack/react-rout
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
-import { ChevronRight, MapPin, CreditCard, ShieldCheck, Truck, Store, Plus, Check, Trash2 } from "lucide-react";
+import { ChevronRight, MapPin, CreditCard, ShieldCheck, Truck, Store, Plus, Check, Trash2, TicketPercent, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { formatGHC, useShop } from "@/lib/store";
 import { supabase } from "@/integrations/supabase/client";
 import { initiatePaystackCheckout } from "@/lib/paystack.functions";
 import { placeCODOrder } from "@/lib/cod.functions";
+import { validateCoupon } from "@/lib/coupons.functions";
 import { useSellerDelivery } from "@/lib/seller-delivery";
 import { useAddresses, useSaveAddress, useDeleteAddress, type Address } from "@/lib/addresses";
 import { toast } from "sonner";
@@ -73,6 +74,10 @@ function Checkout() {
   const itemCount = cart.reduce((a, c) => a + c.qty, 0);
   const initCheckout = useServerFn(initiatePaystackCheckout);
   const placeCOD = useServerFn(placeCODOrder);
+  const checkCoupon = useServerFn(validateCoupon);
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
+  const [checkingCoupon, setCheckingCoupon] = useState(false);
 
   const { data: addresses = [], isLoading: loadingAddrs } = useAddresses();
   const saveAddress = useSaveAddress();
@@ -138,8 +143,34 @@ function Checkout() {
       const d = sellerDelivery.reduce((a, s) => a + s.door_delivery_fee, 0);
       ship = d > 0 ? d : (itemsTotal >= 150 ? 0 : 25);
     }
-    return { shipping: ship, discount: 0, grand: Math.max(0, itemsTotal + ship) };
-  }, [deliveryType, itemsTotal, sellerDelivery]);
+    const couponDiscount = appliedCoupon?.discount ?? 0;
+    return { shipping: ship, discount: couponDiscount, grand: Math.max(0, itemsTotal + ship - couponDiscount) };
+  }, [deliveryType, itemsTotal, sellerDelivery, appliedCoupon]);
+
+  const applyCoupon = async () => {
+    const code = couponInput.trim();
+    if (!code) return;
+    setCheckingCoupon(true);
+    try {
+      const res = await checkCoupon({
+        data: {
+          code,
+          items: cart.map((c) => ({ product_id: c.product.id, price: Number(c.product.price), qty: c.qty })),
+        },
+      });
+      if (!res.valid) {
+        setAppliedCoupon(null);
+        toast.error(res.message);
+      } else {
+        setAppliedCoupon({ code: res.code ?? code.toUpperCase(), discount: res.discount });
+        toast.success(`Coupon applied — you save ${formatGHC(res.discount)}`);
+      }
+    } catch (e: any) {
+      toast.error(e.message ?? "Could not check coupon");
+    } finally {
+      setCheckingCoupon(false);
+    }
+  };
 
   useEffect(() => {
     // Wait for zustand persist hydration before redirecting on empty cart
@@ -226,7 +257,7 @@ function Checkout() {
     }));
     try {
       if (paymentMethod === "cod") {
-        const res = await placeCOD({ data: { delivery: deliveryPayload, items: itemsPayload } });
+        const res = await placeCOD({ data: { delivery: deliveryPayload, items: itemsPayload, coupon_code: appliedCoupon?.code } });
         clearCart();
         toast.success("Order placed! Pay on delivery.");
         router.navigate({ to: "/orders/$id", params: { id: res.order_id } });
@@ -237,6 +268,7 @@ function Checkout() {
           callbackOrigin: window.location.origin,
           delivery: { ...deliveryPayload, shipping_fee: shipping, discount },
           items: itemsPayload,
+          coupon_code: appliedCoupon?.code,
         },
       });
 
@@ -437,6 +469,47 @@ function Checkout() {
         </div>
       </section>
 
+      {/* Coupon */}
+      <section className="bg-card mt-2">
+        <div className="px-4 py-3 flex items-center gap-2 border-b border-border">
+          <TicketPercent size={18} className="text-primary" />
+          <h2 className="font-bold">Coupon Code</h2>
+        </div>
+        <div className="p-3">
+          {appliedCoupon ? (
+            <div className="flex items-center justify-between rounded-md bg-success/10 px-3 py-2.5">
+              <div>
+                <p className="text-sm font-extrabold text-success">{appliedCoupon.code}</p>
+                <p className="text-[11px] text-success">You save {formatGHC(appliedCoupon.discount)}</p>
+              </div>
+              <button
+                onClick={() => { setAppliedCoupon(null); setCouponInput(""); }}
+                className="text-xs font-bold text-muted-foreground underline"
+              >
+                Remove
+              </button>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <input
+                value={couponInput}
+                onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                placeholder="Enter coupon code"
+                className="flex-1 rounded-md border border-border bg-background px-3 py-2.5 text-sm uppercase"
+              />
+              <button
+                onClick={applyCoupon}
+                disabled={checkingCoupon || !couponInput.trim()}
+                className="flex items-center gap-1.5 rounded-md gradient-primary px-4 py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-60"
+              >
+                {checkingCoupon && <Loader2 size={14} className="animate-spin" />}
+                Apply
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* Order summary */}
       <section className="bg-card mt-2">
         <div className="px-4 py-3 border-b border-border flex items-center justify-between">
@@ -446,7 +519,7 @@ function Checkout() {
         <div className="px-4 py-3 space-y-2 text-sm">
           <Row label={`Item's total (${itemCount})`} value={formatGHC(itemsTotal)} />
           <Row label="Shipping fees" value={shipping === 0 ? "FREE" : formatGHC(shipping)} />
-          {discount > 0 && <Row label="Prepaid Delivery Discount" value={`-${formatGHC(discount)}`} valueClass="text-success font-bold" />}
+          {discount > 0 && <Row label={`Coupon ${appliedCoupon?.code ?? ""}`} value={`-${formatGHC(discount)}`} valueClass="text-success font-bold" />}
           <div className="border-t border-border pt-2 flex justify-between font-bold text-base">
             <span>Total</span><span>{formatGHC(grand)}</span>
           </div>

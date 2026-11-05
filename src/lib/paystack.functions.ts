@@ -32,6 +32,7 @@ export const initiatePaystackCheckout = createServerFn({ method: "POST" })
       items: z.array(ItemSchema).min(1).max(100),
       callbackOrigin: z.string().url(),
       delivery: DeliverySchema,
+      coupon_code: z.string().trim().max(50).optional(),
     }).parse(input)
   )
   .handler(async ({ data, context }) => {
@@ -67,7 +68,14 @@ export const initiatePaystackCheckout = createServerFn({ method: "POST" })
         }
       }
     }
-    const discount = 0;
+    // Coupon discount is always recomputed server-side
+    let discount = 0;
+    if (data.coupon_code) {
+      const { computeCouponDiscount } = await import("./coupons.functions");
+      const res = await computeCouponDiscount(data.coupon_code, data.items);
+      if (!res.valid) throw new Error(res.message);
+      discount = res.discount;
+    }
     const total = Math.max(0, itemsTotal + shipping - discount);
     if (total <= 0) throw new Error("Invalid cart total");
 
@@ -95,6 +103,7 @@ export const initiatePaystackCheckout = createServerFn({ method: "POST" })
         pickup_station: data.delivery.pickup_station || null,
         shipping_fee: shipping,
         discount,
+        coupon_code: data.coupon_code ? data.coupon_code.trim().toUpperCase() : null,
       })
       .select()
       .single();
@@ -186,6 +195,12 @@ export const verifyPaystackPayment = createServerFn({ method: "POST" })
           status: "placed",
         })
         .eq("id", order.id);
+
+      // Record the coupon use once payment is confirmed (best-effort)
+      if (order.coupon_code) {
+        const { redeemCoupon } = await import("./coupons.functions");
+        await redeemCoupon(order.coupon_code);
+      }
 
       // Notify the buyer in their inbox (once)
       const orderRef = order.order_number ?? order.id.slice(0, 8);

@@ -11,6 +11,7 @@ import { InstallAppButton } from "@/components/InstallAppButton";
 
 import { useProducts, toProduct, type DbProduct } from "@/lib/products";
 import { useCategories } from "@/lib/categories";
+import { useActiveFlashSale, flashPriceMap } from "@/lib/flash-sales";
 import { supabase } from "@/integrations/supabase/client";
 import type { Product } from "@/lib/store";
 
@@ -30,35 +31,28 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-function Countdown() {
-  const [t, setT] = useState({ h: 1, m: 17, s: 50 });
+function Countdown({ to }: { to?: string }) {
+  const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
-    const i = setInterval(() => {
-      setT((p) => {
-        let s = p.s - 1;
-        let m = p.m;
-        let h = p.h;
-        if (s < 0) {
-          s = 59;
-          m--;
-        }
-        if (m < 0) {
-          m = 59;
-          h--;
-        }
-        if (h < 0) return { h: 1, m: 59, s: 59 };
-        return { h, m, s };
-      });
-    }, 1000);
+    setNow(Date.now());
+    const i = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(i);
   }, []);
+
+  if (now === null) return <span className="tabular-nums">--h : --m : --s</span>;
+
+  const target = to ? new Date(to).getTime() : now + 3600_000;
+  const diff = Math.max(0, target - now);
+  const h = Math.floor(diff / 3_600_000);
+  const m = Math.floor((diff % 3_600_000) / 60_000);
+  const s = Math.floor((diff % 60_000) / 1000);
 
   const pad = (n: number) => String(n).padStart(2, "0");
 
   return (
     <span className="tabular-nums">
-      {pad(t.h)}h : {pad(t.m)}m : {pad(t.s)}s
+      {pad(h)}h : {pad(m)}m : {pad(s)}s
     </span>
   );
 }
@@ -128,6 +122,24 @@ function Home() {
   const { data: products = [], isLoading } = useProducts();
   const { data: categories = [] } = useCategories();
   const { data: grouped } = useGroupedProducts();
+  const { data: flashSale } = useActiveFlashSale();
+
+  // Products in the live flash sale, with their sale price applied
+  const flashMap = flashPriceMap(flashSale);
+  const flashProducts: Product[] = flashSale
+    ? products
+        .filter((p) => flashMap.has(p.id))
+        .map((p) => {
+          const sp = flashMap.get(p.id)!;
+          return {
+            ...p,
+            oldPrice: p.price,
+            price: sp,
+            discount: p.price > 0 ? Math.round(((p.price - sp) / p.price) * 100) : undefined,
+          };
+        })
+    : [];
+  const displayFlash = flashProducts.length > 0 ? flashProducts : products.slice(0, 8);
 
   return (
     <div className="min-h-screen bg-background pb-10">
@@ -174,9 +186,9 @@ function Home() {
             <div className="flex min-w-0 items-center gap-3">
               <Zap size={20} fill="currentColor" className="shrink-0" />
               <div className="min-w-0">
-                <p className="text-sm font-extrabold leading-none">Flash Sales</p>
+                <p className="text-sm font-extrabold leading-none">{flashSale?.title ?? "Flash Sales"}</p>
                 <p className="mt-1 text-[11px] font-semibold opacity-90">
-                  <Countdown />
+                  {flashSale ? "Ends in " : ""}<Countdown to={flashSale?.ends_at} />
                 </p>
               </div>
             </div>
@@ -194,7 +206,7 @@ function Home() {
                     <ProductCardSkeleton />
                   </div>
                 ))
-              : products.slice(0, 8).map((p: Product) => (
+              : displayFlash.map((p: Product) => (
                   <div key={p.id} className="min-w-[160px] max-w-[170px]">
                     <ProductCard product={p} />
                   </div>

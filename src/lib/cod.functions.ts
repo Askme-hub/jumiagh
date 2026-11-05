@@ -34,6 +34,7 @@ export const placeCODOrder = createServerFn({ method: "POST" })
       .object({
         items: z.array(ItemSchema).min(1).max(100),
         delivery: DeliverySchema,
+        coupon_code: z.string().trim().max(50).optional(),
       })
       .parse(input)
   )
@@ -69,7 +70,14 @@ export const placeCODOrder = createServerFn({ method: "POST" })
         }
       }
     }
-    const discount = 0;
+    // Coupon discount is always recomputed server-side
+    let discount = 0;
+    if (data.coupon_code) {
+      const { computeCouponDiscount } = await import("./coupons.functions");
+      const res = await computeCouponDiscount(data.coupon_code, data.items);
+      if (!res.valid) throw new Error(res.message);
+      discount = res.discount;
+    }
     const total = Math.max(0, itemsTotal + shipping - discount);
     if (total <= 0) throw new Error("Invalid cart total");
 
@@ -92,6 +100,7 @@ export const placeCODOrder = createServerFn({ method: "POST" })
         pickup_station: data.delivery.pickup_station || null,
         shipping_fee: shipping,
         discount,
+        coupon_code: data.coupon_code ? data.coupon_code.trim().toUpperCase() : null,
       })
       .select()
       .single();
@@ -106,6 +115,12 @@ export const placeCODOrder = createServerFn({ method: "POST" })
     }
 
     const orderRef = order.order_number ?? order.id.slice(0, 8);
+
+    // Record the coupon use (best-effort)
+    if (data.coupon_code && discount > 0) {
+      const { redeemCoupon } = await import("./coupons.functions");
+      await redeemCoupon(data.coupon_code);
+    }
 
     // Buyer inbox confirmation
     await supabaseAdmin.from("inbox_messages").insert({

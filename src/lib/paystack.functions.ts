@@ -103,6 +103,7 @@ export const initiatePaystackCheckout = createServerFn({ method: "POST" })
         pickup_station: data.delivery.pickup_station || null,
         shipping_fee: shipping,
         discount,
+        coupon_code: data.coupon_code ? data.coupon_code.trim().toUpperCase() : null,
       })
       .select()
       .single();
@@ -196,11 +197,9 @@ export const verifyPaystackPayment = createServerFn({ method: "POST" })
         .eq("id", order.id);
 
       // Record the coupon use once payment is confirmed (best-effort)
-      if (Number(order.discount ?? 0) > 0) {
+      if (order.coupon_code) {
         const { redeemCoupon } = await import("./coupons.functions");
-        // The code itself isn't stored on the order; redeem by matching the
-        // discount is unreliable, so redemption happens only when a code was
-        // supplied at checkout and stored in metadata below.
+        await redeemCoupon(order.coupon_code);
       }
 
       // Notify the buyer in their inbox (once)

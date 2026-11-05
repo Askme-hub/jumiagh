@@ -100,6 +100,7 @@ export const placeCODOrder = createServerFn({ method: "POST" })
         pickup_station: data.delivery.pickup_station || null,
         shipping_fee: shipping,
         discount,
+        coupon_code: data.coupon_code ? data.coupon_code.trim().toUpperCase() : null,
       })
       .select()
       .single();

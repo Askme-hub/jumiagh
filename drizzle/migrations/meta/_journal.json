@@ -22,6 +22,13 @@
       "when": 1793886936369,
       "tag": "0002_add_coupon_code_to_orders",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793887559418,
+      "tag": "0003_restrict_settings_read",
+      "breakpoints": true
     }
   ]
 }

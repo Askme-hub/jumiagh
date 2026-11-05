@@ -23,6 +23,8 @@ export const Route = createFileRoute("/checkout")({
   },
 });
 
+import { doorDeliveryFee, zoneForRegion } from "@/lib/delivery-zones";
+
 const GH_REGIONS = [
   "Greater Accra", "Ashanti", "Western", "Central", "Eastern",
   "Volta", "Northern", "Upper East", "Upper West", "Bono",
@@ -140,12 +142,13 @@ function Checkout() {
       const p = sellerDelivery.filter((s) => s.pickup_enabled).reduce((a, s) => a + s.pickup_fee, 0);
       ship = p > 0 ? p : 10;
     } else {
-      const d = sellerDelivery.reduce((a, s) => a + s.door_delivery_fee, 0);
-      ship = d > 0 ? d : (itemsTotal >= 150 ? 0 : 25);
+      ship = sellerDelivery.length > 0
+        ? doorDeliveryFee(selectedRegion, sellerDelivery.map((s) => s.door_delivery_fee))
+        : (itemsTotal >= 150 ? 0 : zoneForRegion(selectedRegion).fee);
     }
     const couponDiscount = appliedCoupon?.discount ?? 0;
     return { shipping: ship, discount: couponDiscount, grand: Math.max(0, itemsTotal + ship - couponDiscount) };
-  }, [deliveryType, itemsTotal, sellerDelivery, appliedCoupon]);
+  }, [deliveryType, itemsTotal, sellerDelivery, appliedCoupon, selectedRegion]);
 
   const applyCoupon = async () => {
     const code = couponInput.trim();

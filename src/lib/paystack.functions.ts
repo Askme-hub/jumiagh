@@ -1,3 +1,4 @@
+import { doorDeliveryFee, zoneForRegion } from "./delivery-zones";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -63,7 +64,7 @@ export const initiatePaystackCheckout = createServerFn({ method: "POST" })
             const p = sellers.filter((s: any) => s.pickup_enabled).reduce((a: number, s: any) => a + Number(s.pickup_fee ?? 10), 0);
             shipping = p > 0 ? p : 10;
           } else {
-            shipping = sellers.reduce((a: number, s: any) => a + Number(s.door_delivery_fee ?? 25), 0);
+            shipping = doorDeliveryFee(data.delivery.region, sellers.map((s: any) => Number(s.door_delivery_fee ?? 0)));
           }
         }
       }
@@ -102,6 +103,7 @@ export const initiatePaystackCheckout = createServerFn({ method: "POST" })
         delivery_type: data.delivery.delivery_type,
         pickup_station: data.delivery.pickup_station || null,
         shipping_fee: shipping,
+        delivery_zone: data.delivery.delivery_type === "pickup" ? null : zoneForRegion(data.delivery.region).id,
         discount,
         coupon_code: data.coupon_code ? data.coupon_code.trim().toUpperCase() : null,
       })

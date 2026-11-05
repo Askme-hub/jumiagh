@@ -1,4 +1,4 @@
-// Ghana door-delivery zones. Shared by checkout (display) and the server (charging).
+// Ghana door-delivery zones. Admins edit live prices in the database; these are fallbacks.
 export type DeliveryZone = { id: string; label: string; fee: number; eta: string; regions: string[] };
 
 export const DELIVERY_ZONES: DeliveryZone[] = [
@@ -8,13 +8,18 @@ export const DELIVERY_ZONES: DeliveryZone[] = [
   { id: "remote", label: "Rest of Ghana", fee: 55, eta: "4–5 days", regions: [] },
 ];
 
-export function zoneForRegion(region: string | null | undefined): DeliveryZone {
-  return DELIVERY_ZONES.find((z) => z.regions.includes(region ?? "")) ?? DELIVERY_ZONES[DELIVERY_ZONES.length - 1];
+export function normalizeZones(rows: any[] | null | undefined): DeliveryZone[] {
+  if (!rows || rows.length === 0) return DELIVERY_ZONES;
+  return rows.map((r) => ({ id: r.id, label: r.label, fee: Number(r.fee) || 0, eta: r.eta ?? "", regions: r.regions ?? [] }));
+}
+
+export function zoneForRegion(region: string | null | undefined, zones: DeliveryZone[] = DELIVERY_ZONES): DeliveryZone {
+  return zones.find((z) => z.regions.includes(region ?? "")) ?? zones.find((z) => z.regions.length === 0) ?? zones[zones.length - 1];
 }
 
 /** Each seller ships separately: charge the zone rate, or the seller's own rate if higher. */
-export function doorDeliveryFee(region: string | null | undefined, sellerFees: number[]): number {
-  const zone = zoneForRegion(region);
+export function doorDeliveryFee(region: string | null | undefined, sellerFees: number[], zones: DeliveryZone[] = DELIVERY_ZONES): number {
+  const zone = zoneForRegion(region, zones);
   if (sellerFees.length === 0) return zone.fee;
   return sellerFees.reduce((a, f) => a + Math.max(Number(f) || 0, zone.fee), 0);
 }

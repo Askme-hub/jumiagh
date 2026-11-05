@@ -172,7 +172,7 @@ function SellerProfilePage() {
             value={doorFee} onChange={(e) => setDoorFee(e.target.value)}
             placeholder="25" className={inputCls}
           />
-          <p className="text-[11px] text-muted-foreground mt-1">Charged to buyers who choose door delivery from your store.</p>
+          <p className="text-[11px] text-muted-foreground mt-1">Charged to buyers who choose door delivery from your store. If Kivora's regional minimum is higher, the regional price is used.</p>
         </div>
 
         <label className="flex items-center gap-2 text-sm font-medium text-foreground">

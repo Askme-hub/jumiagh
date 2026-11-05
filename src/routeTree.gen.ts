@@ -36,6 +36,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminBannersRouteImport } from './routes/admin.banners'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminCouponsRouteImport } from './routes/admin.coupons'
+import { Route as AdminDeliveryRouteImport } from './routes/admin.delivery'
 import { Route as AdminFinanceRouteImport } from './routes/admin.finance'
 import { Route as AdminFlashSalesRouteImport } from './routes/admin.flash-sales'
 import { Route as AdminIssuesRouteImport } from './routes/admin.issues'
@@ -199,6 +200,11 @@ const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
 const AdminCouponsRoute = AdminCouponsRouteImport.update({
   id: '/coupons',
   path: '/coupons',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDeliveryRoute = AdminDeliveryRouteImport.update({
+  id: '/delivery',
+  path: '/delivery',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminFinanceRoute = AdminFinanceRouteImport.update({
@@ -375,6 +381,7 @@ export interface FileRoutesByFullPath {
   '/admin/banners': typeof AdminBannersRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/coupons': typeof AdminCouponsRoute
+  '/admin/delivery': typeof AdminDeliveryRoute
   '/admin/finance': typeof AdminFinanceRoute
   '/admin/flash-sales': typeof AdminFlashSalesRoute
   '/admin/issues': typeof AdminIssuesRoute
@@ -430,6 +437,7 @@ export interface FileRoutesByTo {
   '/admin/banners': typeof AdminBannersRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/coupons': typeof AdminCouponsRoute
+  '/admin/delivery': typeof AdminDeliveryRoute
   '/admin/finance': typeof AdminFinanceRoute
   '/admin/flash-sales': typeof AdminFlashSalesRoute
   '/admin/issues': typeof AdminIssuesRoute
@@ -489,6 +497,7 @@ export interface FileRoutesById {
   '/admin/banners': typeof AdminBannersRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/coupons': typeof AdminCouponsRoute
+  '/admin/delivery': typeof AdminDeliveryRoute
   '/admin/finance': typeof AdminFinanceRoute
   '/admin/flash-sales': typeof AdminFlashSalesRoute
   '/admin/issues': typeof AdminIssuesRoute
@@ -549,6 +558,7 @@ export interface FileRouteTypes {
     | '/admin/banners'
     | '/admin/categories'
     | '/admin/coupons'
+    | '/admin/delivery'
     | '/admin/finance'
     | '/admin/flash-sales'
     | '/admin/issues'
@@ -604,6 +614,7 @@ export interface FileRouteTypes {
     | '/admin/banners'
     | '/admin/categories'
     | '/admin/coupons'
+    | '/admin/delivery'
     | '/admin/finance'
     | '/admin/flash-sales'
     | '/admin/issues'
@@ -662,6 +673,7 @@ export interface FileRouteTypes {
     | '/admin/banners'
     | '/admin/categories'
     | '/admin/coupons'
+    | '/admin/delivery'
     | '/admin/finance'
     | '/admin/flash-sales'
     | '/admin/issues'
@@ -916,6 +928,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCouponsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/delivery': {
+      id: '/admin/delivery'
+      path: '/delivery'
+      fullPath: '/admin/delivery'
+      preLoaderRoute: typeof AdminDeliveryRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/finance': {
       id: '/admin/finance'
       path: '/finance'
@@ -1126,6 +1145,7 @@ interface AdminRouteChildren {
   AdminBannersRoute: typeof AdminBannersRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
   AdminCouponsRoute: typeof AdminCouponsRoute
+  AdminDeliveryRoute: typeof AdminDeliveryRoute
   AdminFinanceRoute: typeof AdminFinanceRoute
   AdminFlashSalesRoute: typeof AdminFlashSalesRoute
   AdminIssuesRoute: typeof AdminIssuesRoute
@@ -1142,6 +1162,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminBannersRoute: AdminBannersRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
   AdminCouponsRoute: AdminCouponsRoute,
+  AdminDeliveryRoute: AdminDeliveryRoute,
   AdminFinanceRoute: AdminFinanceRoute,
   AdminFlashSalesRoute: AdminFlashSalesRoute,
   AdminIssuesRoute: AdminIssuesRoute,

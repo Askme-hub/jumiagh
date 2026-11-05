@@ -23,7 +23,8 @@ export const Route = createFileRoute("/checkout")({
   },
 });
 
-import { doorDeliveryFee, zoneForRegion } from "@/lib/delivery-zones";
+import { doorDeliveryFee, zoneForRegion, DELIVERY_ZONES } from "@/lib/delivery-zones";
+import { useDeliveryZones } from "@/lib/use-delivery-zones";
 
 const GH_REGIONS = [
   "Greater Accra", "Ashanti", "Western", "Central", "Eastern",
@@ -116,7 +117,8 @@ function Checkout() {
     [addresses, selectedId]
   );
   const selectedRegion = selected?.region ?? "Greater Accra";
-  const zone = zoneForRegion(selectedRegion);
+  const { data: zones = DELIVERY_ZONES } = useDeliveryZones();
+  const zone = zoneForRegion(selectedRegion, zones);
 
   const sellerIds = useMemo(
     () => cart.map((c) => c.product.sellerId).filter(Boolean) as string[],
@@ -145,12 +147,12 @@ function Checkout() {
       ship = p > 0 ? p : 10;
     } else {
       ship = sellerDelivery.length > 0
-        ? doorDeliveryFee(selectedRegion, sellerDelivery.map((s) => s.door_delivery_fee))
-        : (itemsTotal >= 150 ? 0 : zoneForRegion(selectedRegion).fee);
+        ? doorDeliveryFee(selectedRegion, sellerDelivery.map((s) => s.door_delivery_fee), zones)
+        : (itemsTotal >= 150 ? 0 : zoneForRegion(selectedRegion, zones).fee);
     }
     const couponDiscount = appliedCoupon?.discount ?? 0;
     return { shipping: ship, discount: couponDiscount, grand: Math.max(0, itemsTotal + ship - couponDiscount) };
-  }, [deliveryType, itemsTotal, sellerDelivery, appliedCoupon, selectedRegion]);
+  }, [deliveryType, itemsTotal, sellerDelivery, appliedCoupon, selectedRegion, zones]);
 
   const applyCoupon = async () => {
     const code = couponInput.trim();

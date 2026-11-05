@@ -57,6 +57,13 @@
       "when": 1793894617721,
       "tag": "0007_voucher_privacy_and_function_hardening",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793895633945,
+      "tag": "0008_admin_delivery_zones",
+      "breakpoints": true
     }
   ]
 }

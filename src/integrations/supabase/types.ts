@@ -224,6 +224,36 @@ export type Database = {
         }
         Relationships: []
       }
+      delivery_zones: {
+        Row: {
+          eta: string
+          fee: number
+          id: string
+          label: string
+          regions: string[]
+          sort: number
+          updated_at: string
+        }
+        Insert: {
+          eta?: string
+          fee?: number
+          id: string
+          label: string
+          regions?: string[]
+          sort?: number
+          updated_at?: string
+        }
+        Update: {
+          eta?: string
+          fee?: number
+          id?: string
+          label?: string
+          regions?: string[]
+          sort?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       flash_sale_items: {
         Row: {
           flash_sale_id: string

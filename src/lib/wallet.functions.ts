@@ -34,6 +34,7 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
     const method = account.method;
     const accountDetails = `${account.account_name} · ${account.account_number}${account.provider ? ` (${account.provider})` : ""}`;
 
+    await supabaseAdmin.rpc("release_seller_escrow", { _seller_id: userId });
     const { data: wallet } = await supabaseAdmin
       .from("seller_wallets")
       .select("balance, pending")

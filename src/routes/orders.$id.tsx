@@ -1,3 +1,4 @@
+import { OrderTracking } from "@/components/OrderTracking";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -252,6 +253,8 @@ function OrderDetails() {
           )}
         </div>
       </div>
+
+      <OrderTracking orderId={data.id} userId={data.user_id} />
 
       {/* Delivery / Shipping Card */}
       <div className="bg-card mt-2 border-b border-border">

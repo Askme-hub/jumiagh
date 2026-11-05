@@ -1,3 +1,4 @@
+import { PushToggle } from "@/components/PushToggle";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -51,6 +52,7 @@ function SettingsPage() {
       <PageHeader title="Account Settings" />
       <div className="max-w-2xl mx-auto p-4 space-y-4">
         <ProfileCard userId={user.id} email={user.email ?? ""} />
+        <PushToggle />
         <PasswordCard />
         <AddressesCard />
         <AppearanceCard />

@@ -35,6 +35,7 @@ import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminCouponsRouteImport } from './routes/admin.coupons'
 import { Route as AdminFinanceRouteImport } from './routes/admin.finance'
 import { Route as AdminFlashSalesRouteImport } from './routes/admin.flash-sales'
+import { Route as AdminIssuesRouteImport } from './routes/admin.issues'
 import { Route as AdminMessagesRouteImport } from './routes/admin.messages'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
@@ -190,6 +191,11 @@ const AdminFinanceRoute = AdminFinanceRouteImport.update({
 const AdminFlashSalesRoute = AdminFlashSalesRouteImport.update({
   id: '/flash-sales',
   path: '/flash-sales',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminIssuesRoute = AdminIssuesRouteImport.update({
+  id: '/issues',
+  path: '/issues',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminMessagesRoute = AdminMessagesRouteImport.update({
@@ -350,6 +356,7 @@ export interface FileRoutesByFullPath {
   '/admin/coupons': typeof AdminCouponsRoute
   '/admin/finance': typeof AdminFinanceRoute
   '/admin/flash-sales': typeof AdminFlashSalesRoute
+  '/admin/issues': typeof AdminIssuesRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
@@ -401,6 +408,7 @@ export interface FileRoutesByTo {
   '/admin/coupons': typeof AdminCouponsRoute
   '/admin/finance': typeof AdminFinanceRoute
   '/admin/flash-sales': typeof AdminFlashSalesRoute
+  '/admin/issues': typeof AdminIssuesRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
@@ -456,6 +464,7 @@ export interface FileRoutesById {
   '/admin/coupons': typeof AdminCouponsRoute
   '/admin/finance': typeof AdminFinanceRoute
   '/admin/flash-sales': typeof AdminFlashSalesRoute
+  '/admin/issues': typeof AdminIssuesRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
@@ -512,6 +521,7 @@ export interface FileRouteTypes {
     | '/admin/coupons'
     | '/admin/finance'
     | '/admin/flash-sales'
+    | '/admin/issues'
     | '/admin/messages'
     | '/admin/orders'
     | '/admin/products'
@@ -563,6 +573,7 @@ export interface FileRouteTypes {
     | '/admin/coupons'
     | '/admin/finance'
     | '/admin/flash-sales'
+    | '/admin/issues'
     | '/admin/messages'
     | '/admin/orders'
     | '/admin/products'
@@ -617,6 +628,7 @@ export interface FileRouteTypes {
     | '/admin/coupons'
     | '/admin/finance'
     | '/admin/flash-sales'
+    | '/admin/issues'
     | '/admin/messages'
     | '/admin/orders'
     | '/admin/products'
@@ -858,6 +870,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFlashSalesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/issues': {
+      id: '/admin/issues'
+      path: '/issues'
+      fullPath: '/admin/issues'
+      preLoaderRoute: typeof AdminIssuesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/messages': {
       id: '/admin/messages'
       path: '/messages'
@@ -1049,6 +1068,7 @@ interface AdminRouteChildren {
   AdminCouponsRoute: typeof AdminCouponsRoute
   AdminFinanceRoute: typeof AdminFinanceRoute
   AdminFlashSalesRoute: typeof AdminFlashSalesRoute
+  AdminIssuesRoute: typeof AdminIssuesRoute
   AdminMessagesRoute: typeof AdminMessagesRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   AdminProductsRoute: typeof AdminProductsRoute
@@ -1064,6 +1084,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCouponsRoute: AdminCouponsRoute,
   AdminFinanceRoute: AdminFinanceRoute,
   AdminFlashSalesRoute: AdminFlashSalesRoute,
+  AdminIssuesRoute: AdminIssuesRoute,
   AdminMessagesRoute: AdminMessagesRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   AdminProductsRoute: AdminProductsRoute,

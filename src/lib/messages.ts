@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { flushMyPushes } from "./push.functions";
 
 export type Conversation = {
   id: string;
@@ -156,6 +157,7 @@ export function useSendMessage(conversationId: string | undefined) {
         .from("messages")
         .insert({ conversation_id: conversationId!, sender_id: senderId, body: text });
       if (error) throw error;
+      void flushMyPushes().catch(() => {});
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["messages", conversationId] });

@@ -1,3 +1,4 @@
+import { PushToggle } from "@/components/PushToggle";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -120,6 +121,8 @@ function Overview({ userId, shopName }: { userId: string; shopName: string }) {
         </div>
         <Button asChild size="icon" className="rounded-xl"><Link to="/seller/products/new" aria-label="Add product"><Plus /></Link></Button>
       </div>
+
+      <div className="mb-4"><PushToggle compact /></div>
 
       <section className="relative overflow-hidden rounded-2xl bg-secondary p-5 text-secondary-foreground shadow-xl md:p-6">
         <div className="absolute -bottom-12 -right-8 h-40 w-40 rounded-full bg-primary/20" />

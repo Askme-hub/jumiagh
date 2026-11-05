@@ -23,6 +23,8 @@ export const Route = createFileRoute("/checkout")({
   },
 });
 
+import { doorDeliveryFee, zoneForRegion } from "@/lib/delivery-zones";
+
 const GH_REGIONS = [
   "Greater Accra", "Ashanti", "Western", "Central", "Eastern",
   "Volta", "Northern", "Upper East", "Upper West", "Bono",
@@ -113,6 +115,8 @@ function Checkout() {
     () => addresses.find((a) => a.id === selectedId) ?? null,
     [addresses, selectedId]
   );
+  const selectedRegion = selected?.region ?? "Greater Accra";
+  const zone = zoneForRegion(selectedRegion);
 
   const sellerIds = useMemo(
     () => cart.map((c) => c.product.sellerId).filter(Boolean) as string[],
@@ -140,12 +144,13 @@ function Checkout() {
       const p = sellerDelivery.filter((s) => s.pickup_enabled).reduce((a, s) => a + s.pickup_fee, 0);
       ship = p > 0 ? p : 10;
     } else {
-      const d = sellerDelivery.reduce((a, s) => a + s.door_delivery_fee, 0);
-      ship = d > 0 ? d : (itemsTotal >= 150 ? 0 : 25);
+      ship = sellerDelivery.length > 0
+        ? doorDeliveryFee(selectedRegion, sellerDelivery.map((s) => s.door_delivery_fee))
+        : (itemsTotal >= 150 ? 0 : zoneForRegion(selectedRegion).fee);
     }
     const couponDiscount = appliedCoupon?.discount ?? 0;
     return { shipping: ship, discount: couponDiscount, grand: Math.max(0, itemsTotal + ship - couponDiscount) };
-  }, [deliveryType, itemsTotal, sellerDelivery, appliedCoupon]);
+  }, [deliveryType, itemsTotal, sellerDelivery, appliedCoupon, selectedRegion]);
 
   const applyCoupon = async () => {
     const code = couponInput.trim();
@@ -519,6 +524,9 @@ function Checkout() {
         <div className="px-4 py-3 space-y-2 text-sm">
           <Row label={`Item's total (${itemCount})`} value={formatGHC(itemsTotal)} />
           <Row label="Shipping fees" value={shipping === 0 ? "FREE" : formatGHC(shipping)} />
+          {deliveryType !== "pickup" && (
+            <p className="text-[11px] text-muted-foreground -mt-1">Zone: {zone.label} · arrives in {zone.eta}</p>
+          )}
           {discount > 0 && <Row label={`Coupon ${appliedCoupon?.code ?? ""}`} value={`-${formatGHC(discount)}`} valueClass="text-success font-bold" />}
           <div className="border-t border-border pt-2 flex justify-between font-bold text-base">
             <span>Total</span><span>{formatGHC(grand)}</span>

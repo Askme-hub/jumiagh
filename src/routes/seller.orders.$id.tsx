@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, Printer, Truck, CheckCircle2, Clock } from "lucide-react";
 import { toast } from "sonner";
+import { useState } from "react";
 import { getSellerOrder, updateItemFulfillment } from "@/lib/seller-orders.functions";
 import { formatGHC } from "@/lib/store";
 
@@ -20,6 +21,7 @@ function SellerOrderDetail() {
   const fetchOrder = useServerFn(getSellerOrder);
   const updateFn = useServerFn(updateItemFulfillment);
 
+  const [rider, setRider] = useState({ name: "", phone: "", note: "" });
   const { data: order, isLoading } = useQuery({
     queryKey: ["seller-order", id],
     queryFn: () => fetchOrder({ data: { orderId: id } }),
@@ -30,7 +32,13 @@ function SellerOrderDetail() {
 
   const setStatus = async (status: "processing" | "shipped" | "delivered") => {
     try {
-      await updateFn({ data: { itemIds: order.items.map((i) => i.id), status } });
+      await updateFn({
+        data: {
+          itemIds: order.items.map((i) => i.id),
+          status,
+          ...(status === "shipped" ? { rider_name: rider.name, rider_phone: rider.phone, tracking_note: rider.note } : {}),
+        },
+      });
       toast.success(`Items marked as ${status}`);
       qc.invalidateQueries({ queryKey: ["seller-order", id] });
       qc.invalidateQueries({ queryKey: ["seller-orders"] });
@@ -103,6 +111,14 @@ function SellerOrderDetail() {
       {/* Fulfillment */}
       <div className="bg-card border border-border rounded-xl p-4 print:hidden">
         <h2 className="font-bold text-sm mb-3">Fulfillment status</h2>
+        {currentStatus === "processing" && (
+          <div className="mb-3 grid gap-2 sm:grid-cols-2">
+            <p className="sm:col-span-2 text-xs text-muted-foreground">Dispatch details (shared with the customer when you mark as shipped)</p>
+            <input value={rider.name} onChange={(e) => setRider({ ...rider, name: e.target.value })} placeholder="Rider / courier name" className="rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+            <input value={rider.phone} onChange={(e) => setRider({ ...rider, phone: e.target.value })} placeholder="Rider phone e.g. 024…" inputMode="tel" className="rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+            <input value={rider.note} onChange={(e) => setRider({ ...rider, note: e.target.value })} placeholder="Tracking note (e.g. VIP waybill no.)" className="sm:col-span-2 rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          </div>
+        )}
         <div className="grid grid-cols-3 gap-2">
           {STEPS.map(({ key, label, icon: Icon }) => (
             <button

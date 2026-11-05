@@ -142,9 +142,9 @@ export function ProductCard({ product }: { product: Product }) {
             </p>
             {oldPrice ? (
               <p className="mt-0.5 flex flex-wrap items-baseline gap-x-1 text-xs text-muted-foreground">
-                <span className="line-through">{formatGHC(oldPrice)}</span>
+                <span className="whitespace-nowrap line-through">{formatGHC(oldPrice)}</span>
                 {saving > 0 && (
-                  <span className="font-semibold text-flash">
+                  <span className="whitespace-nowrap font-semibold text-flash">
                     save {formatGHC(saving)}
                   </span>
                 )}

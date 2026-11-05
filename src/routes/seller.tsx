@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { Package, Store, Plus, User, ShoppingBag, Wallet, Crown, MessageCircle, Star, TicketPercent } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { SubscriptionAlert } from "@/components/SubscriptionAlert";
 import { WorkspaceShell, type WorkspaceItem } from "@/components/WorkspaceShell";
 
 export const Route = createFileRoute("/seller")({
@@ -35,6 +36,7 @@ function SellerLayout() {
   ];
   return (
     <WorkspaceShell role="Seller workspace" title="Kivora Seller" subtitle="Your business, one place" items={tabs}>
+      <SubscriptionAlert />
       <Outlet />
     </WorkspaceShell>
   );

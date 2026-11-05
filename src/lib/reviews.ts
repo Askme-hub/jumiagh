@@ -156,3 +156,24 @@ export function useSellerReply() {
     onError: (e: Error) => toast.error(e.message),
   });
 }
+
+/** Average rating + count for every reviewed product (one cached query for all cards). */
+export function useProductRatingsMap() {
+  return useQuery({
+    queryKey: ["reviews", "ratings-map"],
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("reviews").select("product_id, rating");
+      if (error) throw error;
+      const acc: Record<string, { sum: number; count: number }> = {};
+      for (const r of data ?? []) {
+        const a = (acc[r.product_id] ??= { sum: 0, count: 0 });
+        a.sum += r.rating;
+        a.count += 1;
+      }
+      const out: Record<string, { avg: number; count: number }> = {};
+      for (const [k, v] of Object.entries(acc)) out[k] = { avg: Math.round((v.sum / v.count) * 10) / 10, count: v.count };
+      return out;
+    },
+  });
+}

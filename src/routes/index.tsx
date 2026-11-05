@@ -11,6 +11,7 @@ import { InstallAppButton } from "@/components/InstallAppButton";
 
 import { useProducts, toProduct, type DbProduct } from "@/lib/products";
 import { useCategories } from "@/lib/categories";
+import { useActiveFlashSale, flashPriceMap } from "@/lib/flash-sales";
 import { supabase } from "@/integrations/supabase/client";
 import type { Product } from "@/lib/store";
 
@@ -30,35 +31,25 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-function Countdown() {
-  const [t, setT] = useState({ h: 1, m: 17, s: 50 });
+function Countdown({ to }: { to?: string }) {
+  const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
-    const i = setInterval(() => {
-      setT((p) => {
-        let s = p.s - 1;
-        let m = p.m;
-        let h = p.h;
-        if (s < 0) {
-          s = 59;
-          m--;
-        }
-        if (m < 0) {
-          m = 59;
-          h--;
-        }
-        if (h < 0) return { h: 1, m: 59, s: 59 };
-        return { h, m, s };
-      });
-    }, 1000);
+    const i = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(i);
   }, []);
+
+  const target = to ? new Date(to).getTime() : now + 3600_000;
+  const diff = Math.max(0, target - now);
+  const h = Math.floor(diff / 3_600_000);
+  const m = Math.floor((diff % 3_600_000) / 60_000);
+  const s = Math.floor((diff % 60_000) / 1000);
 
   const pad = (n: number) => String(n).padStart(2, "0");
 
   return (
     <span className="tabular-nums">
-      {pad(t.h)}h : {pad(t.m)}m : {pad(t.s)}s
+      {pad(h)}h : {pad(m)}m : {pad(s)}s
     </span>
   );
 }

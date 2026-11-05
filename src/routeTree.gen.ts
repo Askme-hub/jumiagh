@@ -31,7 +31,9 @@ import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminBannersRouteImport } from './routes/admin.banners'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
+import { Route as AdminCouponsRouteImport } from './routes/admin.coupons'
 import { Route as AdminFinanceRouteImport } from './routes/admin.finance'
+import { Route as AdminFlashSalesRouteImport } from './routes/admin.flash-sales'
 import { Route as AdminMessagesRouteImport } from './routes/admin.messages'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
@@ -167,9 +169,19 @@ const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
   path: '/categories',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCouponsRoute = AdminCouponsRouteImport.update({
+  id: '/coupons',
+  path: '/coupons',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminFinanceRoute = AdminFinanceRouteImport.update({
   id: '/finance',
   path: '/finance',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFlashSalesRoute = AdminFlashSalesRouteImport.update({
+  id: '/flash-sales',
+  path: '/flash-sales',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminMessagesRoute = AdminMessagesRouteImport.update({
@@ -316,7 +328,9 @@ export interface FileRoutesByFullPath {
   '/wishlist': typeof WishlistRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/coupons': typeof AdminCouponsRoute
   '/admin/finance': typeof AdminFinanceRoute
+  '/admin/flash-sales': typeof AdminFlashSalesRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
@@ -362,7 +376,9 @@ export interface FileRoutesByTo {
   '/wishlist': typeof WishlistRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/coupons': typeof AdminCouponsRoute
   '/admin/finance': typeof AdminFinanceRoute
+  '/admin/flash-sales': typeof AdminFlashSalesRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
@@ -412,7 +428,9 @@ export interface FileRoutesById {
   '/wishlist': typeof WishlistRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/coupons': typeof AdminCouponsRoute
   '/admin/finance': typeof AdminFinanceRoute
+  '/admin/flash-sales': typeof AdminFlashSalesRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
@@ -463,7 +481,9 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/admin/banners'
     | '/admin/categories'
+    | '/admin/coupons'
     | '/admin/finance'
+    | '/admin/flash-sales'
     | '/admin/messages'
     | '/admin/orders'
     | '/admin/products'
@@ -509,7 +529,9 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/admin/banners'
     | '/admin/categories'
+    | '/admin/coupons'
     | '/admin/finance'
+    | '/admin/flash-sales'
     | '/admin/messages'
     | '/admin/orders'
     | '/admin/products'
@@ -558,7 +580,9 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/admin/banners'
     | '/admin/categories'
+    | '/admin/coupons'
     | '/admin/finance'
+    | '/admin/flash-sales'
     | '/admin/messages'
     | '/admin/orders'
     | '/admin/products'
@@ -769,11 +793,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCategoriesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/coupons': {
+      id: '/admin/coupons'
+      path: '/coupons'
+      fullPath: '/admin/coupons'
+      preLoaderRoute: typeof AdminCouponsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/finance': {
       id: '/admin/finance'
       path: '/finance'
       fullPath: '/admin/finance'
       preLoaderRoute: typeof AdminFinanceRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/flash-sales': {
+      id: '/admin/flash-sales'
+      path: '/flash-sales'
+      fullPath: '/admin/flash-sales'
+      preLoaderRoute: typeof AdminFlashSalesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/messages': {
@@ -950,7 +988,9 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminBannersRoute: typeof AdminBannersRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
+  AdminCouponsRoute: typeof AdminCouponsRoute
   AdminFinanceRoute: typeof AdminFinanceRoute
+  AdminFlashSalesRoute: typeof AdminFlashSalesRoute
   AdminMessagesRoute: typeof AdminMessagesRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   AdminProductsRoute: typeof AdminProductsRoute
@@ -962,7 +1002,9 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminBannersRoute: AdminBannersRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
+  AdminCouponsRoute: AdminCouponsRoute,
   AdminFinanceRoute: AdminFinanceRoute,
+  AdminFlashSalesRoute: AdminFlashSalesRoute,
   AdminMessagesRoute: AdminMessagesRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   AdminProductsRoute: AdminProductsRoute,

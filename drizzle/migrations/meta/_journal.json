@@ -8,6 +8,13 @@
       "when": 1791570347209,
       "tag": "0000_create_notifications",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793883826286,
+      "tag": "0001_create_coupons_and_flash_sales",
+      "breakpoints": true
     }
   ]
 }

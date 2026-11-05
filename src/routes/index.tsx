@@ -119,6 +119,24 @@ function Home() {
   const { data: products = [], isLoading } = useProducts();
   const { data: categories = [] } = useCategories();
   const { data: grouped } = useGroupedProducts();
+  const { data: flashSale } = useActiveFlashSale();
+
+  // Products in the live flash sale, with their sale price applied
+  const flashMap = flashPriceMap(flashSale);
+  const flashProducts: Product[] = flashSale
+    ? products
+        .filter((p) => flashMap.has(p.id))
+        .map((p) => {
+          const sp = flashMap.get(p.id)!;
+          return {
+            ...p,
+            oldPrice: p.price,
+            price: sp,
+            discount: p.price > 0 ? Math.round(((p.price - sp) / p.price) * 100) : undefined,
+          };
+        })
+    : [];
+  const displayFlash = flashProducts.length > 0 ? flashProducts : products.slice(0, 8);
 
   return (
     <div className="min-h-screen bg-background pb-10">
@@ -165,9 +183,9 @@ function Home() {
             <div className="flex min-w-0 items-center gap-3">
               <Zap size={20} fill="currentColor" className="shrink-0" />
               <div className="min-w-0">
-                <p className="text-sm font-extrabold leading-none">Flash Sales</p>
+                <p className="text-sm font-extrabold leading-none">{flashSale?.title ?? "Flash Sales"}</p>
                 <p className="mt-1 text-[11px] font-semibold opacity-90">
-                  <Countdown />
+                  {flashSale ? "Ends in " : ""}<Countdown to={flashSale?.ends_at} />
                 </p>
               </div>
             </div>
@@ -185,7 +203,7 @@ function Home() {
                     <ProductCardSkeleton />
                   </div>
                 ))
-              : products.slice(0, 8).map((p: Product) => (
+              : displayFlash.map((p: Product) => (
                   <div key={p.id} className="min-w-[160px] max-w-[170px]">
                     <ProductCard product={p} />
                   </div>

@@ -11,9 +11,8 @@ import { useSellerBadge } from "@/lib/stores";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { MessageSellerButton } from "@/components/MessageSellerButton";
 import { ProductReviews } from "@/components/ProductReviews";
-import { StarRating } from "@/components/StarRating";
 import { useProductReviews } from "@/lib/reviews";
-import { Heart, ShoppingCart, Truck, Shield, PackageX, Minus, Plus, ChevronRight } from "lucide-react";
+import { Heart, ShoppingCart, Truck, Shield, PackageX, Minus, Plus, ChevronRight, Star, PackageCheck } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/products/$id")({
@@ -162,7 +161,7 @@ function ProductDetails() {
         <>
           <Link
             to="/cart"
-            className="flex-1 rounded-xl border-2 border-primary py-3 text-center font-bold text-primary transition active:scale-[0.98]"
+            className="flex-1 rounded-2xl border-2 border-primary py-3.5 text-center font-bold text-primary transition active:scale-[0.98]"
           >
             View Cart
           </Link>
@@ -173,14 +172,14 @@ function ProductDetails() {
               if (ok) toast.success("Added to cart");
               else toast.error(`Only ${product.stock ?? 0} in stock`);
             }}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3 font-bold text-primary-foreground transition active:scale-[0.98] disabled:opacity-50"
+            className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 font-bold text-primary-foreground transition active:scale-[0.98] disabled:opacity-50"
           >
             <ShoppingCart size={18} /> {data.stock <= 0 ? "Out of stock" : "Add to Cart"}
           </button>
         </>
       ) : (
         <>
-          <div className="flex flex-1 items-center justify-between overflow-hidden rounded-xl border-2 border-primary/40 bg-muted">
+          <div className="flex flex-1 items-center justify-between overflow-hidden rounded-2xl bg-muted">
             <button
               onClick={() => updateQty(product.id, cartQty - 1)}
               className="flex h-12 w-12 items-center justify-center text-primary transition hover:bg-primary/10"
@@ -203,7 +202,7 @@ function ProductDetails() {
           </div>
           <Link
             to="/cart"
-            className="flex flex-1 items-center justify-center rounded-xl bg-primary py-3 font-bold text-primary-foreground transition active:scale-[0.98]"
+            className="flex flex-1 items-center justify-center rounded-2xl bg-primary py-3.5 font-bold text-primary-foreground transition active:scale-[0.98]"
           >
             Checkout
           </Link>
@@ -230,12 +229,12 @@ function ProductDetails() {
           )}
         </nav>
 
-        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-6">
+        <div className="flex flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-6">
           {/* LEFT: gallery + description */}
-          <div className="lg:space-y-4">
-            <div className="bg-card lg:rounded-2xl lg:border lg:border-border lg:shadow-soft lg:overflow-hidden">
-              <div className="relative aspect-square bg-muted/40 lg:aspect-[4/3]">
-                <img src={images[activeImg]} alt={product.name} className="h-full w-full object-contain p-4" />
+          <div className="contents lg:block lg:space-y-4">
+            <div className="order-1 bg-card lg:rounded-2xl lg:border lg:border-border lg:shadow-soft lg:overflow-hidden">
+              <div className="relative aspect-square bg-muted pb-6 lg:aspect-[4/3] lg:pb-0">
+                <img src={images[activeImg]} alt={product.name} className="h-full w-full object-contain p-8 mix-blend-multiply dark:mix-blend-normal" />
                 {product.discount && (
                   <div className="absolute left-3 top-3 rounded-full bg-flash px-2.5 py-1 text-xs font-bold text-flash-foreground shadow">
                     -{product.discount}%
@@ -259,40 +258,47 @@ function ProductDetails() {
               )}
             </div>
 
-            <div className="mt-2 bg-card p-4 lg:mt-0 lg:rounded-2xl lg:border lg:border-border">
+            <div className="order-3 mt-2 bg-card p-4 lg:mt-0 lg:rounded-2xl lg:border lg:border-border">
               <h2 className="mb-2 font-bold text-foreground">Product Description</h2>
               <p className="whitespace-pre-line text-sm text-foreground/80">
                 {data.description ?? "No description provided for this product."}
               </p>
             </div>
 
-            <ProductReviews productId={data.id} />
+            <div id="reviews" className="order-4"><ProductReviews productId={data.id} /></div>
           </div>
 
           {/* RIGHT: buy box */}
-          <div className="lg:space-y-4">
-            <div className="mt-2 bg-card p-4 lg:mt-0 lg:rounded-2xl lg:border lg:border-border lg:shadow-soft">
-              <h1 className="text-lg font-semibold text-foreground lg:text-xl">{product.name}</h1>
-              <div className="mt-2 flex items-center gap-1">
-                {avgRating !== null ? (
-                  <>
-                    <StarRating value={avgRating} />
-                    <span className="ml-1 text-xs text-muted-foreground">
-                      {avgRating} · ({reviewCount} review{reviewCount === 1 ? "" : "s"})
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-xs text-muted-foreground">No reviews yet</span>
-                )}
+          <div className="order-2 lg:space-y-4">
+            <div className="relative -mt-6 rounded-t-3xl bg-card p-5 lg:mt-0 lg:rounded-2xl lg:border lg:border-border lg:shadow-soft">
+              <h1 className="text-xl font-bold tracking-tight text-foreground lg:text-2xl">{product.name}</h1>
+
+              {/* Stat pills */}
+              <div className="mt-3 flex flex-wrap gap-2">
+                <a href="#reviews" className="inline-flex items-center gap-1.5 rounded-xl border border-border px-2.5 py-1.5 text-xs">
+                  <Star size={13} className="text-warning" fill="currentColor" strokeWidth={0} />
+                  <span className="font-bold text-foreground">{avgRating ?? "New"}</span>
+                  <span className="text-muted-foreground">{reviewCount} review{reviewCount === 1 ? "" : "s"}</span>
+                </a>
+                <span className={`inline-flex items-center gap-1.5 rounded-xl border border-border px-2.5 py-1.5 text-xs font-bold ${data.stock > 0 ? "text-success-ink" : "text-destructive"}`}>
+                  <PackageCheck size={13} />
+                  {data.stock > 0 ? `${data.stock} in stock` : "Out of stock"}
+                </span>
+                {product.discount ? (
+                  <span className="inline-flex items-center rounded-xl bg-flash px-2.5 py-1.5 text-xs font-bold text-flash-foreground">
+                    -{product.discount}%
+                  </span>
+                ) : null}
               </div>
-              <div className="mt-3 flex items-baseline gap-2">
-                <span className="text-2xl font-bold text-primary">{formatGHC(product.price)}</span>
+
+              {/* Price box */}
+              <div className="mt-4 flex items-baseline gap-2 rounded-2xl bg-muted px-4 py-3">
+                <span className="text-xl font-extrabold text-foreground">{formatGHC(product.price)}</span>
                 {oldPrice && <span className="text-sm text-muted-foreground line-through">{formatGHC(oldPrice)}</span>}
               </div>
-              {data.stock > 0 ? (
-                <p className="mt-1 text-xs font-semibold text-success">In stock · {data.stock} available</p>
-              ) : (
-                <p className="mt-1 text-xs font-semibold text-destructive">Out of stock</p>
+
+              {data.description && (
+                <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">{data.description}</p>
               )}
 
               {/* Desktop buy box (mobile uses the sticky bar) */}
@@ -322,7 +328,7 @@ function ProductDetails() {
       </div>
 
       {/* Sticky mobile buy bar */}
-      <div className="fixed bottom-16 left-0 right-0 z-40 mx-auto max-w-md border-t border-border bg-card p-3 md:bottom-0 lg:hidden">
+      <div className="fixed bottom-[84px] left-0 right-0 z-40 mx-auto max-w-md border-t border-border bg-card p-3 md:bottom-0 lg:hidden">
         {buyBox}
       </div>
     </div>

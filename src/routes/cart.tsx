@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { Phone, Minus, Plus, CheckCircle2 } from "lucide-react";
+import { Minus, Plus, Trash2, Truck, ShoppingBag, ChevronRight } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { formatGHC, useShop, type Product } from "@/lib/store";
 import { useProducts } from "@/lib/products";
@@ -10,7 +10,17 @@ import { useState } from "react";
 
 export const Route = createFileRoute("/cart")({
   component: Cart,
-  head: () => ({ meta: [{ title: "Cart – Jumia Ghana" }] }),
+  head: () => ({
+    meta: [
+      { title: "Your Cart – Kivora Ghana" },
+      { name: "description", content: "Review the items in your Kivora Ghana cart and check out securely." },
+      { property: "og:title", content: "Your Cart – Kivora Ghana" },
+      { property: "og:description", content: "Review the items in your Kivora Ghana cart and check out securely." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
 });
 
 function Cart() {
@@ -21,6 +31,9 @@ function Cart() {
   const total = useShop((s) => s.cartTotal());
   const { data: products = [] } = useProducts();
   const [going, setGoing] = useState(false);
+  const itemCount = cart.reduce((a, c) => a + c.qty, 0);
+  const inCart = new Set(cart.map((c) => c.product.id));
+  const suggestions = products.filter((p: Product) => !inCart.has(p.id) && (p.stock ?? 0) > 0).slice(0, 6);
 
   const checkout = async () => {
     if (cart.length === 0) return;
@@ -35,110 +48,124 @@ function Cart() {
     router.navigate({ to: "/checkout" });
   };
 
-
-
   return (
-    <div>
+    <div className="pb-56 md:pb-10">
       <PageHeader title="Cart" />
-      <div className="bg-muted px-4 py-3 text-xs font-bold uppercase text-muted-foreground tracking-wider">
-        Cart Summary
-      </div>
-      <div className="bg-card px-4 py-3 flex justify-between items-center">
-        <span className="font-semibold">Subtotal</span>
-        <span className="font-bold text-lg">{formatGHC(total)}</span>
-      </div>
-      <div className="px-4 py-3 flex gap-2 items-start text-sm border-t border-border">
-        <CheckCircle2 size={20} className="text-success shrink-0 mt-0.5" />
-        <p>
-          Save up to GHC 50 on Your Delivery Fee for Orders above GHC 150. Prepaid only! (Everywhere In Ghana){" "}
-          <span className="font-bold text-primary">KIVORA EXPRESS</span>
-        </p>
-      </div>
 
-      <div className="bg-muted px-4 py-2 text-sm font-semibold">Cart ({cart.length})</div>
+      <div className="mx-auto max-w-2xl px-4 pt-3">
+        <Link to="/shipping" className="flex items-center gap-3 rounded-2xl bg-muted px-4 py-3">
+          <Truck size={18} className="shrink-0 text-primary" />
+          <span className="flex-1 text-sm font-medium text-foreground">Delivery fees are calculated by region at checkout</span>
+          <ChevronRight size={16} className="text-muted-foreground" />
+        </Link>
 
-      {cart.length === 0 ? (
-        <div className="px-4 py-10 text-center text-muted-foreground text-sm">
-          Your cart is empty.{" "}
-          <Link to="/" className="text-primary font-semibold">Continue shopping</Link>
-        </div>
-      ) : (
-        cart.map(({ product, qty }) => (
-          <div key={product.id} className="bg-card border-b border-border p-3 flex gap-3">
-            <div className="w-20 h-20 bg-muted rounded shrink-0">
-              <img src={product.image} alt={product.name} loading="lazy" className="w-full h-full object-contain" />
+        {cart.length === 0 ? (
+          <div className="py-16 text-center">
+            <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+              <ShoppingBag size={26} className="text-muted-foreground" />
+            </span>
+            <p className="mt-4 text-lg font-bold text-foreground">Your cart is empty</p>
+            <p className="mt-1 text-sm text-muted-foreground">Browse products and add your favourites here.</p>
+            <Link to="/" className="mt-5 inline-block rounded-2xl bg-primary px-6 py-3 font-bold text-primary-foreground">
+              Start shopping
+            </Link>
+          </div>
+        ) : (
+          <div className="mt-4 rounded-3xl bg-card p-2">
+            <p className="px-2 pb-1 pt-2 text-sm font-semibold text-muted-foreground">
+              {itemCount} item{itemCount === 1 ? "" : "s"}
+            </p>
+            {cart.map(({ product, qty }, i) => {
+              const atMax = product.stock != null && qty >= product.stock;
+              return (
+                <div key={product.id} className={`flex gap-3 p-2 py-3 ${i > 0 ? "border-t border-border" : ""}`}>
+                  <Link to="/products/$id" params={{ id: product.id }} className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-muted">
+                    <img src={product.image} alt={product.name} loading="lazy" className="h-full w-full object-contain p-2 mix-blend-multiply dark:mix-blend-normal" />
+                  </Link>
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    <div className="flex items-start gap-2">
+                      <p className="line-clamp-2 flex-1 text-sm font-medium leading-snug text-foreground">{product.name}</p>
+                      <button
+                        onClick={() => removeFromCart(product.id)}
+                        className="-mr-1 -mt-1 rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-destructive"
+                        aria-label={`Remove ${product.name}`}
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                    {product.stock != null && product.stock <= 5 && (
+                      <p className="mt-0.5 text-[11px] font-semibold text-flash">Only {product.stock} left</p>
+                    )}
+                    <div className="mt-auto flex items-center justify-between pt-2">
+                      <div>
+                        <p className="font-extrabold text-foreground">{formatGHC(product.price)}</p>
+                        {product.oldPrice ? (
+                          <p className="text-[11px] text-muted-foreground line-through">{formatGHC(product.oldPrice)}</p>
+                        ) : null}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => updateQty(product.id, qty - 1)}
+                          className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-foreground active:scale-95"
+                          aria-label="Decrease"
+                        >
+                          <Minus size={14} />
+                        </button>
+                        <span className="w-5 text-center text-sm font-semibold text-foreground">{qty}</span>
+                        <button
+                          disabled={atMax}
+                          onClick={() => {
+                            const ok = updateQty(product.id, qty + 1);
+                            if (!ok) toast.error(`Only ${product.stock} in stock`);
+                          }}
+                          className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-foreground active:scale-95 disabled:opacity-40"
+                          aria-label="Increase"
+                        >
+                          <Plus size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {suggestions.length > 0 && (
+          <section className="mt-8">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-foreground">You may also like</h2>
+              <Link to="/wishlist" className="text-xs font-medium text-muted-foreground">Wishlist</Link>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm line-clamp-2 leading-tight">{product.name}</p>
-              <p className="font-bold mt-1">{formatGHC(product.price)}</p>
-              {product.oldPrice && (
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="line-through text-muted-foreground">{formatGHC(product.oldPrice)}</span>
-                  {product.discount && (
-                    <span className="bg-primary-soft text-accent-foreground font-semibold px-1.5 py-0.5 rounded">
-                      -{product.discount}%
-                    </span>
-                  )}
-                </div>
-              )}
-              {product.stock != null && product.stock <= 5 && (
-                <p className="text-destructive text-xs mt-1 font-semibold">⚠ {product.stock} units left</p>
-              )}
-              <div className="flex items-center justify-between mt-2">
-                <button
-                  onClick={() => removeFromCart(product.id)}
-                  className="text-primary text-sm font-semibold"
-                >
-                  Remove
-                </button>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => updateQty(product.id, qty - 1)}
-                    className="w-8 h-8 rounded bg-primary-soft text-foreground flex items-center justify-center"
-                    aria-label="Decrease"
-                  >
-                    <Minus size={16} />
-                  </button>
-                  <span className="w-6 text-center font-semibold">{qty}</span>
-                  <button
-                    disabled={product.stock != null && qty >= product.stock}
-                    onClick={() => {
-                      const ok = updateQty(product.id, qty + 1);
-                      if (!ok) toast.error(`Only ${product.stock} in stock`);
-                    }}
-                    className="w-8 h-8 rounded bg-primary-soft text-foreground flex items-center justify-center disabled:opacity-40"
-                    aria-label="Increase"
-                  >
-                    <Plus size={16} />
-                  </button>
-                </div>
+            <div className="-mx-4 overflow-x-auto scrollbar-none">
+              <div className="flex gap-3 px-4 pb-2">
+                {suggestions.map((p: Product) => (
+                  <div key={p.id} className="w-[150px] shrink-0"><ProductCard product={p} /></div>
+                ))}
               </div>
             </div>
-          </div>
-        ))
-      )}
+          </section>
+        )}
+      </div>
 
       {cart.length > 0 && (
-        <div className="px-3 py-3 flex gap-2 items-stretch">
-          <button className="border-2 border-primary rounded-md w-14 flex items-center justify-center text-primary" aria-label="Call">
-            <Phone size={20} />
-          </button>
-          <button onClick={checkout} disabled={going} className="flex-1 bg-primary text-primary-foreground font-bold py-3.5 rounded-md disabled:opacity-60">
-            {going ? "Loading…" : `Checkout (${formatGHC(total)})`}
-          </button>
+        <div className="fixed bottom-[84px] left-0 right-0 z-40 border-t border-border bg-card px-4 py-3 md:static md:mx-auto md:mt-6 md:max-w-2xl md:rounded-3xl md:border">
+          <div className="mx-auto max-w-2xl">
+            <div className="mb-2 flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Subtotal</span>
+              <span className="text-lg font-extrabold text-foreground">{formatGHC(total)}</span>
+            </div>
+            <button
+              onClick={checkout}
+              disabled={going}
+              className="w-full rounded-2xl bg-primary py-3.5 font-bold text-primary-foreground transition active:scale-[0.98] disabled:opacity-60"
+            >
+              {going ? "Loading…" : "Checkout"}
+            </button>
+          </div>
         </div>
       )}
-
-      <div className="bg-muted px-4 py-3 mt-2 flex items-center justify-between">
-        <p className="font-bold">Wishlist ({useShop.getState().wishlist.length})</p>
-        <Link to="/wishlist" className="text-primary text-sm font-semibold">See All</Link>
-      </div>
-      <div className="overflow-x-auto scrollbar-none">
-        <div className="flex gap-3 px-3 py-3">
-          {products.slice(3, 6).map((p: Product) => <ProductCard key={p.id} product={p} />)}
-        </div>
-      </div>
-      <div className="h-6" />
     </div>
   );
 }

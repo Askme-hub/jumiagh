@@ -57,9 +57,9 @@ function Account() {
     { icon: Heart, label: "Wishlist", to: "/wishlist" },
     { icon: SearchIcon, label: "Browse Categories", to: "/categories" },
     { icon: Store, label: "Seller Hub", to: "/seller" },
-    { icon: Star, label: "Ratings & Reviews", soon: true },
-    { icon: Ticket, label: "Vouchers", soon: true },
-    { icon: History, label: "Recently Viewed", soon: true },
+    { icon: Star, label: "Ratings & Reviews", to: "/my-reviews" },
+    { icon: Ticket, label: "Vouchers", to: "/vouchers" },
+    { icon: History, label: "Recently Viewed", to: "/recently-viewed" },
   ];
 
   return (
@@ -126,7 +126,7 @@ function Account() {
       </div>
 
       <Section title="Need Assistance?">
-        <Row icon={Info} label="Help & Support" soon />
+        <Row icon={Info} label="Help & Support" to="/help" />
       </Section>
 
       <Section title="My Kivora Account">
@@ -145,7 +145,7 @@ function Account() {
   );
 }
 
-type AccountLink = "/wishlist" | "/orders" | "/inbox" | "/categories" | "/seller" | "/settings";
+type AccountLink = "/my-reviews" | "/vouchers" | "/recently-viewed" | "/help" | "/wishlist" | "/orders" | "/inbox" | "/categories" | "/seller" | "/settings";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (

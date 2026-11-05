@@ -19,8 +19,10 @@ import { Route as HelpRouteImport } from './routes/help'
 import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as MyReviewsRouteImport } from './routes/my-reviews'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as RecentlyViewedRouteImport } from './routes/recently-viewed'
 import { Route as ReturnsRouteImport } from './routes/returns'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SellerRouteImport } from './routes/seller'
@@ -28,6 +30,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ShippingRouteImport } from './routes/shipping'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as VouchersRouteImport } from './routes/vouchers'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminBannersRouteImport } from './routes/admin.banners'
@@ -113,6 +116,11 @@ const MessagesRoute = MessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MyReviewsRoute = MyReviewsRouteImport.update({
+  id: '/my-reviews',
+  path: '/my-reviews',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrdersRoute = OrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
@@ -121,6 +129,11 @@ const OrdersRoute = OrdersRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecentlyViewedRoute = RecentlyViewedRouteImport.update({
+  id: '/recently-viewed',
+  path: '/recently-viewed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReturnsRoute = ReturnsRouteImport.update({
@@ -156,6 +169,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VouchersRoute = VouchersRouteImport.update({
+  id: '/vouchers',
+  path: '/vouchers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WishlistRoute = WishlistRouteImport.update({
@@ -341,8 +359,10 @@ export interface FileRoutesByFullPath {
   '/inbox': typeof InboxRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
+  '/my-reviews': typeof MyReviewsRoute
   '/orders': typeof OrdersRouteWithChildren
   '/privacy': typeof PrivacyRoute
+  '/recently-viewed': typeof RecentlyViewedRoute
   '/returns': typeof ReturnsRoute
   '/search': typeof SearchRoute
   '/seller': typeof SellerRouteWithChildren
@@ -350,6 +370,7 @@ export interface FileRoutesByFullPath {
   '/shipping': typeof ShippingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/vouchers': typeof VouchersRoute
   '/wishlist': typeof WishlistRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -395,13 +416,16 @@ export interface FileRoutesByTo {
   '/inbox': typeof InboxRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
+  '/my-reviews': typeof MyReviewsRoute
   '/privacy': typeof PrivacyRoute
+  '/recently-viewed': typeof RecentlyViewedRoute
   '/returns': typeof ReturnsRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/shipping': typeof ShippingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/vouchers': typeof VouchersRoute
   '/wishlist': typeof WishlistRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -449,8 +473,10 @@ export interface FileRoutesById {
   '/inbox': typeof InboxRoute
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
+  '/my-reviews': typeof MyReviewsRoute
   '/orders': typeof OrdersRouteWithChildren
   '/privacy': typeof PrivacyRoute
+  '/recently-viewed': typeof RecentlyViewedRoute
   '/returns': typeof ReturnsRoute
   '/search': typeof SearchRoute
   '/seller': typeof SellerRouteWithChildren
@@ -458,6 +484,7 @@ export interface FileRoutesById {
   '/shipping': typeof ShippingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/vouchers': typeof VouchersRoute
   '/wishlist': typeof WishlistRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -506,8 +533,10 @@ export interface FileRouteTypes {
     | '/inbox'
     | '/login'
     | '/messages'
+    | '/my-reviews'
     | '/orders'
     | '/privacy'
+    | '/recently-viewed'
     | '/returns'
     | '/search'
     | '/seller'
@@ -515,6 +544,7 @@ export interface FileRouteTypes {
     | '/shipping'
     | '/sitemap.xml'
     | '/terms'
+    | '/vouchers'
     | '/wishlist'
     | '/admin/banners'
     | '/admin/categories'
@@ -560,13 +590,16 @@ export interface FileRouteTypes {
     | '/inbox'
     | '/login'
     | '/messages'
+    | '/my-reviews'
     | '/privacy'
+    | '/recently-viewed'
     | '/returns'
     | '/search'
     | '/settings'
     | '/shipping'
     | '/sitemap.xml'
     | '/terms'
+    | '/vouchers'
     | '/wishlist'
     | '/admin/banners'
     | '/admin/categories'
@@ -613,8 +646,10 @@ export interface FileRouteTypes {
     | '/inbox'
     | '/login'
     | '/messages'
+    | '/my-reviews'
     | '/orders'
     | '/privacy'
+    | '/recently-viewed'
     | '/returns'
     | '/search'
     | '/seller'
@@ -622,6 +657,7 @@ export interface FileRouteTypes {
     | '/shipping'
     | '/sitemap.xml'
     | '/terms'
+    | '/vouchers'
     | '/wishlist'
     | '/admin/banners'
     | '/admin/categories'
@@ -669,8 +705,10 @@ export interface RootRouteChildren {
   InboxRoute: typeof InboxRoute
   LoginRoute: typeof LoginRoute
   MessagesRoute: typeof MessagesRoute
+  MyReviewsRoute: typeof MyReviewsRoute
   OrdersRoute: typeof OrdersRouteWithChildren
   PrivacyRoute: typeof PrivacyRoute
+  RecentlyViewedRoute: typeof RecentlyViewedRoute
   ReturnsRoute: typeof ReturnsRoute
   SearchRoute: typeof SearchRoute
   SellerRoute: typeof SellerRouteWithChildren
@@ -678,6 +716,7 @@ export interface RootRouteChildren {
   ShippingRoute: typeof ShippingRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  VouchersRoute: typeof VouchersRoute
   WishlistRoute: typeof WishlistRoute
   PaymentCallbackRoute: typeof PaymentCallbackRoute
   ProductsIdRoute: typeof ProductsIdRoute
@@ -758,6 +797,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/my-reviews': {
+      id: '/my-reviews'
+      path: '/my-reviews'
+      fullPath: '/my-reviews'
+      preLoaderRoute: typeof MyReviewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/orders': {
       id: '/orders'
       path: '/orders'
@@ -770,6 +816,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recently-viewed': {
+      id: '/recently-viewed'
+      path: '/recently-viewed'
+      fullPath: '/recently-viewed'
+      preLoaderRoute: typeof RecentlyViewedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/returns': {
@@ -819,6 +872,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vouchers': {
+      id: '/vouchers'
+      path: '/vouchers'
+      fullPath: '/vouchers'
+      preLoaderRoute: typeof VouchersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/wishlist': {
@@ -1155,8 +1215,10 @@ const rootRouteChildren: RootRouteChildren = {
   InboxRoute: InboxRoute,
   LoginRoute: LoginRoute,
   MessagesRoute: MessagesRoute,
+  MyReviewsRoute: MyReviewsRoute,
   OrdersRoute: OrdersRouteWithChildren,
   PrivacyRoute: PrivacyRoute,
+  RecentlyViewedRoute: RecentlyViewedRoute,
   ReturnsRoute: ReturnsRoute,
   SearchRoute: SearchRoute,
   SellerRoute: SellerRouteWithChildren,
@@ -1164,6 +1226,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShippingRoute: ShippingRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  VouchersRoute: VouchersRoute,
   WishlistRoute: WishlistRoute,
   PaymentCallbackRoute: PaymentCallbackRoute,
   ProductsIdRoute: ProductsIdRoute,

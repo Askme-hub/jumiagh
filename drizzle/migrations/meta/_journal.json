@@ -43,6 +43,13 @@
       "when": 1793890448543,
       "tag": "0005_launch_suite",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793891086273,
+      "tag": "0006_public_vouchers",
+      "breakpoints": true
     }
   ]
 }

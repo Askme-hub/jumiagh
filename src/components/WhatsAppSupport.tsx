@@ -2,7 +2,7 @@ import { useRouterState } from "@tanstack/react-router";
 import { MessageCircle } from "lucide-react";
 
 // Kivora customer care WhatsApp number (international format, digits only).
-export const SUPPORT_WHATSAPP = "233240000000";
+export const SUPPORT_WHATSAPP = "233257573471";
 
 const HIDDEN = ["/checkout", "/messages", "/login", "/payment"];
 

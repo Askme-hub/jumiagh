@@ -24,6 +24,7 @@ function AdminCategories() {
   const [name, setName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const startCreate = () => {
     setEditing(null);
@@ -154,11 +155,37 @@ function AdminCategories() {
                 <label className="text-xs font-semibold text-muted-foreground">
                   Image URL (optional)
                 </label>
+                <div className="mt-1 flex items-center gap-3">
+                  <div className="w-14 h-14 rounded-lg bg-muted overflow-hidden shrink-0">
+                    {imageUrl && <img src={imageUrl} alt="" className="w-full h-full object-cover" />}
+                  </div>
+                  <label className="cursor-pointer bg-secondary text-secondary-foreground px-3 py-2 rounded text-sm font-semibold">
+                    {uploading ? "Uploading…" : "Upload photo"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={uploading}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setUploading(true);
+                        const path = `categories/${Date.now()}-${file.name.replace(/[^a-z0-9.]+/gi, "-")}`;
+                        const { error } = await supabase.storage
+                          .from("product-images")
+                          .upload(path, file, { upsert: true });
+                        setUploading(false);
+                        if (error) return toast.error(error.message);
+                        setImageUrl(supabase.storage.from("product-images").getPublicUrl(path).data.publicUrl);
+                      }}
+                    />
+                  </label>
+                </div>
                 <input
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="https://…"
-                  className="mt-1 w-full border border-input bg-background text-foreground rounded px-3 py-2 text-sm"
+                  placeholder="or paste an image link"
+                  className="mt-2 w-full border border-input bg-background text-foreground rounded px-3 py-2 text-sm"
                 />
               </div>
               <button

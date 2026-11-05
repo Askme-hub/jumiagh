@@ -44,6 +44,7 @@ import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as PaymentCallbackRouteImport } from './routes/payment.callback'
 import { Route as ProductsIdRouteImport } from './routes/products.$id'
 import { Route as SellerIndexRouteImport } from './routes/seller.index'
+import { Route as SellerCouponsRouteImport } from './routes/seller.coupons'
 import { Route as SellerMessagesRouteImport } from './routes/seller.messages'
 import { Route as SellerProfileRouteImport } from './routes/seller.profile'
 import { Route as SellerReviewsRouteImport } from './routes/seller.reviews'
@@ -234,6 +235,11 @@ const SellerIndexRoute = SellerIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SellerRoute,
 } as any)
+const SellerCouponsRoute = SellerCouponsRouteImport.update({
+  id: '/coupons',
+  path: '/coupons',
+  getParentRoute: () => SellerRoute,
+} as any)
 const SellerMessagesRoute = SellerMessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
@@ -339,6 +345,7 @@ export interface FileRoutesByFullPath {
   '/orders/$id': typeof OrdersIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
+  '/seller/coupons': typeof SellerCouponsRoute
   '/seller/messages': typeof SellerMessagesRoute
   '/seller/profile': typeof SellerProfileRoute
   '/seller/reviews': typeof SellerReviewsRoute
@@ -387,6 +394,7 @@ export interface FileRoutesByTo {
   '/orders/$id': typeof OrdersIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
+  '/seller/coupons': typeof SellerCouponsRoute
   '/seller/messages': typeof SellerMessagesRoute
   '/seller/profile': typeof SellerProfileRoute
   '/seller/reviews': typeof SellerReviewsRoute
@@ -439,6 +447,7 @@ export interface FileRoutesById {
   '/orders/$id': typeof OrdersIdRoute
   '/payment/callback': typeof PaymentCallbackRoute
   '/products/$id': typeof ProductsIdRoute
+  '/seller/coupons': typeof SellerCouponsRoute
   '/seller/messages': typeof SellerMessagesRoute
   '/seller/profile': typeof SellerProfileRoute
   '/seller/reviews': typeof SellerReviewsRoute
@@ -492,6 +501,7 @@ export interface FileRouteTypes {
     | '/orders/$id'
     | '/payment/callback'
     | '/products/$id'
+    | '/seller/coupons'
     | '/seller/messages'
     | '/seller/profile'
     | '/seller/reviews'
@@ -540,6 +550,7 @@ export interface FileRouteTypes {
     | '/orders/$id'
     | '/payment/callback'
     | '/products/$id'
+    | '/seller/coupons'
     | '/seller/messages'
     | '/seller/profile'
     | '/seller/reviews'
@@ -591,6 +602,7 @@ export interface FileRouteTypes {
     | '/orders/$id'
     | '/payment/callback'
     | '/products/$id'
+    | '/seller/coupons'
     | '/seller/messages'
     | '/seller/profile'
     | '/seller/reviews'
@@ -884,6 +896,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerIndexRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/seller/coupons': {
+      id: '/seller/coupons'
+      path: '/coupons'
+      fullPath: '/seller/coupons'
+      preLoaderRoute: typeof SellerCouponsRouteImport
+      parentRoute: typeof SellerRoute
+    }
     '/seller/messages': {
       id: '/seller/messages'
       path: '/messages'
@@ -1031,6 +1050,7 @@ const OrdersRouteWithChildren =
   OrdersRoute._addFileChildren(OrdersRouteChildren)
 
 interface SellerRouteChildren {
+  SellerCouponsRoute: typeof SellerCouponsRoute
   SellerMessagesRoute: typeof SellerMessagesRoute
   SellerProfileRoute: typeof SellerProfileRoute
   SellerReviewsRoute: typeof SellerReviewsRoute
@@ -1045,6 +1065,7 @@ interface SellerRouteChildren {
 }
 
 const SellerRouteChildren: SellerRouteChildren = {
+  SellerCouponsRoute: SellerCouponsRoute,
   SellerMessagesRoute: SellerMessagesRoute,
   SellerProfileRoute: SellerProfileRoute,
   SellerReviewsRoute: SellerReviewsRoute,

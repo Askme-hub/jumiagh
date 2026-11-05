@@ -49,7 +49,7 @@ export const placeCODOrder = createServerFn({ method: "POST" })
 
     // Delivery fee comes from the sellers' store settings
     const productIds = data.items.map((i) => i.product_id).filter(Boolean) as string[];
-    let shipping = data.delivery.delivery_type === "pickup" ? 10 : itemsTotal >= 150 ? 0 : 25;
+    let shipping = data.delivery.delivery_type === "pickup" ? 10 : itemsTotal >= 150 ? 0 : zoneForRegion(data.delivery.region).fee;
     if (productIds.length > 0) {
       const { data: prods } = await supabaseAdmin
         .from("products")

@@ -115,6 +115,8 @@ function Checkout() {
     () => addresses.find((a) => a.id === selectedId) ?? null,
     [addresses, selectedId]
   );
+  const selectedRegion = selected?.region ?? "Greater Accra";
+  const zone = zoneForRegion(selectedRegion);
 
   const sellerIds = useMemo(
     () => cart.map((c) => c.product.sellerId).filter(Boolean) as string[],
@@ -522,6 +524,9 @@ function Checkout() {
         <div className="px-4 py-3 space-y-2 text-sm">
           <Row label={`Item's total (${itemCount})`} value={formatGHC(itemsTotal)} />
           <Row label="Shipping fees" value={shipping === 0 ? "FREE" : formatGHC(shipping)} />
+          {deliveryType !== "pickup" && (
+            <p className="text-[11px] text-muted-foreground -mt-1">Zone: {zone.label} · arrives in {zone.eta}</p>
+          )}
           {discount > 0 && <Row label={`Coupon ${appliedCoupon?.code ?? ""}`} value={`-${formatGHC(discount)}`} valueClass="text-success font-bold" />}
           <div className="border-t border-border pt-2 flex justify-between font-bold text-base">
             <span>Total</span><span>{formatGHC(grand)}</span>

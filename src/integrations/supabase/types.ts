@@ -179,6 +179,111 @@ export type Database = {
           },
         ]
       }
+      coupons: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          discount_type: string
+          expires_at: string | null
+          id: string
+          max_uses: number | null
+          min_spend: number
+          seller_id: string | null
+          used_count: number
+          value: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          discount_type: string
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          min_spend?: number
+          seller_id?: string | null
+          used_count?: number
+          value: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          discount_type?: string
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          min_spend?: number
+          seller_id?: string | null
+          used_count?: number
+          value?: number
+        }
+        Relationships: []
+      }
+      flash_sale_items: {
+        Row: {
+          flash_sale_id: string
+          id: string
+          product_id: string
+          sale_price: number
+        }
+        Insert: {
+          flash_sale_id: string
+          id?: string
+          product_id: string
+          sale_price: number
+        }
+        Update: {
+          flash_sale_id?: string
+          id?: string
+          product_id?: string
+          sale_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flash_sale_items_flash_sale_id_fkey"
+            columns: ["flash_sale_id"]
+            isOneToOne: false
+            referencedRelation: "flash_sales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flash_sale_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flash_sales: {
+        Row: {
+          active: boolean
+          created_at: string
+          ends_at: string
+          id: string
+          starts_at: string
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          ends_at: string
+          id?: string
+          starts_at?: string
+          title: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          ends_at?: string
+          id?: string
+          starts_at?: string
+          title?: string
+        }
+        Relationships: []
+      }
       inbox_messages: {
         Row: {
           body: string

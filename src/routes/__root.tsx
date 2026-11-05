@@ -1,3 +1,4 @@
+import { WhatsAppSupport } from "@/components/WhatsAppSupport";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -161,6 +162,7 @@ function RootComponent() {
         </main>
         {!workspace && <Footer />}
         {!workspace && <MobileBottomNav />}
+        {!workspace && <WhatsAppSupport />}
       </div>
 
       <OfflineBanner />

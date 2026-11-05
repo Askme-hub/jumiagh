@@ -82,14 +82,30 @@ function useGroupedProducts() {
 function SectionHead({ title, category }: { title: string; category?: string }) {
   return (
     <div className="mb-3 flex items-center justify-between gap-3 px-4">
-      <h2 className="truncate text-base font-extrabold tracking-tight text-foreground">{title}</h2>
-      <Link
-        to="/categories"
-        search={category ? { c: category } : ({} as { c?: string })}
-        className="flex shrink-0 items-center gap-0.5 text-xs font-bold text-primary"
-      >
-        View All <ChevronRight size={14} />
-      </Link>
+      <h2 className="truncate text-xl font-bold tracking-tight text-foreground">{title}</h2>
+      <SeeAll category={category} />
+    </div>
+  );
+}
+
+function SeeAll({ category }: { category?: string }) {
+  return (
+    <Link
+      to="/categories"
+      search={category ? { c: category } : ({} as { c?: string })}
+      className="flex shrink-0 items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+    >
+      See all
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-foreground">
+        <ChevronRight size={13} />
+      </span>
+    </Link>
+  );
+}
+
+function _Unused() {
+  return (
+    <div>
     </div>
   );
 }

@@ -27,6 +27,10 @@ export const Route = createFileRoute("/")({
         content:
           "Shop electronics, fashion, groceries, beauty products and more on Kivora Ghana. Fast delivery, secure payments and amazing deals.",
       },
+      { property: "og:title", content: "Kivora Ghana – Everything You Need" },
+      { property: "og:description", content: "Shop electronics, fashion, groceries, beauty and more on Kivora Ghana with fast delivery and secure payments." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
 });
@@ -40,7 +44,7 @@ function Countdown({ to }: { to?: string }) {
     return () => clearInterval(i);
   }, []);
 
-  if (now === null) return <span className="tabular-nums">--h : --m : --s</span>;
+  if (now === null) return <span className="tabular-nums">--:--:--</span>;
 
   const target = to ? new Date(to).getTime() : now + 3600_000;
   const diff = Math.max(0, target - now);
@@ -273,7 +277,7 @@ function Home() {
             description="Check back soon for new arrivals and amazing deals."
           />
         ) : (
-          <div className="grid grid-cols-2 gap-3 px-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-6 px-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {products.slice(0, 12).map((p: Product) => (
               <ProductCard key={p.id} product={p} />
             ))}

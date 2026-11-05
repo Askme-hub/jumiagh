@@ -15,6 +15,13 @@
       "when": 1793883826286,
       "tag": "0001_create_coupons_and_flash_sales",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793886936369,
+      "tag": "0002_add_coupon_code_to_orders",
+      "breakpoints": true
     }
   ]
 }

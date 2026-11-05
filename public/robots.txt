@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /seller
+Disallow: /checkout
+Disallow: /account
+Disallow: /settings
+
+Sitemap: https://kivoragh.shop/sitemap.xml

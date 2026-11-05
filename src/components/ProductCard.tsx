@@ -81,7 +81,7 @@ export function ProductCard({ product }: { product: Product }) {
                 const ok = addToCart(product);
                 if (ok !== false) toast.success(`${product.name} added to cart`);
               }}
-              aria-label={`Add ${product.name} to cart`}
+              aria-label={`Add ${product.name} to cart`} data-add-cart
               className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-soft transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Plus size={18} strokeWidth={2.6} />

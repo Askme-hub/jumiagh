@@ -229,10 +229,10 @@ function ProductDetails() {
           )}
         </nav>
 
-        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-6">
+        <div className="flex flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-6">
           {/* LEFT: gallery + description */}
-          <div className="lg:space-y-4">
-            <div className="bg-card lg:rounded-2xl lg:border lg:border-border lg:shadow-soft lg:overflow-hidden">
+          <div className="contents lg:block lg:space-y-4">
+            <div className="order-1 bg-card lg:rounded-2xl lg:border lg:border-border lg:shadow-soft lg:overflow-hidden">
               <div className="relative aspect-square bg-muted pb-6 lg:aspect-[4/3] lg:pb-0">
                 <img src={images[activeImg]} alt={product.name} className="h-full w-full object-contain p-8 mix-blend-multiply dark:mix-blend-normal" />
                 {product.discount && (
@@ -258,18 +258,18 @@ function ProductDetails() {
               )}
             </div>
 
-            <div className="mt-2 bg-card p-4 lg:mt-0 lg:rounded-2xl lg:border lg:border-border">
+            <div className="order-3 mt-2 bg-card p-4 lg:mt-0 lg:rounded-2xl lg:border lg:border-border">
               <h2 className="mb-2 font-bold text-foreground">Product Description</h2>
               <p className="whitespace-pre-line text-sm text-foreground/80">
                 {data.description ?? "No description provided for this product."}
               </p>
             </div>
 
-            <div id="reviews"><ProductReviews productId={data.id} /></div>
+            <div id="reviews" className="order-4"><ProductReviews productId={data.id} /></div>
           </div>
 
           {/* RIGHT: buy box */}
-          <div className="lg:space-y-4">
+          <div className="order-2 lg:space-y-4">
             <div className="relative -mt-6 rounded-t-3xl bg-card p-5 lg:mt-0 lg:rounded-2xl lg:border lg:border-border lg:shadow-soft">
               <h1 className="text-xl font-bold tracking-tight text-foreground lg:text-2xl">{product.name}</h1>
 
@@ -328,7 +328,7 @@ function ProductDetails() {
       </div>
 
       {/* Sticky mobile buy bar */}
-      <div className="fixed bottom-16 left-0 right-0 z-40 mx-auto max-w-md border-t border-border bg-card p-3 md:bottom-0 lg:hidden">
+      <div className="fixed bottom-[84px] left-0 right-0 z-40 mx-auto max-w-md border-t border-border bg-card p-3 md:bottom-0 lg:hidden">
         {buyBox}
       </div>
     </div>

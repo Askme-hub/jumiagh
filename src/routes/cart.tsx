@@ -49,7 +49,7 @@ function Cart() {
   };
 
   return (
-    <div className="pb-44 md:pb-10">
+    <div className="pb-56 md:pb-10">
       <PageHeader title="Cart" />
 
       <div className="mx-auto max-w-2xl px-4 pt-3">
@@ -150,7 +150,7 @@ function Cart() {
       </div>
 
       {cart.length > 0 && (
-        <div className="fixed bottom-16 left-0 right-0 z-40 border-t border-border bg-card px-4 py-3 md:static md:mx-auto md:mt-6 md:max-w-2xl md:rounded-3xl md:border">
+        <div className="fixed bottom-[84px] left-0 right-0 z-40 border-t border-border bg-card px-4 py-3 md:static md:mx-auto md:mt-6 md:max-w-2xl md:rounded-3xl md:border">
           <div className="mx-auto max-w-2xl">
             <div className="mb-2 flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>

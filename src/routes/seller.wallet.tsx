@@ -19,7 +19,14 @@ export const Route = createFileRoute("/seller/wallet")({
   head: () => ({ meta: [{ title: "Wallet — Kivora Seller" }] }),
 });
 
-const METHODS = ["Mobile Money", "Bank Transfer", "Paystack"];
+const METHODS = ["Mobile Money", "Bank Transfer"];
+const MOMO_NETWORKS = ["MTN Mobile Money", "Telecel Cash", "AT Money"];
+/** Valid Ghana mobile number: 0XXXXXXXXX or 233XXXXXXXXX with a known network prefix. */
+function validMomo(n: string) {
+  const d = n.replace(/\D/g, "");
+  const local = d.startsWith("233") ? "0" + d.slice(3) : d;
+  return /^0(2[0346789]|5[03456789])\d{7}$/.test(local);
+}
 
 function SellerWallet() {
   const { user } = useAuth();
@@ -45,6 +52,8 @@ function SellerWallet() {
     queryKey: ["seller-wallet", user?.id],
     enabled: !!user,
     queryFn: async () => {
+      // Move any sales whose 48h escrow has passed into the available balance
+      await supabase.rpc("release_seller_escrow", { _seller_id: user!.id });
       const { data } = await supabase
         .from("seller_wallets")
         .select("*")
@@ -97,7 +106,12 @@ function SellerWallet() {
 
   const addAccount = async () => {
     if (accountName.trim().length < 2) return toast.error("Enter the account holder name");
-    if (accountNumber.trim().length < 4) return toast.error("Enter a valid account / phone number");
+    if (accountName.trim().split(/\s+/).length < 2) return toast.error("Enter the full registered name (first and last)");
+    if (method === "Mobile Money") {
+      if (!MOMO_NETWORKS.includes(provider)) return toast.error("Choose the MoMo network");
+      if (!validMomo(accountNumber)) return toast.error("Enter a valid Ghana mobile number e.g. 024XXXXXXX");
+    } else if (accountNumber.trim().length < 6) return toast.error("Enter a valid bank account number");
+    if (method === "Bank Transfer" && provider.trim().length < 2) return toast.error("Enter the bank name");
     try {
       const saved = await saveAccount.mutateAsync({
         method,
@@ -140,9 +154,10 @@ function SellerWallet() {
 
   return (
     <div className="p-4 space-y-5">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <StatCard label="Available" value={formatGHC(balance)} icon={Wallet} color="text-success-ink" />
-        <StatCard label="Pending" value={formatGHC(Number(wallet?.pending ?? 0))} icon={Clock} color="text-warning-ink" />
+        <StatCard label="In escrow (48h)" value={formatGHC(Number((wallet as any)?.escrow ?? 0))} icon={Clock} color="text-info-ink" />
+        <StatCard label="Withdrawal pending" value={formatGHC(Number(wallet?.pending ?? 0))} icon={Clock} color="text-warning-ink" />
         <StatCard label="Total Earned" value={formatGHC(Number(wallet?.total_earned ?? 0))} icon={TrendingUp} color="text-primary" />
         <StatCard label="Withdrawn" value={formatGHC(Number(wallet?.total_withdrawn ?? 0))} icon={ArrowDownToLine} color="text-muted-foreground" />
       </div>
@@ -209,7 +224,7 @@ function SellerWallet() {
           <div className="mt-3 space-y-2 border-t border-border pt-3">
             <p className="text-xs font-bold uppercase text-muted-foreground">New payout account</p>
             <select
-              value={method} onChange={(e) => setMethod(e.target.value)}
+              value={method} onChange={(e) => { setMethod(e.target.value); setProvider(""); }}
               className="w-full border-2 border-border focus:border-primary rounded-md px-3 py-2 outline-none bg-background"
             >
               {METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
@@ -217,18 +232,29 @@ function SellerWallet() {
             <input
               value={accountName} onChange={(e) => setAccountName(e.target.value)}
               className="w-full border-2 border-border focus:border-primary rounded-md px-3 py-2 outline-none"
-              placeholder="Account holder name"
+              placeholder="Registered account name (as on MoMo / bank)"
             />
             <input
               value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)}
               className="w-full border-2 border-border focus:border-primary rounded-md px-3 py-2 outline-none"
               placeholder="Account / MoMo number"
             />
-            <input
-              value={provider} onChange={(e) => setProvider(e.target.value)}
-              className="w-full border-2 border-border focus:border-primary rounded-md px-3 py-2 outline-none"
-              placeholder="Provider / Bank (e.g. MTN, GCB Bank)"
-            />
+            {method === "Mobile Money" ? (
+              <select
+                value={provider} onChange={(e) => setProvider(e.target.value)}
+                className="w-full border-2 border-border focus:border-primary rounded-md px-3 py-2 outline-none bg-background"
+              >
+                <option value="">Select MoMo network</option>
+                {MOMO_NETWORKS.map((n) => <option key={n} value={n}>{n}</option>)}
+              </select>
+            ) : (
+              <input
+                value={provider} onChange={(e) => setProvider(e.target.value)}
+                className="w-full border-2 border-border focus:border-primary rounded-md px-3 py-2 outline-none"
+                placeholder="Bank name (e.g. GCB Bank)"
+              />
+            )}
+            <p className="text-[11px] text-muted-foreground">The name must match the registered MoMo / bank account name exactly, or the payout will be rejected.</p>
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={makeDefault} onChange={(e) => setMakeDefault(e.target.checked)} />
               Set as default payout account

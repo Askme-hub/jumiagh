@@ -21,7 +21,7 @@ import {
 
 export const Route = createFileRoute("/orders/$id")({
   component: OrderDetails,
-  head: () => ({ meta: [{ title: "Order Details – Jumia Ghana" }] }),
+  head: () => ({ meta: [{ title: "Order Details – Kivora Ghana" }] }),
 });
 
 const STATUS_FLOW = [

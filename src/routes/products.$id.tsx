@@ -1,3 +1,4 @@
+import { trackViewed } from "@/lib/recently-viewed";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -98,6 +99,7 @@ function ProductDetails() {
   const updateQty = useShop((s) => s.updateQty);
   const toggleWishlist = useShop((s) => s.toggleWishlist);
   const [activeImg, setActiveImg] = useState(0);
+  useEffect(() => { if (data?.id) trackViewed(data.id); }, [data?.id]);
   const productId = data?.id;
 
   useEffect(() => {

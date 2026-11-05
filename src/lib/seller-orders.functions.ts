@@ -105,13 +105,21 @@ export const updateItemFulfillment = createServerFn({ method: "POST" })
     z.object({
       itemIds: z.array(z.string().uuid()).min(1).max(100),
       status: z.enum(["processing", "shipped", "delivered"]),
+      rider_name: z.string().trim().max(80).optional(),
+      rider_phone: z.string().trim().max(20).optional(),
+      tracking_note: z.string().trim().max(300).optional(),
     }).parse(input)
   )
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
     const { data: updated, error } = await supabase
       .from("order_items")
-      .update({ fulfillment_status: data.status })
+      .update({
+        fulfillment_status: data.status,
+        ...(data.status === "shipped"
+          ? { rider_name: data.rider_name || null, rider_phone: data.rider_phone || null, tracking_note: data.tracking_note || null }
+          : {}),
+      })
       .in("id", data.itemIds)
       .eq("seller_id", userId)
       .select("order_id");
@@ -126,12 +134,13 @@ export const updateItemFulfillment = createServerFn({ method: "POST" })
           .select("order_number, delivery_phone")
           .in("id", orderIds as string[]);
         const { trySendSMS } = await import("./sms.server");
-        const verb = data.status === "shipped" ? "is on its way" : "has been delivered";
+        const rider = data.rider_name ? ` Rider: ${data.rider_name}${data.rider_phone ? " (" + data.rider_phone + ")" : ""}.` : "";
+        const verb = data.status === "shipped" ? `is on its way.${rider}` : "has been delivered. Please confirm receipt in the app.";
         for (const o of orders ?? []) {
           if (o.delivery_phone) {
             await trySendSMS(
               o.delivery_phone,
-              `Kivora: Your order #${o.order_number} ${verb}. Thank you for shopping with us!`
+              `Kivora: Your order #${o.order_number} ${verb} Thank you for shopping with us!`
             );
           }
         }

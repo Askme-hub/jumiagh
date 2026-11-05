@@ -20,17 +20,19 @@ function AdminOverview() {
   const { data } = useQuery({
     queryKey: ["admin-overview"],
     queryFn: async () => {
-      const [products, sellers, orders, withdrawals] = await Promise.all([
-        supabase.from("products").select("id, approval_status", { count: "exact" }).limit(5),
+      const [products, sellers, orders, withdrawals, pendingP, pendingS] = await Promise.all([
+        supabase.from("products").select("id", { count: "exact", head: true }),
         supabase.from("seller_profiles").select("user_id, shop_name, status, created_at", { count: "exact" }).order("created_at", { ascending: false }).limit(4),
         supabase.from("orders").select("id, total, status, created_at, order_number", { count: "exact" }).order("created_at", { ascending: false }).limit(4),
-        supabase.from("withdrawal_requests").select("id", { count: "exact" }).eq("status", "pending").limit(1),
+        supabase.from("withdrawal_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("products").select("id", { count: "exact", head: true }).eq("approval_status", "pending"),
+        supabase.from("seller_profiles").select("user_id", { count: "exact", head: true }).eq("status", "pending"),
       ]);
       return {
         productCount: products.count ?? 0,
-        pendingProducts: products.data?.filter((item) => item.approval_status === "pending").length ?? 0,
+        pendingProducts: pendingP.count ?? 0,
         sellerCount: sellers.count ?? 0,
-        pendingSellers: sellers.data?.filter((item) => item.status === "pending").length ?? 0,
+        pendingSellers: pendingS.count ?? 0,
         orderCount: orders.count ?? 0,
         pendingPayouts: withdrawals.count ?? 0,
         recentSellers: sellers.data ?? [],
@@ -65,6 +67,18 @@ function AdminOverview() {
             <p className="text-sm font-semibold">{label}</p>
             <p className="mt-1 text-xs text-muted-foreground">{detail}</p>
           </article>
+        ))}
+      </div>
+
+      <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
+        {[
+          { to: "/admin/products", label: "Review products" },
+          { to: "/admin/sellers", label: "Approve sellers" },
+          { to: "/admin/withdrawals", label: "Payouts" },
+          { to: "/admin/delivery", label: "Delivery fees" },
+          { to: "/admin/issues", label: "Issues" },
+        ].map((a) => (
+          <Link key={a.to} to={a.to} className="shrink-0 rounded-full border border-border bg-card px-4 py-2 text-xs font-bold hover:border-primary hover:text-primary">{a.label}</Link>
         ))}
       </div>
 

@@ -469,6 +469,47 @@ function Checkout() {
         </div>
       </section>
 
+      {/* Coupon */}
+      <section className="bg-card mt-2">
+        <div className="px-4 py-3 flex items-center gap-2 border-b border-border">
+          <TicketPercent size={18} className="text-primary" />
+          <h2 className="font-bold">Coupon Code</h2>
+        </div>
+        <div className="p-3">
+          {appliedCoupon ? (
+            <div className="flex items-center justify-between rounded-md bg-success/10 px-3 py-2.5">
+              <div>
+                <p className="text-sm font-extrabold text-success">{appliedCoupon.code}</p>
+                <p className="text-[11px] text-success">You save {formatGHC(appliedCoupon.discount)}</p>
+              </div>
+              <button
+                onClick={() => { setAppliedCoupon(null); setCouponInput(""); }}
+                className="text-xs font-bold text-muted-foreground underline"
+              >
+                Remove
+              </button>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <input
+                value={couponInput}
+                onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                placeholder="Enter coupon code"
+                className="flex-1 rounded-md border border-border bg-background px-3 py-2.5 text-sm uppercase"
+              />
+              <button
+                onClick={applyCoupon}
+                disabled={checkingCoupon || !couponInput.trim()}
+                className="flex items-center gap-1.5 rounded-md gradient-primary px-4 py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-60"
+              >
+                {checkingCoupon && <Loader2 size={14} className="animate-spin" />}
+                Apply
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* Order summary */}
       <section className="bg-card mt-2">
         <div className="px-4 py-3 border-b border-border flex items-center justify-between">
@@ -478,7 +519,7 @@ function Checkout() {
         <div className="px-4 py-3 space-y-2 text-sm">
           <Row label={`Item's total (${itemCount})`} value={formatGHC(itemsTotal)} />
           <Row label="Shipping fees" value={shipping === 0 ? "FREE" : formatGHC(shipping)} />
-          {discount > 0 && <Row label="Prepaid Delivery Discount" value={`-${formatGHC(discount)}`} valueClass="text-success font-bold" />}
+          {discount > 0 && <Row label={`Coupon ${appliedCoupon?.code ?? ""}`} value={`-${formatGHC(discount)}`} valueClass="text-success font-bold" />}
           <div className="border-t border-border pt-2 flex justify-between font-bold text-base">
             <span>Total</span><span>{formatGHC(grand)}</span>
           </div>

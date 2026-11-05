@@ -269,6 +269,7 @@ export const verifyPaystackPayment = createServerFn({ method: "POST" })
         }
       }
 
+      { const { flushPushNotifications } = await import("./push.server"); await flushPushNotifications(); }
       return { status: "paid", order_id: order.id };
     }
 

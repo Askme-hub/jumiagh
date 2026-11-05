@@ -137,5 +137,7 @@ export const updateItemFulfillment = createServerFn({ method: "POST" })
         }
       }
     }
+    const { flushPushNotifications } = await import("./push.server");
+    await flushPushNotifications();
     return { ok: true };
   });

@@ -177,5 +177,7 @@ export const placeCODOrder = createServerFn({ method: "POST" })
       }
     }
 
+    const { flushPushNotifications } = await import("./push.server");
+    await flushPushNotifications();
     return { order_id: order.id, order_number: orderRef };
   });

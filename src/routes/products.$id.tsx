@@ -11,7 +11,6 @@ import { useSellerBadge } from "@/lib/stores";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { MessageSellerButton } from "@/components/MessageSellerButton";
 import { ProductReviews } from "@/components/ProductReviews";
-import { StarRating } from "@/components/StarRating";
 import { useProductReviews } from "@/lib/reviews";
 import { Heart, ShoppingCart, Truck, Shield, PackageX, Minus, Plus, ChevronRight, Star, PackageCheck } from "lucide-react";
 import { toast } from "sonner";
@@ -162,7 +161,7 @@ function ProductDetails() {
         <>
           <Link
             to="/cart"
-            className="flex-1 rounded-xl border-2 border-primary py-3 text-center font-bold text-primary transition active:scale-[0.98]"
+            className="flex-1 rounded-2xl border-2 border-primary py-3.5 text-center font-bold text-primary transition active:scale-[0.98]"
           >
             View Cart
           </Link>
@@ -173,14 +172,14 @@ function ProductDetails() {
               if (ok) toast.success("Added to cart");
               else toast.error(`Only ${product.stock ?? 0} in stock`);
             }}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3 font-bold text-primary-foreground transition active:scale-[0.98] disabled:opacity-50"
+            className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 font-bold text-primary-foreground transition active:scale-[0.98] disabled:opacity-50"
           >
             <ShoppingCart size={18} /> {data.stock <= 0 ? "Out of stock" : "Add to Cart"}
           </button>
         </>
       ) : (
         <>
-          <div className="flex flex-1 items-center justify-between overflow-hidden rounded-xl border-2 border-primary/40 bg-muted">
+          <div className="flex flex-1 items-center justify-between overflow-hidden rounded-2xl bg-muted">
             <button
               onClick={() => updateQty(product.id, cartQty - 1)}
               className="flex h-12 w-12 items-center justify-center text-primary transition hover:bg-primary/10"
@@ -203,7 +202,7 @@ function ProductDetails() {
           </div>
           <Link
             to="/cart"
-            className="flex flex-1 items-center justify-center rounded-xl bg-primary py-3 font-bold text-primary-foreground transition active:scale-[0.98]"
+            className="flex flex-1 items-center justify-center rounded-2xl bg-primary py-3.5 font-bold text-primary-foreground transition active:scale-[0.98]"
           >
             Checkout
           </Link>

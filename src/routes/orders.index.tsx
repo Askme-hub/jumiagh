@@ -6,18 +6,18 @@ import { formatGHC } from "@/lib/store";
 
 export const Route = createFileRoute("/orders/")({
   component: Orders,
-  head: () => ({ meta: [{ title: "Orders – Jumia Ghana" }] }),
+  head: () => ({ meta: [{ title: "My Orders – Kivora Ghana" }] }),
 });
 
 const statusLabel: Record<string, { text: string; tone: string }> = {
-  pending_payment: { text: "AWAITING PAYMENT", tone: "bg-secondary text-foreground" },
-  placed: { text: "ORDER PLACED", tone: "bg-secondary text-foreground" },
-  pending_confirmation: { text: "PENDING", tone: "bg-secondary text-foreground" },
-  waiting_to_be_shipped: { text: "PROCESSING", tone: "bg-secondary text-foreground" },
+  pending_payment: { text: "AWAITING PAYMENT", tone: "bg-warning-soft text-warning-ink" },
+  placed: { text: "ORDER PLACED", tone: "bg-primary-soft text-primary" },
+  pending_confirmation: { text: "PENDING", tone: "bg-warning-soft text-warning-ink" },
+  waiting_to_be_shipped: { text: "PROCESSING", tone: "bg-info-soft text-info-ink" },
   shipped: { text: "SHIPPED", tone: "bg-info-soft text-info-ink" },
   available_for_pickup: { text: "READY FOR PICKUP", tone: "bg-info-soft text-info-ink" },
-  delivered: { text: "DELIVERED", tone: "bg-success text-success-foreground" },
-  cancelled: { text: "CANCELLED", tone: "bg-destructive text-destructive-foreground" },
+  delivered: { text: "DELIVERED", tone: "bg-success-soft text-success-ink" },
+  cancelled: { text: "CANCELLED", tone: "bg-danger-soft text-danger-ink" },
 };
 
 function Orders() {
@@ -78,14 +78,14 @@ function Orders() {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm line-clamp-1">{first?.name ?? "Order"}</p>
+                <p className="text-sm font-semibold text-foreground line-clamp-2">{first?.name ?? "Order"}{o.item_count > 1 ? <span className="font-normal text-muted-foreground"> +{o.item_count - 1} more</span> : null}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">Order #{o.order_number}</p>
                 <span className={`inline-block mt-1.5 px-2 py-0.5 text-xs font-bold rounded ${lab.tone}`}>
                   {lab.text}
                 </span>
-                <p className="text-xs mt-1">On {new Date(o.created_at).toLocaleDateString()}</p>
+                <p className="text-xs mt-1 text-muted-foreground">On {new Date(o.created_at).toLocaleDateString()}</p>
               </div>
-              <div className="text-sm font-bold whitespace-nowrap self-center">{formatGHC(Number(o.total))}</div>
+              <div className="text-sm font-bold text-foreground whitespace-nowrap self-center">{formatGHC(Number(o.total))}</div>
             </Link>
           );
         })

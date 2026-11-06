@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useSellerProfile } from "@/hooks/use-seller";
 import { SellerVerification } from "@/components/SellerVerification";
+import { ShopCardStudio } from "@/components/ShopCardStudio";
 
 export const Route = createFileRoute("/seller/profile")({ component: SellerProfilePage });
 
@@ -130,6 +131,25 @@ function SellerProfilePage() {
               : "Visible to shoppers once your shop is approved."}
           </p>
         </div>
+      )}
+
+      {(profile as any).slug && (
+        <details className="rounded-xl border border-border bg-card p-4">
+          <summary className="cursor-pointer text-sm font-bold text-foreground">Shop card & flyer (with QR code)</summary>
+          <p className="mb-3 mt-1 text-xs text-muted-foreground">Download a free card to print or share on WhatsApp. Customers scan the QR code to open your shop.</p>
+          <ShopCardStudio
+            shop={{
+              shop_name: profile.shop_name,
+              slug: (profile as any).slug,
+              logo_url: (profile as any).logo_url,
+              location: (profile as any).location,
+              whatsapp_number: (profile as any).whatsapp_number,
+              phone: profile.phone,
+              business_category: (profile as any).business_category,
+              verified: (profile as any).verification_status === "verified",
+            }}
+          />
+        </details>
       )}
 
       <input value={shop} onChange={(e) => setShop(e.target.value)} placeholder="Shop name" className={inputCls} />

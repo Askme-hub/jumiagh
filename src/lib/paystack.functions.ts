@@ -37,6 +37,10 @@ export const initiatePaystackCheckout = createServerFn({ method: "POST" })
     }).parse(input)
   )
   .handler(async ({ data, context }) => {
+    // Online payments are paused until the live Paystack account is ready.
+    if (process.env.ONLINE_PAYMENTS_ENABLED !== "true") {
+      throw new Error("Online payment is coming soon. Please use Pay on Delivery for now.");
+    }
     const { userId } = context;
     const secret = process.env.PAYSTACK_SECRET_KEY;
     if (!secret) throw new Error("Paystack not configured");

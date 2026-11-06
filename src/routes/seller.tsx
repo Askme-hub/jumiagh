@@ -1,8 +1,10 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Navigate, Outlet, redirect, useRouterState } from "@tanstack/react-router";
 import { Package, Store, Plus, User, ShoppingBag, Wallet, Crown, MessageCircle, Star, TicketPercent } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SubscriptionAlert } from "@/components/SubscriptionAlert";
 import { WorkspaceShell, type WorkspaceItem } from "@/components/WorkspaceShell";
+import { useAuth } from "@/hooks/use-auth";
+import { useIsSeller } from "@/hooks/use-seller";
 
 export const Route = createFileRoute("/seller")({
   component: SellerLayout,
@@ -22,6 +24,22 @@ export const Route = createFileRoute("/seller")({
 });
 
 function SellerLayout() {
+  const { user } = useAuth();
+  const { data: isSeller, isLoading } = useIsSeller(user);
+  const path = useRouterState({ select: (s) => s.location.pathname.replace(/\/$/, "") });
+
+  if (!user || isLoading) return <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
+
+  // Not an approved seller yet: only show the registration / application status screen, no dashboard.
+  if (!isSeller) {
+    if (path !== "/seller") return <Navigate to="/seller" replace />;
+    return (
+      <div className="min-h-screen bg-background py-6">
+        <Outlet />
+      </div>
+    );
+  }
+
   const tabs: WorkspaceItem[] = [
     { to: "/seller" as const, label: "Dashboard", icon: Store, exact: true },
     { to: "/seller/products" as const, label: "Products", icon: Package },

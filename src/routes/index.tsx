@@ -68,7 +68,7 @@ function useGroupedProducts() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("*")
+        .select("*").eq("approval_status", "approved")
         .order("created_at", { ascending: false });
       if (error) throw error;
       const rows = data as (DbProduct & { category: string | null })[];

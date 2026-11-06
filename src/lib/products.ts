@@ -33,7 +33,7 @@ export function useProducts(category?: string) {
   return useQuery({
     queryKey: ["products", category ?? "all"],
     queryFn: async () => {
-      let q = supabase.from("products").select("*").order("created_at", { ascending: false });
+      let q = supabase.from("products").select("*").eq("approval_status", "approved").order("created_at", { ascending: false });
       if (category) q = q.eq("category", category);
       const { data, error } = await q;
       if (error) throw error;

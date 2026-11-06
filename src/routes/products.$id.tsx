@@ -20,7 +20,7 @@ export const Route = createFileRoute("/products/$id")({
     const { data } = await supabase
       .from("products")
       .select("*")
-      .eq("id", params.id)
+      .eq("id", params.id).eq("approval_status", "approved")
       .maybeSingle();
     return { product: (data ?? null) as DbProduct | null };
   },

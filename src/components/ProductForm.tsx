@@ -127,7 +127,11 @@ export function ProductForm({
       : await supabase.from("products").insert(payload);
     setBusy(false);
     if (error) return toast.error(error.message);
-    toast.success(initial?.id ? "Product updated" : "Product submitted for approval");
+    toast.success(
+      asAdmin
+        ? initial?.id ? "Product updated" : "Product published"
+        : "Saved — an admin will review it before it shows to shoppers",
+    );
     onSaved?.();
   };
 

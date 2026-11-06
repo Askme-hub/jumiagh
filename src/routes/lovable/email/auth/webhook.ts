@@ -9,7 +9,7 @@ import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
 
 // Configuration
-const SITE_NAME = "Your Dream Project"
+const SITE_NAME = "Kivora"
 const SENDER_DOMAIN = "kivoragh.shop"
 const ROOT_DOMAIN = "kivoragh.shop"
 const FROM_DOMAIN = "kivoragh.shop"

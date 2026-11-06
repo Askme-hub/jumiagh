@@ -53,7 +53,7 @@ function AdminOrders() {
             </div>
             <div className="text-right">
               <p className="font-bold">{formatGHC(Number(o.total))}</p>
-              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${o.payment_status === "paid" ? "bg-success text-success-foreground" : o.payment_status === "failed" ? "bg-destructive text-destructive-foreground" : "bg-secondary"}`}>
+              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${o.payment_status === "paid" ? "bg-success text-success-foreground" : o.payment_status === "failed" ? "bg-destructive text-destructive-foreground" : "bg-secondary text-secondary-foreground"}`}>
                 {String(o.payment_status ?? "pending").toUpperCase()}
               </span>
             </div>
@@ -81,7 +81,7 @@ function AdminOrders() {
           <select
             value={o.status}
             onChange={(e) => setStatus(o.id, e.target.value)}
-            className="mt-2 w-full border rounded px-2 py-2 text-sm font-semibold"
+            className="mt-2 w-full border border-border bg-card text-foreground rounded px-2 py-2 text-sm font-semibold"
             disabled={o.payment_status !== "paid" && o.status === "pending_payment"}
           >
             {STATUSES.map((s) => (

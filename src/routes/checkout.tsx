@@ -59,6 +59,9 @@ async function loadPaystack(): Promise<any | null> {
 
 
 
+/** Online (Paystack) payments are paused until the live account is ready. */
+const ONLINE_PAYMENTS_PAUSED = true;
+
 const Schema = z.object({
   full_name: z.string().trim().min(2, "Enter your full name").max(100),
   phone: z.string().trim().min(7, "Enter a valid phone").max(20).regex(/^[0-9+\-\s()]+$/, "Digits only"),
@@ -90,7 +93,7 @@ function Checkout() {
   const [showForm, setShowForm] = useState(false);
   const [deliveryType, setDeliveryType] = useState<"door" | "pickup">("door");
   const [pickupStation, setPickupStation] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"online" | "cod">("online");
+  const [paymentMethod, setPaymentMethod] = useState<"online" | "cod">("cod");
 
   const [form, setForm] = useState({
     label: "Home", full_name: "", phone: "", region: "Greater Accra",
@@ -270,6 +273,10 @@ function Checkout() {
         router.navigate({ to: "/orders/$id", params: { id: res.order_id } });
         return;
       }
+      if (ONLINE_PAYMENTS_PAUSED) {
+        toast.info("Online payment is coming soon. Please use Pay on Delivery for now.");
+        return;
+      }
       const res = await initCheckout({
         data: {
           callbackOrigin: window.location.origin,
@@ -445,17 +452,16 @@ function Checkout() {
         <div className="p-3 space-y-2">
           <button
             type="button"
-            onClick={() => setPaymentMethod("online")}
-            className={`w-full text-left p-3 border-2 rounded ${paymentMethod === "online" ? "border-primary bg-primary/5" : "border-border"}`}
+            onClick={() => toast.info("Online payment is coming soon. Please use Pay on Delivery for now.")}
+            aria-disabled="true"
+            className="w-full text-left p-3 border-2 rounded border-border opacity-60 cursor-not-allowed"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-bold text-sm">Pay Online (Paystack)</p>
-                <p className="text-xs text-muted-foreground">Card · MTN MoMo · Vodafone Cash · AirtelTigo · Bank</p>
+                <p className="font-bold text-sm">Pay Online</p>
+                <p className="text-xs text-muted-foreground">Card · MoMo · Bank — available soon</p>
               </div>
-              {paymentMethod === "online" && (
-                <span className="text-xs font-bold bg-success/10 text-success px-2 py-1 rounded">SELECTED</span>
-              )}
+              <span className="text-xs font-bold bg-secondary text-secondary-foreground px-2 py-1 rounded">COMING SOON</span>
             </div>
           </button>
           <button

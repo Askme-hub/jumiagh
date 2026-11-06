@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useRouterState } from "@tanstack/react-router";
-import { Bell, Zap, Wifi, Share, PlusSquare, X, Download } from "lucide-react";
+import { Bell, Zap, Wifi, Share, PlusSquare, Download } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import kivoraIcon from "@/assets/kivora-icon.png";
 import {
@@ -48,10 +48,8 @@ export function InstallSheet() {
 
   return (
     <Sheet open={open} onOpenChange={(o) => (o ? setOpen(true) : close())}>
-      <SheetContent side="bottom" className="z-[120] mx-auto max-h-[90vh] max-w-md overflow-y-auto rounded-t-3xl border-border bg-card px-6 pb-8 pt-6 [&>button]:hidden">
-        <button onClick={close} aria-label="Close" className="absolute right-4 top-4 rounded-full bg-muted p-1.5 text-muted-foreground">
-          <X size={16} />
-        </button>
+      <SheetContent side="bottom" className="z-[120] mx-auto max-h-[90vh] max-w-md overflow-y-auto rounded-t-3xl border-border bg-card px-6 pb-8 pt-6">
+        <div>
         <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-muted" />
         <div className="flex items-center gap-4">
           <img src={kivoraIcon} alt="" className="h-16 w-16 rounded-2xl shadow-md" />
@@ -90,6 +88,7 @@ export function InstallSheet() {
         )}
 
         <button onClick={close} className="mt-3 w-full py-2 text-sm font-medium text-muted-foreground">Not now</button>
+        </div>
       </SheetContent>
     </Sheet>
   );

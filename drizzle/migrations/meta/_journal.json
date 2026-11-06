@@ -64,6 +64,13 @@
       "when": 1793895633945,
       "tag": "0008_admin_delivery_zones",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793964502506,
+      "tag": "0009_sync_seller_role_on_approval",
+      "breakpoints": true
     }
   ]
 }

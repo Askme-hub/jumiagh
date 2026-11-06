@@ -15,13 +15,12 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { TopNav } from "@/components/TopNav";
 import { Footer } from "@/components/Footer";
 import { SearchOverlay } from "@/components/SearchOverlay";
-import { Preloader } from "@/components/Preloader";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { useLiveStock } from "@/lib/products";
 import { Toaster } from "@/components/ui/sonner";
 import { themeInitScript } from "@/lib/theme";
 import { registerServiceWorker } from "@/lib/register-sw";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import appCss from "../styles.css?url";
 
@@ -142,7 +141,6 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const [loading, setLoading] = useState(true);
   const workspace = useRouterState({ select: (state) => state.location.pathname.startsWith("/seller") || state.location.pathname.startsWith("/admin") });
 
   useEffect(() => {
@@ -152,7 +150,6 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LiveStockSync />
-      {loading && <Preloader onDone={() => setLoading(false)} />}
       <div className="min-h-screen flex flex-col bg-background">
         {!workspace && <MobileTopBar />}
         {!workspace && <TopNav />}

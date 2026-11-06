@@ -53,7 +53,7 @@ function SellerOrders() {
               </div>
               <div className="text-right shrink-0">
                 <p className="font-bold">{formatGHC(o.subtotal)}</p>
-                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${o.payment_status === "paid" ? "bg-success-soft text-success-ink" : "bg-secondary"}`}>
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${o.payment_status === "paid" ? "bg-success-soft text-success-ink" : "bg-secondary text-secondary-foreground"}`}>
                   {String(o.payment_status).toUpperCase()}
                 </span>
               </div>

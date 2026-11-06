@@ -37,7 +37,20 @@ export async function registerServiceWorker() {
     return;
   }
   try {
+    const hadController = !!navigator.serviceWorker.controller;
     await navigator.serviceWorker.register(SW_URL, { scope: "/" });
+    // A new version took control (autoUpdate + skipWaiting): offer a refresh instead of a surprise reload.
+    let shown = false;
+    navigator.serviceWorker.addEventListener("controllerchange", async () => {
+      if (!hadController || shown) return;
+      shown = true;
+      const { toast } = await import("sonner");
+      toast("A new version of Kivora is ready", {
+        description: "Tap refresh to get the latest updates.",
+        duration: Infinity,
+        action: { label: "Refresh", onClick: () => window.location.reload() },
+      });
+    });
   } catch (err) {
     console.warn("Service worker registration failed", err);
   }

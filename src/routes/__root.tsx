@@ -21,6 +21,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { themeInitScript } from "@/lib/theme";
 import { registerServiceWorker } from "@/lib/register-sw";
 import { useEffect } from "react";
+import { OfflineScreen } from "@/components/OfflineScreen";
+import { InstallSheet } from "@/components/InstallSheet";
 
 import appCss from "../styles.css?url";
 
@@ -50,6 +52,10 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
+
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    return <OfflineScreen onRetry={() => { router.invalidate(); reset(); }} />;
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -163,6 +169,7 @@ function RootComponent() {
       </div>
 
       <OfflineBanner />
+      {!workspace && <InstallSheet />}
       <Toaster position="top-center" />
     </QueryClientProvider>
   );

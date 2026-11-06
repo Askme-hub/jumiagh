@@ -208,7 +208,7 @@ function Home() {
       )}
 
       {/* FLASH SALES */}
-      <section className="mt-7">
+      <section id="flash-sales" className="mt-7 scroll-mt-20">
         <div className="flex items-center justify-between gap-3 px-4">
           <div className="flex min-w-0 items-center gap-2">
             <h2 className="truncate text-xl font-bold tracking-tight text-foreground">

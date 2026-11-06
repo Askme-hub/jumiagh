@@ -8,6 +8,7 @@ import { formatGHC, useShop } from "@/lib/store";
 import { supabase } from "@/integrations/supabase/client";
 import { initiatePaystackCheckout } from "@/lib/paystack.functions";
 import { placeCODOrder } from "@/lib/cod.functions";
+import { sendPhoneOTP, verifyPhoneOTP } from "@/lib/phone-otp.functions";
 import { validateCoupon } from "@/lib/coupons.functions";
 import { useSellerDelivery } from "@/lib/seller-delivery";
 import { useAddresses, useSaveAddress, useDeleteAddress, type Address } from "@/lib/addresses";
@@ -80,6 +81,19 @@ function Checkout() {
   const itemCount = cart.reduce((a, c) => a + c.qty, 0);
   const initCheckout = useServerFn(initiatePaystackCheckout);
   const placeCOD = useServerFn(placeCODOrder);
+  const sendOtp = useServerFn(sendPhoneOTP);
+  const verifyOtp = useServerFn(verifyPhoneOTP);
+  const [otpPhone, setOtpPhone] = useState<string | null>(null);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpBusy, setOtpBusy] = useState(false);
+  const requestOtp = async (phone: string) => {
+    try {
+      await sendOtp({ data: { phone } });
+      setOtpPhone(phone);
+      setOtpCode("");
+      toast.success(`Verification code sent to ${phone}`);
+    } catch (e: any) { toast.error(e.message ?? "Could not send code"); }
+  };
   const checkCoupon = useServerFn(validateCoupon);
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);

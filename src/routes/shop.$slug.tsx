@@ -1,8 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
-  MapPin, Phone, Search, Store, PackageOpen, Star, ShieldAlert,
+  MapPin, Phone, Search, Store, PackageOpen, Star, ShieldAlert, Ticket, QrCode, CalendarDays, Truck,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useSellerReviews } from "@/lib/reviews";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ShopCardStudio } from "@/components/ShopCardStudio";
 import { fetchPublicStore } from "@/lib/stores.functions";
 import { useStoreProducts } from "@/lib/stores";
 import { useSellerRating } from "@/lib/reviews";
@@ -77,6 +83,13 @@ function StorePage() {
   const { data: rating } = useSellerRating(store?.user_id);
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string | null>(null);
+  const [tab, setTab] = useState<"products" | "reviews" | "about">("products");
+  const { data: reviews } = useSellerReviews(store?.user_id);
+  const { data: vouchers } = useQuery({
+    queryKey: ["public-vouchers"],
+    queryFn: async () => (await supabase.rpc("public_vouchers")).data ?? [],
+  });
+  const deals = (vouchers ?? []).filter((v: any) => v.shop_name && v.shop_name === store?.shop_name);
 
   const categories = useMemo(
     () => Array.from(new Set((products ?? []).map((p) => p.category).filter(Boolean))) as string[],
@@ -98,6 +111,7 @@ function StorePage() {
   const phone = store.whatsapp_number?.replace(/[^\d]/g, "");
   const waNumber = phone ? (phone.startsWith("0") ? `233${phone.slice(1)}` : phone) : null;
   const count = store.product_count ?? products?.length ?? 0;
+  const since = new Date(store.created_at).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
 
   return (
     <div className="pb-10">
@@ -165,6 +179,25 @@ function StorePage() {
 
           <div className="mt-4 flex flex-wrap gap-2">
             <ShareStore shopName={store.shop_name} url={url} />
+            <Dialog>
+              <DialogTrigger className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2.5 text-sm font-bold text-foreground">
+                <QrCode size={16} /> Shop card
+              </DialogTrigger>
+              <DialogContent className="max-h-[90vh] overflow-y-auto">
+                <DialogTitle>{store.shop_name} shop card</DialogTitle>
+                <ShopCardStudio
+                  shop={{
+                    shop_name: store.shop_name,
+                    slug: store.slug,
+                    logo_url: store.logo_url,
+                    location: store.location,
+                    whatsapp_number: store.whatsapp_number,
+                    business_category: store.business_category,
+                    verified: store.verification_status === "verified",
+                  }}
+                />
+              </DialogContent>
+            </Dialog>
             <MessageSellerButton sellerId={store.user_id} />
             {waNumber && (
               <a
@@ -187,8 +220,46 @@ function StorePage() {
           </div>
         </div>
 
+        {/* DEALS */}
+        {deals.length > 0 && (
+          <div className="mt-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {deals.map((d) => (
+              <button
+                key={d.code}
+                onClick={() => { navigator.clipboard?.writeText(d.code); toast.success(`Code ${d.code} copied`); }}
+                className="flex shrink-0 items-center gap-3 rounded-2xl border border-dashed border-primary/50 bg-primary-soft px-4 py-2.5 text-left"
+              >
+                <Ticket size={18} className="text-primary" />
+                <span>
+                  <span className="block text-sm font-extrabold text-foreground">
+                    {d.discount_type === "percent" ? `${d.value}% off` : `GH₵ ${d.value} off`}
+                  </span>
+                  <span className="block text-[11px] text-muted-foreground">
+                    Code <b className="text-primary">{d.code}</b>{Number(d.min_spend) > 0 ? ` · min GH₵ ${d.min_spend}` : ""} · tap to copy
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* TABS */}
+        <div className="mt-5 flex gap-1 rounded-full border border-border bg-card p-1">
+          {([["products", `Products (${count})`], ["reviews", `Reviews${rating ? ` (${rating.count})` : ""}`], ["about", "About"]] as const).map(([k, label]) => (
+            <button
+              key={k}
+              onClick={() => setTab(k)}
+              className={`flex-1 rounded-full px-3 py-2 text-xs font-bold transition ${tab === k ? "gradient-primary text-primary-foreground" : "text-muted-foreground"}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {tab === "products" && (
+          <>
         {/* SEARCH + FILTERS */}
-        <div className="mt-5">
+        <div className="mt-4">
           <div className="relative">
             <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
@@ -246,6 +317,73 @@ function StorePage() {
             </div>
           )}
         </div>
+          </>
+        )}
+
+        {tab === "reviews" && (
+          <div className="mt-4 space-y-3">
+            {rating && (
+              <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4">
+                <p className="text-4xl font-extrabold text-foreground">{rating.avg}</p>
+                <div>
+                  <StarRating value={rating.avg} size={16} />
+                  <p className="text-xs text-muted-foreground">{rating.count} verified review{rating.count === 1 ? "" : "s"}</p>
+                </div>
+              </div>
+            )}
+            {(reviews ?? []).length === 0 ? (
+              <EmptyState icon={Star} title="No reviews yet" description={`Be the first to review ${store.shop_name} after your purchase.`} />
+            ) : (
+              reviews!.slice(0, 30).map((r: any) => (
+                <div key={r.id} className="rounded-2xl border border-border bg-card p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-bold text-foreground">{r.reviewer_name ?? "Kivora shopper"}</p>
+                    <StarRating value={r.rating} size={12} />
+                  </div>
+                  {r.products?.name && <p className="text-[11px] text-muted-foreground">on {r.products.name}</p>}
+                  {r.body && <p className="mt-2 text-sm text-foreground">{r.body}</p>}
+                  {r.seller_reply && (
+                    <p className="mt-2 rounded-xl bg-muted px-3 py-2 text-xs text-muted-foreground">
+                      <b className="text-foreground">{store.shop_name}:</b> {r.seller_reply}
+                    </p>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {tab === "about" && (
+          <div className="mt-4 space-y-3">
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { icon: CalendarDays, label: "On Kivora since", value: since },
+                { icon: PackageOpen, label: "Products", value: String(count) },
+                { icon: Star, label: "Rating", value: rating ? `${rating.avg}/5` : "New" },
+              ].map(({ icon: Icon, label, value }) => (
+                <div key={label} className="rounded-2xl border border-border bg-card p-3 text-center">
+                  <Icon size={18} className="mx-auto text-primary" />
+                  <p className="mt-1 text-sm font-extrabold text-foreground">{value}</p>
+                  <p className="text-[10px] text-muted-foreground">{label}</p>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-2xl border border-border bg-card p-4 text-sm">
+              <h2 className="font-bold text-foreground">About {store.shop_name}</h2>
+              <p className="mt-1 text-muted-foreground">{store.bio || "This seller hasn't added a description yet."}</p>
+              {store.location && <p className="mt-3 flex items-center gap-2 text-foreground"><MapPin size={14} className="text-primary" /> {store.location}</p>}
+              {store.business_category && <p className="mt-1 flex items-center gap-2 text-foreground"><Store size={14} className="text-primary" /> {store.business_category}</p>}
+            </div>
+            <div className="rounded-2xl border border-border bg-card p-4 text-sm">
+              <h2 className="flex items-center gap-2 font-bold text-foreground"><Truck size={16} className="text-primary" /> Delivery & buyer protection</h2>
+              <p className="mt-1 text-muted-foreground">Delivery to all 16 regions, with fees shown at checkout. Payments are held safely until you confirm you received your order.</p>
+              <div className="mt-2 flex gap-3 text-xs font-bold">
+                <Link to="/shipping" className="text-primary">Shipping info</Link>
+                <Link to="/returns" className="text-primary">Returns policy</Link>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

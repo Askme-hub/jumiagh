@@ -142,10 +142,15 @@ export const placeCODOrder = createServerFn({ method: "POST" })
       order.delivery_type === "pickup"
         ? `Pickup: ${order.pickup_station ?? "station"}`
         : `Delivery: ${[order.delivery_address, order.delivery_city, order.delivery_region].filter(Boolean).join(", ")}`;
+    const { data: __shopItems } = await supabaseAdmin.from("order_items").select("seller_id").eq("order_id", order.id);
+      const __sids = [...new Set((__shopItems ?? []).map((i: any) => i.seller_id).filter(Boolean))] as string[];
+      const { data: __shops } = __sids.length ? await supabaseAdmin.from("seller_profiles").select("user_id, shop_name").in("user_id", __sids) : { data: [] as any[] };
+      const shopMap = new Map((__shops ?? []).map((x: any) => [x.user_id, x.shop_name as string]));
+      const shopNames = [...shopMap.values()].filter(Boolean).join(", ");
     if (order.delivery_phone) {
       await trySendSMS(
         order.delivery_phone,
-        `KIVORA GH\nOrder #${orderRef} PLACED (Pay on Delivery).\nItems: ${itemLines}\nAmount due on delivery: GH${"\u20B5"} ${Number(order.total).toFixed(2)}\n${dest}\nPlease have the exact amount (cash or MoMo) ready for the courier. Track it in the Kivora app.`
+        `KIVORA GH\nOrder #${orderRef} PLACED (Pay on Delivery)${shopNames ? ` from ${shopNames}` : ""}.\nItems: ${itemLines}\nAmount due on delivery: GH${"\u20B5"} ${Number(order.total).toFixed(2)}\n${dest}\nPlease have the exact amount (cash or MoMo) ready for the courier. Track it in the Kivora app.`
       );
     }
 
@@ -161,20 +166,20 @@ export const placeCODOrder = createServerFn({ method: "POST" })
     if (sellerIds.length > 0) {
       const { data: sellerProfiles } = await supabaseAdmin
         .from("seller_profiles")
-        .select("user_id, phone")
+        .select("user_id, phone, shop_name")
         .in("user_id", sellerIds);
       for (const sp of sellerProfiles ?? []) {
         if (sp.phone && normalizeGhanaPhone(sp.phone)) {
           await trySendSMS(
             sp.phone,
-            `KIVORA GH\nNew PAY ON DELIVERY order #${orderRef}.\nItems: ${itemLines}\nCollect GH${"\u20B5"} ${Number(order.total).toFixed(2)} on delivery.\nBuyer: ${order.delivery_name ?? ""} (${order.delivery_phone ?? "n/a"})\n${dest}\nLog in to your Seller Hub to process it.`
+            `KIVORA GH - ${sp.shop_name}\nNew PAY ON DELIVERY order #${orderRef}.\nItems: ${itemLines}\nCollect GH${"\u20B5"} ${Number(order.total).toFixed(2)} on delivery.\nBuyer: ${order.delivery_name ?? ""} (${order.delivery_phone ?? "n/a"})\n${dest}\nLog in to your Seller Hub to process it.`
           );
 
         }
         if (sp.user_id) {
           await supabaseAdmin.from("inbox_messages").insert({
             user_id: sp.user_id,
-            title: `New order #${orderRef}`,
+            title: `${sp.shop_name}: new order #${orderRef}`,
             body: `You have a new Pay on Delivery order. Head to your Seller Hub → Orders to process it.`,
           });
         }

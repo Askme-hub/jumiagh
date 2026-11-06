@@ -1,27 +1,17 @@
-import { Download, Share } from "lucide-react";
-import { toast } from "sonner";
-import { useInstallPrompt } from "@/lib/pwa";
+import { Download } from "lucide-react";
+import { useInstallPrompt, setInstallSheetOpen } from "@/lib/pwa";
 
 /**
  * Install button. variant="card" for homepage banner, variant="nav" for bottom nav pill.
+ * Opens the shared install bottom sheet.
  */
 export function InstallAppButton({ variant = "card" }: { variant?: "card" | "nav" }) {
-  const { available, installed, isIOS, promptInstall } = useInstallPrompt();
+  const { available, installed, isIOS } = useInstallPrompt();
 
   if (installed) return null;
   if (!available && !isIOS) return null;
 
-  const onClick = async () => {
-    if (isIOS && !available) {
-      toast("Install Kivora", {
-        description: "Tap the Share button in Safari, then choose “Add to Home Screen”.",
-        icon: <Share size={16} />,
-      });
-      return;
-    }
-    const res = await promptInstall();
-    if (res === "unavailable") toast("Install isn’t available in this browser yet.");
-  };
+  const onClick = () => setInstallSheetOpen(true);
 
   if (variant === "nav") {
     return (

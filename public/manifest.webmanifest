@@ -9,9 +9,17 @@
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#ff7a00",
+  "categories": ["shopping", "lifestyle"],
+  "lang": "en-GH",
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Track my orders", "short_name": "Orders", "url": "/orders", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Today's flash deals", "short_name": "Deals", "url": "/#flash-sales", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "My cart", "short_name": "Cart", "url": "/cart", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Seller Hub", "short_name": "Sell", "url": "/seller", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
   ]
 }

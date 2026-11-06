@@ -32,7 +32,7 @@ function SellerLayout() {
 
   // Not an approved seller yet: only show the registration / application status screen, no dashboard.
   if (!isSeller) {
-    if (path !== "/seller") return <Navigate to="/seller" replace />;
+    if (path.startsWith("/seller/")) return <Navigate to="/seller" replace />;
     return (
       <div className="min-h-screen bg-background py-6">
         <Outlet />

@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { Package, ShoppingBag, Mail, Store, ArrowDownToLine, LayoutGrid, Image as ImageIcon, Gauge, Wallet, TicketPercent, Zap , Crown, LifeBuoy, Truck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,21 +29,35 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminLayout() {
+  const { data: c } = useQuery({
+    queryKey: ["admin-nav-counts"],
+    refetchInterval: 60000,
+    queryFn: async () => {
+      const n = async (q: any) => (await q).count ?? 0;
+      const [products, sellers, payouts, issues] = await Promise.all([
+        n(supabase.from("products").select("id", { count: "exact", head: true }).eq("approval_status", "pending")),
+        n(supabase.from("seller_profiles").select("user_id", { count: "exact", head: true }).eq("status", "pending")),
+        n(supabase.from("withdrawal_requests").select("id", { count: "exact", head: true }).eq("status", "pending")),
+        n(supabase.from("order_issues").select("id", { count: "exact", head: true }).eq("status", "open")),
+      ]);
+      return { products, sellers, payouts, issues };
+    },
+  });
   const tabs: WorkspaceItem[] = [
-    { to: "/admin" as const, label: "Overview", icon: Gauge, exact: true },
-    { to: "/admin/products" as const, label: "Products", icon: Package },
-    { to: "/admin/categories" as const, label: "Categories", icon: LayoutGrid },
-    { to: "/admin/banners" as const, label: "Banners", icon: ImageIcon },
-    { to: "/admin/orders" as const, label: "Orders", icon: ShoppingBag },
-    { to: "/admin/sellers" as const, label: "Sellers", icon: Store },
-    { to: "/admin/finance" as const, label: "Finance", icon: Wallet },
-    { to: "/admin/subscriptions" as const, label: "Subscriptions", icon: Crown },
-    { to: "/admin/delivery" as const, label: "Delivery Fees", icon: Truck },
-    { to: "/admin/coupons" as const, label: "Coupons", icon: TicketPercent },
-    { to: "/admin/flash-sales" as const, label: "Flash Sales", icon: Zap },
-    { to: "/admin/issues" as const, label: "Issues", icon: LifeBuoy },
-    { to: "/admin/withdrawals" as const, label: "Payouts", icon: ArrowDownToLine },
-    { to: "/admin/messages" as const, label: "Messages", icon: Mail },
+    { to: "/admin" as const, label: "Overview", icon: Gauge, exact: true, group: "Dashboard" },
+    { to: "/admin/orders" as const, label: "Orders", icon: ShoppingBag, group: "Dashboard" },
+    { to: "/admin/issues" as const, label: "Issues", icon: LifeBuoy, group: "Dashboard", badge: c?.issues },
+    { to: "/admin/products" as const, label: "Products", icon: Package, group: "Catalogue", badge: c?.products },
+    { to: "/admin/categories" as const, label: "Categories", icon: LayoutGrid, group: "Catalogue" },
+    { to: "/admin/banners" as const, label: "Banners", icon: ImageIcon, group: "Catalogue" },
+    { to: "/admin/sellers" as const, label: "Sellers", icon: Store, group: "Sellers", badge: c?.sellers },
+    { to: "/admin/subscriptions" as const, label: "Subscriptions", icon: Crown, group: "Sellers" },
+    { to: "/admin/messages" as const, label: "Messages", icon: Mail, group: "Sellers" },
+    { to: "/admin/finance" as const, label: "Finance", icon: Wallet, group: "Money" },
+    { to: "/admin/withdrawals" as const, label: "Payouts", icon: ArrowDownToLine, group: "Money", badge: c?.payouts },
+    { to: "/admin/delivery" as const, label: "Delivery Fees", icon: Truck, group: "Money" },
+    { to: "/admin/coupons" as const, label: "Coupons", icon: TicketPercent, group: "Marketing" },
+    { to: "/admin/flash-sales" as const, label: "Flash Sales", icon: Zap, group: "Marketing" },
   ];
 
   return (

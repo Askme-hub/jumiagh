@@ -152,7 +152,6 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LiveStockSync />
-      {loading && <Preloader onDone={() => setLoading(false)} />}
       <div className="min-h-screen flex flex-col bg-background">
         {!workspace && <MobileTopBar />}
         {!workspace && <TopNav />}

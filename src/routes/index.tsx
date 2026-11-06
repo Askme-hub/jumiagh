@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Zap, Phone, ChevronRight, PackageOpen, Truck } from "lucide-react";
 
@@ -63,24 +63,18 @@ function Countdown({ to }: { to?: string }) {
 
 /** Fetch products grouped by their category name. */
 function useGroupedProducts() {
-  return useQuery({
-    queryKey: ["products-grouped"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*").eq("approval_status", "approved")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      const rows = data as (DbProduct & { category: string | null })[];
-      const groups = new Map<string, Product[]>();
-      for (const r of rows) {
-        const key = r.category ?? "Other";
-        if (!groups.has(key)) groups.set(key, []);
-        groups.get(key)!.push(toProduct(r));
-      }
-      return groups;
-    },
-  });
+  const { data: products } = useProducts();
+  const data = useMemo(() => {
+    if (!products) return undefined;
+    const groups = new Map<string, Product[]>();
+    for (const p of products) {
+      const key = p.category ?? "Other";
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(p);
+    }
+    return groups;
+  }, [products]);
+  return { data };
 }
 
 function SectionHead({ title, category }: { title: string; category?: string }) {

@@ -46,6 +46,10 @@ function SellerDashboard() {
           Your seller application for <strong>{profile.shop_name}</strong> is under review.
           You'll be able to upload products once an admin approves you.
         </p>
+        <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
+          <Button asChild><Link to="/"><ShoppingBag /> Continue shopping</Link></Button>
+          <Button asChild variant="outline"><Link to="/categories">Browse categories</Link></Button>
+        </div>
       </div>
     );
   }

@@ -66,6 +66,8 @@ import { Route as SellerOrdersIdRouteImport } from './routes/seller.orders.$id'
 import { Route as SellerProductsIndexRouteImport } from './routes/seller.products.index'
 import { Route as SellerProductsIdRouteImport } from './routes/seller.products.$id'
 import { Route as SellerProductsNewRouteImport } from './routes/seller.products.new'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -353,6 +355,16 @@ const SellerProductsNewRoute = SellerProductsNewRouteImport.update({
   path: '/products/new',
   getParentRoute: () => SellerRoute,
 } as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -412,6 +424,8 @@ export interface FileRoutesByFullPath {
   '/seller/products/new': typeof SellerProductsNewRoute
   '/seller/orders/': typeof SellerOrdersIndexRoute
   '/seller/products/': typeof SellerProductsIndexRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -468,6 +482,8 @@ export interface FileRoutesByTo {
   '/seller/products/new': typeof SellerProductsNewRoute
   '/seller/orders': typeof SellerOrdersIndexRoute
   '/seller/products': typeof SellerProductsIndexRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -528,6 +544,8 @@ export interface FileRoutesById {
   '/seller/products/new': typeof SellerProductsNewRoute
   '/seller/orders/': typeof SellerOrdersIndexRoute
   '/seller/products/': typeof SellerProductsIndexRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -589,6 +607,8 @@ export interface FileRouteTypes {
     | '/seller/products/new'
     | '/seller/orders/'
     | '/seller/products/'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -645,6 +665,8 @@ export interface FileRouteTypes {
     | '/seller/products/new'
     | '/seller/orders'
     | '/seller/products'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
   id:
     | '__root__'
     | '/'
@@ -704,6 +726,8 @@ export interface FileRouteTypes {
     | '/seller/products/new'
     | '/seller/orders/'
     | '/seller/products/'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -735,6 +759,8 @@ export interface RootRouteChildren {
   ShopSlugRoute: typeof ShopSlugRoute
   SubscriptionCallbackRoute: typeof SubscriptionCallbackRoute
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1138,6 +1164,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerProductsNewRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1254,6 +1294,8 @@ const rootRouteChildren: RootRouteChildren = {
   ShopSlugRoute: ShopSlugRoute,
   SubscriptionCallbackRoute: SubscriptionCallbackRoute,
   ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

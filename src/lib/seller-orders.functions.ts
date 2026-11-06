@@ -134,13 +134,15 @@ export const updateItemFulfillment = createServerFn({ method: "POST" })
           .select("order_number, delivery_phone")
           .in("id", orderIds as string[]);
         const { trySendSMS } = await import("./sms.server");
+        const { data: shop } = await supabaseAdmin.from("seller_profiles").select("shop_name").eq("user_id", userId).maybeSingle();
+        const from = shop?.shop_name ? ` from ${shop.shop_name}` : "";
         const rider = data.rider_name ? ` Rider: ${data.rider_name}${data.rider_phone ? " (" + data.rider_phone + ")" : ""}.` : "";
         const verb = data.status === "shipped" ? `is on its way.${rider}` : "has been delivered. Please confirm receipt in the app.";
         for (const o of orders ?? []) {
           if (o.delivery_phone) {
             await trySendSMS(
               o.delivery_phone,
-              `Kivora: Your order #${o.order_number} ${verb} Thank you for shopping with us!`
+              `Kivora: Your order #${o.order_number}${from} ${verb} Thank you for shopping with us!`
             );
           }
         }

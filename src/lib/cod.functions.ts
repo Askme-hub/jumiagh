@@ -43,6 +43,45 @@ export const placeCODOrder = createServerFn({ method: "POST" })
     const { userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    // 1) Phone must be SMS-verified
+    const { normalizeGhanaPhone: norm } = await import("./sms.server");
+    const { isPhoneVerified } = await import("./phone-otp.functions");
+    const normPhone = norm(data.delivery.phone);
+    if (!normPhone) throw new Error("Enter a valid Ghana phone number");
+    if (!(await isPhoneVerified(supabaseAdmin, userId, normPhone)))
+      throw new Error("Please verify your phone number with the SMS code first.");
+
+    // 2) Limit open COD orders per buyer
+    const { count: openCount } = await supabaseAdmin
+      .from("orders").select("id", { count: "exact", head: true })
+      .eq("user_id", userId).eq("payment_method", "cod")
+      .in("status", ["placed", "processing", "shipped"]);
+    if ((openCount ?? 0) >= 3)
+      throw new Error("You have 3 pending Pay on Delivery orders. Please receive them before ordering more.");
+
+    // 3) Re-price every item from the database (never trust client prices)
+    if (data.items.some((i) => !i.product_id)) throw new Error("Invalid cart item");
+    const { data: dbProds } = await supabaseAdmin
+      .from("products").select("id, name, price, old_price, image_url, stock, approval_status")
+      .in("id", data.items.map((i) => i.product_id!) );
+    const pmap = new Map((dbProds ?? []).map((p) => [p.id, p]));
+    const { data: flash } = await supabaseAdmin
+      .from("flash_sale_items").select("product_id, sale_price, flash_sales!inner(active, starts_at, ends_at)")
+      .in("product_id", data.items.map((i) => i.product_id!));
+    const now = Date.now();
+    const flashPrice = new Map<string, number>();
+    for (const f of (flash ?? []) as any[]) {
+      const fs = f.flash_sales;
+      if (fs?.active && new Date(fs.starts_at).getTime() <= now && new Date(fs.ends_at).getTime() > now)
+        flashPrice.set(f.product_id, Number(f.sale_price));
+    }
+    data.items = data.items.map((i) => {
+      const p = pmap.get(i.product_id!);
+      if (!p || p.approval_status !== "approved") throw new Error(`${i.name} is no longer available`);
+      if (p.stock < i.qty) throw new Error(`Only ${p.stock} unit(s) left for ${p.name}`);
+      return { ...i, name: p.name, price: flashPrice.get(p.id) ?? Number(p.price), old_price: p.old_price, image_url: p.image_url };
+    });
+
     // Server-side totals (never trust the client)
     const itemsTotal = data.items.reduce((a, i) => a + i.price * i.qty, 0);
     const itemCount = data.items.reduce((a, i) => a + i.qty, 0);
@@ -83,6 +122,7 @@ export const placeCODOrder = createServerFn({ method: "POST" })
     }
     const total = Math.max(0, itemsTotal + shipping - discount);
     if (total <= 0) throw new Error("Invalid cart total");
+    if (total > 1500) throw new Error("Pay on Delivery is limited to GH₵ 1,500 per order.");
 
     const { data: order, error } = await supabaseAdmin
       .from("orders")

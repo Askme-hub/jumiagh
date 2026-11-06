@@ -71,6 +71,13 @@
       "when": 1793964502506,
       "tag": "0009_sync_seller_role_on_approval",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793964941994,
+      "tag": "0010_enforce_product_admin_approval",
+      "breakpoints": true
     }
   ]
 }

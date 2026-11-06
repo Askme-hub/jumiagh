@@ -8,6 +8,7 @@ import { formatGHC, useShop } from "@/lib/store";
 import { supabase } from "@/integrations/supabase/client";
 import { initiatePaystackCheckout } from "@/lib/paystack.functions";
 import { placeCODOrder } from "@/lib/cod.functions";
+import { sendPhoneOTP, verifyPhoneOTP } from "@/lib/phone-otp.functions";
 import { validateCoupon } from "@/lib/coupons.functions";
 import { useSellerDelivery } from "@/lib/seller-delivery";
 import { useAddresses, useSaveAddress, useDeleteAddress, type Address } from "@/lib/addresses";
@@ -80,6 +81,19 @@ function Checkout() {
   const itemCount = cart.reduce((a, c) => a + c.qty, 0);
   const initCheckout = useServerFn(initiatePaystackCheckout);
   const placeCOD = useServerFn(placeCODOrder);
+  const sendOtp = useServerFn(sendPhoneOTP);
+  const verifyOtp = useServerFn(verifyPhoneOTP);
+  const [otpPhone, setOtpPhone] = useState<string | null>(null);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpBusy, setOtpBusy] = useState(false);
+  const requestOtp = async (phone: string) => {
+    try {
+      await sendOtp({ data: { phone } });
+      setOtpPhone(phone);
+      setOtpCode("");
+      toast.success(`Verification code sent to ${phone}`);
+    } catch (e: any) { toast.error(e.message ?? "Could not send code"); }
+  };
   const checkCoupon = useServerFn(validateCoupon);
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
@@ -309,8 +323,12 @@ function Checkout() {
         },
       });
     } catch (e: any) {
-      toast.error(e.message ?? "Checkout failed");
       setPaying(false);
+      if (String(e?.message ?? "").includes("verify your phone")) {
+        await requestOtp(selected.phone);
+        return;
+      }
+      toast.error(e.message ?? "Checkout failed");
     }
   };
 
@@ -572,6 +590,39 @@ function Checkout() {
         </button>
 
       </div>
+
+      {otpPhone && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4">
+          <div className="w-full max-w-sm rounded-lg bg-card p-5 text-foreground shadow-lg">
+            <h3 className="font-bold text-lg">Verify your phone</h3>
+            <p className="mt-1 text-sm text-muted-foreground">Enter the 6-digit code we sent by SMS to {otpPhone}.</p>
+            <input
+              value={otpCode}
+              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              inputMode="numeric" autoFocus placeholder="000000"
+              className="mt-4 w-full rounded border border-border bg-background px-3 py-2 text-center text-2xl tracking-[0.5em]"
+            />
+            <button
+              disabled={otpCode.length !== 6 || otpBusy}
+              onClick={async () => {
+                setOtpBusy(true);
+                try {
+                  await verifyOtp({ data: { phone: otpPhone, code: otpCode } });
+                  setOtpPhone(null);
+                  toast.success("Phone verified");
+                  await pay();
+                } catch (e: any) { toast.error(e.message ?? "Verification failed"); }
+                finally { setOtpBusy(false); }
+              }}
+              className="mt-3 w-full rounded bg-primary py-2.5 font-bold text-primary-foreground disabled:opacity-50"
+            >{otpBusy ? "Verifying…" : "Verify & place order"}</button>
+            <div className="mt-2 flex justify-between text-sm">
+              <button onClick={() => requestOtp(otpPhone)} className="text-primary font-semibold">Resend code</button>
+              <button onClick={() => setOtpPhone(null)} className="text-muted-foreground">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -154,6 +154,12 @@ function SellerWallet() {
 
   return (
     <div className="p-4 space-y-5">
+      {balance < 0 && (
+        <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-foreground">
+          <p className="font-bold text-destructive">You owe Kivora {formatGHC(Math.abs(balance))} in Pay on Delivery commission</p>
+          <p className="mt-1 text-muted-foreground">For Pay on Delivery orders you collect the cash, so our commission is charged to your wallet. It will be cleared automatically from your next online sales. Withdrawals are paused until your balance is positive.</p>
+        </div>
+      )}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <StatCard label="Available" value={formatGHC(balance)} icon={Wallet} color="text-success-ink" />
         <StatCard label="In escrow (48h)" value={formatGHC(Number((wallet as any)?.escrow ?? 0))} icon={Clock} color="text-info-ink" />

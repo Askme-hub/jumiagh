@@ -48,7 +48,7 @@ export function InstallSheet() {
 
   return (
     <Sheet open={open} onOpenChange={(o) => (o ? setOpen(true) : close())}>
-      <SheetContent side="bottom" className="mx-auto max-w-md rounded-t-3xl border-border bg-card px-6 pb-8 pt-6 [&>button]:hidden">
+      <SheetContent side="bottom" className="z-[120] mx-auto max-h-[90vh] max-w-md overflow-y-auto rounded-t-3xl border-border bg-card px-6 pb-8 pt-6 [&>button]:hidden">
         <button onClick={close} aria-label="Close" className="absolute right-4 top-4 rounded-full bg-muted p-1.5 text-muted-foreground">
           <X size={16} />
         </button>

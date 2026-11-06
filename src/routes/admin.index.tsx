@@ -20,13 +20,16 @@ function AdminOverview() {
   const { data } = useQuery({
     queryKey: ["admin-overview"],
     queryFn: async () => {
-      const [products, sellers, orders, withdrawals, pendingP, pendingS] = await Promise.all([
+      const [products, sellers, orders, withdrawals, pendingP, pendingS, issues, verif, unpaid] = await Promise.all([
         supabase.from("products").select("id", { count: "exact", head: true }),
         supabase.from("seller_profiles").select("user_id, shop_name, status, created_at", { count: "exact" }).order("created_at", { ascending: false }).limit(4),
         supabase.from("orders").select("id, total, status, created_at, order_number", { count: "exact" }).order("created_at", { ascending: false }).limit(4),
         supabase.from("withdrawal_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("products").select("id", { count: "exact", head: true }).eq("approval_status", "pending"),
         supabase.from("seller_profiles").select("user_id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("order_issues").select("id", { count: "exact", head: true }).eq("status", "open"),
+        supabase.from("seller_profiles").select("user_id", { count: "exact", head: true }).eq("verification_status" as any, "pending"),
+        supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "pending"),
       ]);
       return {
         productCount: products.count ?? 0,
@@ -35,6 +38,9 @@ function AdminOverview() {
         pendingSellers: pendingS.count ?? 0,
         orderCount: orders.count ?? 0,
         pendingPayouts: withdrawals.count ?? 0,
+        openIssues: issues.count ?? 0,
+        pendingVerif: verif.count ?? 0,
+        pendingOrders: unpaid.count ?? 0,
         recentSellers: sellers.data ?? [],
         recentOrders: orders.data ?? [],
       };
@@ -70,15 +76,35 @@ function AdminOverview() {
         ))}
       </div>
 
-      <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
+      <section className="dashboard-panel mt-5">
+        <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-primary">TO-DO</p><h2 className="font-display text-xl font-bold">Pending tasks</h2></div></div>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+          {[
+            { to: "/admin/products", label: "Products to approve", n: data?.pendingProducts },
+            { to: "/admin/sellers", label: "Sellers to approve", n: data?.pendingSellers },
+            { to: "/admin/sellers", label: "Verification requests", n: data?.pendingVerif },
+            { to: "/admin/withdrawals", label: "Payout requests", n: data?.pendingPayouts },
+            { to: "/admin/issues", label: "Open order issues", n: data?.openIssues },
+            { to: "/admin/orders", label: "Orders awaiting processing", n: data?.pendingOrders },
+          ].map((t) => (
+            <Link key={t.label} to={t.to} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3 text-sm font-semibold transition hover:border-primary">
+              <span className="min-w-0 truncate">{t.label}</span>
+              <span className={(t.n ?? 0) > 0 ? "rounded-full bg-primary px-2.5 py-0.5 text-xs font-bold text-primary-foreground" : "rounded-full bg-muted px-2.5 py-0.5 text-xs font-bold text-muted-foreground"}>{t.n ?? 0}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <div className="mt-5 grid grid-cols-3 gap-2 sm:grid-cols-6">
         {[
-          { to: "/admin/products", label: "Review products" },
-          { to: "/admin/sellers", label: "Approve sellers" },
-          { to: "/admin/withdrawals", label: "Payouts" },
+          { to: "/admin/finance", label: "Finance" },
           { to: "/admin/delivery", label: "Delivery fees" },
-          { to: "/admin/issues", label: "Issues" },
+          { to: "/admin/banners", label: "Banners" },
+          { to: "/admin/coupons", label: "Coupons" },
+          { to: "/admin/subscriptions", label: "Plans" },
+          { to: "/admin/messages", label: "Messages" },
         ].map((a) => (
-          <Link key={a.to} to={a.to} className="shrink-0 rounded-full border border-border bg-card px-4 py-2 text-xs font-bold hover:border-primary hover:text-primary">{a.label}</Link>
+          <Link key={a.to} to={a.to} className="rounded-lg border border-border bg-card px-2 py-2.5 text-center text-xs font-bold hover:border-primary hover:text-primary">{a.label}</Link>
         ))}
       </div>
 

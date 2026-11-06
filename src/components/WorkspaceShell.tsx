@@ -11,6 +11,8 @@ export type WorkspaceItem = {
   label: string;
   icon: LucideIcon;
   exact?: boolean;
+  group?: string;
+  badge?: number;
 };
 
 export function WorkspaceShell({
@@ -44,23 +46,27 @@ export function WorkspaceShell({
         </div>
       </div>
       <nav className="space-y-1 px-3" aria-label={`${role} navigation`}>
-        {items.map((item) => {
+        {items.map((item, i) => {
           const Icon = item.icon;
+          const showGroup = item.group && item.group !== items[i - 1]?.group;
           return (
+            <div key={item.to}>
+              {showGroup && <p className="px-3 pb-1 pt-4 text-[10px] font-bold uppercase tracking-wider opacity-50">{item.group}</p>}
             <Link
-              key={item.to}
               to={item.to}
               onClick={() => setOpen(false)}
               className={cn(
-                "flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-colors",
+                "flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-colors",
                 active(item)
                   ? tone === "seller" ? "bg-primary text-primary-foreground shadow-sm" : "bg-card text-foreground shadow-sm"
                   : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
               )}
             >
               <Icon className="h-4 w-4 shrink-0" />
-              <span className="truncate">{item.label}</span>
+              <span className="flex-1 truncate">{item.label}</span>
+              {!!item.badge && <span className="rounded-full bg-primary px-1.5 text-[10px] font-bold leading-5 text-primary-foreground">{item.badge > 99 ? "99+" : item.badge}</span>}
             </Link>
+            </div>
           );
         })}
       </nav>
@@ -74,14 +80,14 @@ export function WorkspaceShell({
 
   return (
     <div className={cn("workspace-shell md:grid md:grid-cols-[230px_minmax(0,1fr)]", tone === "admin" && "workspace-admin")}>
-      <aside className="sticky top-[60px] hidden h-[calc(100vh-76px)] flex-col rounded-2xl bg-sidebar text-sidebar-foreground md:flex">
+      <aside className="sticky top-[60px] hidden h-[calc(100vh-76px)] flex-col overflow-y-auto rounded-2xl bg-sidebar text-sidebar-foreground md:flex">
         {navigation}
       </aside>
 
       {open && (
         <div className="fixed inset-0 z-[70] md:hidden">
           <button className="absolute inset-0 bg-foreground/35" aria-label="Close menu" onClick={() => setOpen(false)} />
-          <aside className="relative flex h-full w-[82%] max-w-xs flex-col bg-sidebar py-4 text-sidebar-foreground shadow-2xl">
+          <aside className="relative flex h-full w-[82%] max-w-xs flex-col overflow-y-auto bg-sidebar py-4 text-sidebar-foreground shadow-2xl">
             <Button variant="ghost" size="icon" className="absolute right-3 top-3" onClick={() => setOpen(false)} aria-label="Close menu">
               <X />
             </Button>

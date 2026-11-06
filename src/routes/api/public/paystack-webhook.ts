@@ -37,29 +37,8 @@ export const Route = createFileRoute("/api/public/paystack-webhook")({
             if (order && order.payment_status !== "paid") {
               const amountMatches = amount != null && Math.round(Number(order.total) * 100) === amount;
               if (amountMatches) {
-                await supabaseAdmin
-                  .from("orders")
-                  .update({
-                    payment_status: "paid",
-                    amount_paid: amount! / 100,
-                    status: "placed",
-                  })
-                  .eq("id", order.id);
-
-                const orderRef = order.order_number ?? order.id.slice(0, 8);
-                const { data: existingMsg } = await supabaseAdmin
-                  .from("inbox_messages")
-                  .select("id")
-                  .eq("user_id", order.user_id)
-                  .eq("title", `Order #${orderRef} placed`)
-                  .maybeSingle();
-                if (!existingMsg) {
-                  await supabaseAdmin.from("inbox_messages").insert({
-                    user_id: order.user_id,
-                    title: `Order #${orderRef} placed`,
-                    body: `Thank you! Your order of ${order.item_count} item(s) totalling GH₵ ${Number(order.total).toFixed(2)} has been received and is being processed. We'll keep you updated on delivery.`,
-                  });
-                }
+                const { finalizePaidOrder } = await import("@/lib/paid-order.server");
+                await finalizePaidOrder(order.id, amount! / 100);
               }
             }
           }

@@ -86,13 +86,26 @@ function Checkout() {
   const [otpPhone, setOtpPhone] = useState<string | null>(null);
   const [otpCode, setOtpCode] = useState("");
   const [otpBusy, setOtpBusy] = useState(false);
+  const [resendIn, setResendIn] = useState(0);
+  const [otpSending, setOtpSending] = useState(false);
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const t = setTimeout(() => setResendIn((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendIn]);
   const requestOtp = async (phone: string) => {
+    // Open the code box immediately and start the countdown while the SMS sends.
+    setOtpPhone(phone);
+    setOtpCode("");
+    setResendIn(60);
+    setOtpSending(true);
     try {
       await sendOtp({ data: { phone } });
-      setOtpPhone(phone);
-      setOtpCode("");
       toast.success(`Verification code sent to ${phone}`);
-    } catch (e: any) { toast.error(e.message ?? "Could not send code"); }
+    } catch (e: any) {
+      toast.error(e.message ?? "Could not send code");
+      setResendIn(0);
+    } finally { setOtpSending(false); }
   };
   const checkCoupon = useServerFn(validateCoupon);
   const [couponInput, setCouponInput] = useState("");
@@ -637,7 +650,13 @@ function Checkout() {
               className="mt-3 w-full rounded bg-primary py-2.5 font-bold text-primary-foreground disabled:opacity-50"
             >{otpBusy ? "Verifying…" : "Verify & place order"}</button>
             <div className="mt-2 flex justify-between text-sm">
-              <button onClick={() => requestOtp(otpPhone)} className="text-primary font-semibold">Resend code</button>
+              <button
+                onClick={() => requestOtp(otpPhone)}
+                disabled={resendIn > 0 || otpSending}
+                className="text-primary font-semibold disabled:text-muted-foreground disabled:cursor-not-allowed"
+              >
+                {otpSending ? "Sending…" : resendIn > 0 ? `Resend in ${resendIn}s` : "Resend code"}
+              </button>
               <button onClick={() => setOtpPhone(null)} className="text-muted-foreground">Cancel</button>
             </div>
           </div>

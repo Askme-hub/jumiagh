@@ -31,13 +31,16 @@ export const sendPhoneOTP = createServerFn({ method: "POST" })
     const arr = new Uint32Array(1);
     crypto.getRandomValues(arr);
     const code = String(arr[0] % 1_000_000).padStart(6, "0");
-    const { error } = await supabaseAdmin.from("phone_verifications").insert({
-      user_id: context.userId, phone,
-      code_hash: await sha256(`${phone}:${code}`),
-      expires_at: new Date(Date.now() + 5 * 60_000).toISOString(),
-    });
+    // Save the code and send the SMS at the same time to cut waiting.
+    const [{ error }, r] = await Promise.all([
+      supabaseAdmin.from("phone_verifications").insert({
+        user_id: context.userId, phone,
+        code_hash: await sha256(`${phone}:${code}`),
+        expires_at: new Date(Date.now() + 5 * 60_000).toISOString(),
+      }),
+      sendSMS(phone, `${code} is your Kivora code. Valid 5 mins. Do not share.`),
+    ]);
     if (error) throw new Error("Could not create code");
-    const r = await sendSMS(phone, `Kivora: Your verification code is ${code}. Valid for 5 minutes. Do not share it.`);
     if (!r.ok) throw new Error("Could not send SMS. Check the number and try again.");
     return { ok: true };
   });

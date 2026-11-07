@@ -150,8 +150,7 @@ export function InstallSheet() {
             <Bell size={12} className="text-primary" /> We'll also ask to turn on order alerts.
           </p>
         )}
-        {available ? null
-        ) : isIOS ? (
+        {available ? null : isIOS ? (
           <ol className="mt-6 space-y-3">
             <li className="flex items-center gap-3 rounded-2xl border border-border p-3 text-sm text-foreground">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">1</span>

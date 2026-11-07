@@ -239,10 +239,19 @@ function Checkout() {
     }
   };
 
+  // Pay on Delivery only when every shop in the cart is in the buyer's region
+  const farShops = sellerDelivery.filter((s) => (s.store_region ?? "") !== selectedRegion);
+  const codAllowed = !!selected && farShops.length === 0;
+  useEffect(() => {
+    if (!codAllowed && paymentMethod === "cod" && !ONLINE_PAYMENTS_PAUSED) setPaymentMethod("online");
+  }, [codAllowed, paymentMethod]);
+
   const blocker = !selected
     ? "Add a delivery address to continue"
     : deliveryType === "pickup" && !pickupStation
     ? "Choose a pickup station to continue"
+    : paymentMethod === "cod" && !codAllowed
+    ? `Pay on Delivery is only for shops in ${selectedRegion}`
     : cart.length === 0
     ? "Your cart is empty"
     : null;
@@ -484,13 +493,24 @@ function Checkout() {
           </button>
           <button
             type="button"
-            onClick={() => setPaymentMethod("cod")}
-            className={`w-full text-left p-3 border-2 rounded ${paymentMethod === "cod" ? "border-primary bg-primary/5" : "border-border"}`}
+            onClick={() => {
+              if (!codAllowed) { toast.error(`Pay on Delivery is only available when the shop is in ${selectedRegion}. Please use Pay Online.`); return; }
+              setPaymentMethod("cod");
+            }}
+            aria-disabled={!codAllowed}
+            className={`w-full text-left p-3 border-2 rounded ${!codAllowed ? "border-border opacity-60" : paymentMethod === "cod" ? "border-primary bg-primary/5" : "border-border"}`}
           >
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-bold text-sm">Pay on Delivery</p>
                 <p className="text-xs text-muted-foreground">Pay the seller in cash or MoMo when your product arrives</p>
+                {selected && (codAllowed ? (
+                  <p className="text-[11px] text-success font-semibold mt-1">Local shop delivery available in {selectedRegion}</p>
+                ) : (
+                  <p className="text-[11px] text-destructive font-semibold mt-1">
+                    Only for shops in your region. {farShops.map((f) => `${f.shop_name} is in ${f.store_region ?? "another region"}`).join("; ")}.
+                  </p>
+                ))}
               </div>
               {paymentMethod === "cod" && (
                 <span className="text-xs font-bold bg-success/10 text-success px-2 py-1 rounded">SELECTED</span>

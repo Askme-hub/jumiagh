@@ -23,6 +23,7 @@ function SellerProfilePage() {
   const [phone, setPhone] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [location, setLocation] = useState("");
+  const [storeRegion, setStoreRegion] = useState("Greater Accra");
   const [bizCat, setBizCat] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [bannerUrl, setBannerUrl] = useState("");
@@ -41,6 +42,7 @@ function SellerProfilePage() {
       setPhone(profile.phone ?? "");
       setWhatsapp((profile as any).whatsapp_number ?? "");
       setLocation((profile as any).location ?? "");
+      setStoreRegion((profile as any).store_region ?? "Greater Accra");
       setBizCat((profile as any).business_category ?? "");
       setLogoUrl((profile as any).logo_url ?? "");
       setBannerUrl((profile as any).banner_url ?? "");
@@ -83,6 +85,7 @@ function SellerProfilePage() {
         phone: phone || null,
         whatsapp_number: whatsapp || null,
         location: location || null,
+        store_region: storeRegion,
         business_category: bizCat || null,
         logo_url: logoUrl || null,
         banner_url: bannerUrl || null,
@@ -156,6 +159,12 @@ function SellerProfilePage() {
       <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone (private)" className={inputCls} />
       <input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="WhatsApp number (shown on your store)" className={inputCls} />
       <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Location e.g. Adum, Kumasi" className={inputCls} />
+      <div>
+        <label className="mb-1 block text-xs font-semibold text-muted-foreground">Store region (Pay on Delivery is only offered to buyers in this region)</label>
+        <select value={storeRegion} onChange={(e) => setStoreRegion(e.target.value)} className={inputCls}>
+          {GH_REGIONS.map((r) => <option key={r}>{r}</option>)}
+        </select>
+      </div>
       <input value={bizCat} onChange={(e) => setBizCat(e.target.value)} placeholder="Business category e.g. Electronics" className={inputCls} />
       <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={4} placeholder="About your shop" className={inputCls} />
 

@@ -1,0 +1,1 @@
+CREATE POLICY "order_items admin update" ON public.order_items FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'admin'::app_role)) WITH CHECK (public.has_role(auth.uid(), 'admin'::app_role));

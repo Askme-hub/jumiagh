@@ -95,7 +95,9 @@ function AdminOrders() {
   const refresh = () => qc.invalidateQueries({ queryKey: ["admin-orders"] });
 
   const setStatus = async (o: any, status: string) => {
+    if (status === o.status) return;
     if (status === "cancelled" && !confirm(`Cancel order #${o.order_number}?`)) return;
+    if (o.status === "cancelled" && !confirm(`Reopen cancelled order #${o.order_number}? Stock already returned will not be taken again.`)) return;
     const patch: any = { status };
     if (status === "cancelled") {
       patch.cancelled_at = new Date().toISOString();
@@ -105,9 +107,10 @@ function AdminOrders() {
     const { error } = await supabase.from("orders").update(patch).eq("id", o.id);
     if (error) return toast.error(error.message);
     // keep seller item status in sync with the order
-    const itemStatus = status === "shipped" ? "shipped" : status === "delivered" ? "delivered" : null;
+    const itemStatus = ["shipped", "available_for_pickup"].includes(status) ? "shipped" : status === "delivered" ? "delivered" : ["placed", "pending_confirmation", "waiting_to_be_shipped"].includes(status) ? "processing" : null;
     if (itemStatus) {
-      await supabase.from("order_items").update({ fulfillment_status: itemStatus }).eq("order_id", o.id);
+      const { error: e2 } = await supabase.from("order_items").update({ fulfillment_status: itemStatus }).eq("order_id", o.id);
+      if (e2) return toast.error("Order updated, but items failed: " + e2.message);
     }
     toast.success("Status updated");
     refresh();
@@ -242,7 +245,6 @@ function AdminOrders() {
             value={o.status}
             onChange={(e) => setStatus(o, e.target.value)}
             className="mt-2 w-full border border-border bg-card text-foreground rounded px-2 py-2 text-sm font-semibold"
-            disabled={o.status === "cancelled" || (o.payment_status !== "paid" && o.status === "pending_payment")}
           >
             {STATUSES.map((s) => (
               <option key={s} value={s}>{s.replace(/_/g, " ").toUpperCase()}</option>

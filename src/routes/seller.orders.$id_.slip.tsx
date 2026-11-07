@@ -8,7 +8,7 @@ import { getSellerOrder } from "@/lib/seller-orders.functions";
 import { code128Svg } from "@/lib/barcode128";
 import { formatGHC } from "@/lib/store";
 
-export const Route = createFileRoute("/seller/orders/$id/slip")({
+export const Route = createFileRoute("/seller/orders/$id_/slip")({
   head: () => ({ meta: [{ title: "Parcel slip — Kivora Seller Hub" }, { name: "robots", content: "noindex" }] }),
   component: ParcelSlip,
 });

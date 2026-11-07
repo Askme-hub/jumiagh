@@ -82,6 +82,18 @@ export const placeCODOrder = createServerFn({ method: "POST" })
       return { ...i, name: p.name, price: flashPrice.get(p.id) ?? Number(p.price), old_price: p.old_price, image_url: p.image_url };
     });
 
+    // 3b) COD only when every shop is in the buyer's delivery region
+    {
+      const { data: sp } = await supabaseAdmin.from("products").select("seller_id").in("id", data.items.map((i) => i.product_id!));
+      const sids = [...new Set((sp ?? []).map((p: any) => p.seller_id).filter(Boolean))] as string[];
+      if (sids.length > 0) {
+        const { data: shops } = await supabaseAdmin.from("seller_profiles").select("shop_name, store_region").in("user_id", sids);
+        const far = (shops ?? []).filter((s: any) => (s.store_region ?? "") !== data.delivery.region);
+        if (far.length > 0)
+          throw new Error(`Pay on Delivery is only available for shops in ${data.delivery.region}. ${far.map((s: any) => s.shop_name).join(", ")} ships from another region — please pay online.`);
+      }
+    }
+
     // Server-side totals (never trust the client)
     const itemsTotal = data.items.reduce((a, i) => a + i.price * i.qty, 0);
     const itemCount = data.items.reduce((a, i) => a + i.qty, 0);

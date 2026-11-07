@@ -25,7 +25,9 @@ const cols = [
 
 // Social links hidden until official Kivora handles exist. Add entries here to show them.
 const socials: { label: string; icon: typeof Facebook; href: string }[] = [];
-void Instagram; void Twitter; void Youtube;
+void Instagram;
+void Twitter;
+void Youtube;
 
 export function Footer() {
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -66,10 +68,7 @@ export function Footer() {
             <ul className="mt-3 space-y-2">
               {col.links.map((l) => (
                 <li key={l.label}>
-                  <Link
-                    to={l.to}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                  >
+                  <Link to={l.to} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                     {l.label}
                   </Link>
                 </li>
@@ -86,13 +85,13 @@ export function Footer() {
               <Phone className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
               <span>025 757 3471</span>
             </li>
-             <li className="flex items-start gap-2">
+            <li className="flex items-start gap-2">
               <Phone className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
               <span>055 247 4242</span>
             </li>
             <li className="flex items-start gap-2">
               <Mail className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
-              <span>support@kivora.gh</span>
+              <span>support@kivora.shop</span>
             </li>
             <li className="flex items-start gap-2">
               <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-primary" />

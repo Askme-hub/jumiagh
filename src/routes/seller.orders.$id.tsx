@@ -55,9 +55,9 @@ function SellerOrderDetail() {
         <Link to="/seller/orders" className="flex items-center gap-1 text-sm text-muted-foreground">
           <ArrowLeft size={18} /> Back to orders
         </Link>
-        <button onClick={() => window.print()} className="flex items-center gap-1 text-sm font-semibold text-primary">
-          <Printer size={16} /> Print receipt
-        </button>
+        <Link to="/seller/orders/$id/slip" params={{ id }} className="flex items-center gap-1 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-sm font-bold">
+          <Printer size={16} /> Parcel slip
+        </Link>
       </div>
 
       <div className="bg-card border border-border rounded-xl p-4">

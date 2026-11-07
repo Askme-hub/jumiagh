@@ -7,6 +7,7 @@ import { useIsSeller } from "@/hooks/use-seller";
 import { useSearchUI } from "@/lib/search-ui";
 import kivoraIcon from "@/assets/kivora-icon.png";
 import { UserAvatar } from "@/components/UserAvatar";
+import { InboxBell } from "@/components/InboxBell";
 
 const baseItems = [
   { to: "/" as const, label: "Home", icon: Home },
@@ -75,6 +76,7 @@ export function TopNav() {
           <span className="text-sm truncate">Search products, brands and categories</span>
         </button>
 
+        <InboxBell variant="desktop" />
 
         <Link
           to="/cart"

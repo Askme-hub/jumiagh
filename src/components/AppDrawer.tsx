@@ -1,3 +1,4 @@
+import { InboxBell } from "@/components/InboxBell";
 import { Link, useRouterState, useRouter } from "@tanstack/react-router";
 import {
   Home,
@@ -266,6 +267,7 @@ export function MobileTopBar() {
           </span>
         </Link>
         <div className="flex shrink-0 items-center gap-2">
+          <InboxBell />
           <Link
             to="/account"
             aria-label="Account"

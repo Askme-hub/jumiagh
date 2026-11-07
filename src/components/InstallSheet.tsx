@@ -1,4 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/use-auth";
+import { enablePush } from "@/lib/push";
 import { useRouterState } from "@tanstack/react-router";
 import { Bell, Zap, Wifi, Share, PlusSquare, Download } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -7,6 +10,72 @@ import {
   useInstallPrompt, useInstallSheet, bumpEngagement, recentlyDismissed,
   markInstallDismissed, ENGAGEMENT_THRESHOLD,
 } from "@/lib/pwa";
+
+/** Requests notification permission and, for signed-in users, registers this device for alerts. */
+async function askNotifications(userId?: string) {
+  try {
+    if (typeof Notification === "undefined" || Notification.permission === "denied") return;
+    if (userId) {
+      await enablePush(userId);
+    } else if (Notification.permission === "default") {
+      await Notification.requestPermission();
+    }
+  } catch {
+    /* user declined or unsupported — install continues */
+  }
+}
+
+const NOTIF_ASKED_KEY = "kivora_notif_asked_at";
+
+/** In the installed app, offer to turn on alerts once (covers iPhone, where alerts only work after install). */
+export function InstalledNotificationPrompt() {
+  const { installed } = useInstallPrompt();
+  const { user } = useAuth();
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if (!installed || !user || typeof Notification === "undefined") return;
+    if (Notification.permission !== "default") return;
+    const at = Number(localStorage.getItem(NOTIF_ASKED_KEY) || 0);
+    if (Date.now() - at < 7 * 86400_000) return;
+    const t = setTimeout(() => setShow(true), 1500);
+    return () => clearTimeout(t);
+  }, [installed, user]);
+
+  const dismiss = () => {
+    localStorage.setItem(NOTIF_ASKED_KEY, String(Date.now()));
+    setShow(false);
+  };
+  const allow = async () => {
+    dismiss();
+    try {
+      await enablePush(user!.id);
+      toast.success("Order alerts turned on");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Couldn't turn on alerts");
+    }
+  };
+
+  return (
+    <Sheet open={show} onOpenChange={(o) => !o && dismiss()}>
+      <SheetContent side="bottom" className="z-[120] mx-auto max-w-md rounded-t-3xl border-border bg-card px-6 pb-8 pt-6">
+        <div className="flex flex-col items-center text-center">
+          <div className="grid h-14 w-14 place-items-center rounded-full bg-primary/10 text-primary">
+            <Bell size={26} />
+          </div>
+          <SheetTitle className="mt-3 font-display text-lg text-foreground">Turn on notifications</SheetTitle>
+          <SheetDescription className="mt-1 text-sm text-muted-foreground">
+            Get instant alerts when your order is confirmed, shipped or delivered, and when a seller replies.
+          </SheetDescription>
+          <button onClick={allow} className="mt-5 w-full rounded-full bg-primary py-3.5 text-sm font-bold text-primary-foreground active:scale-[0.98]">
+            Allow notifications
+          </button>
+          <button onClick={dismiss} className="mt-2 w-full py-2 text-sm font-medium text-muted-foreground">Not now</button>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
 
 const perks = [
   { icon: Zap, label: "Faster loading" },
@@ -17,6 +86,7 @@ const perks = [
 /** Native-style bottom sheet for installing Kivora, auto-suggested once shoppers show intent. */
 export function InstallSheet() {
   const { available, installed, isIOS, promptInstall } = useInstallPrompt();
+  const { user } = useAuth();
   const [open, setOpen] = useInstallSheet();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const lastPath = useRef<string | null>(null);
@@ -42,6 +112,8 @@ export function InstallSheet() {
   };
 
   const install = async () => {
+    // Ask for alert permission in the same tap, then install.
+    await askNotifications(user?.id);
     const res = await promptInstall();
     if (res !== "unavailable") setOpen(false);
   };
@@ -72,7 +144,13 @@ export function InstallSheet() {
           <button onClick={install} className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 text-sm font-bold text-primary-foreground active:scale-[0.98]">
             <Download size={18} /> Install — it's free
           </button>
-        ) : isIOS ? (
+        ) : null}
+        {available && (
+          <p className="mt-2 flex items-center justify-center gap-1.5 text-center text-[11px] text-muted-foreground">
+            <Bell size={12} className="text-primary" /> We'll also ask to turn on order alerts.
+          </p>
+        )}
+        {available ? null : isIOS ? (
           <ol className="mt-6 space-y-3">
             <li className="flex items-center gap-3 rounded-2xl border border-border p-3 text-sm text-foreground">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">1</span>

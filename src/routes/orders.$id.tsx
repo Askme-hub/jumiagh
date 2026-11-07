@@ -1,6 +1,8 @@
 import { OrderTracking } from "@/components/OrderTracking";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/PageHeader";
 import { formatGHC, useShop } from "@/lib/store";
@@ -87,6 +89,65 @@ function StatusBadge({ status }: { status: string }) {
       {STATUS_ICONS[status] ?? <Circle size={14} />}
       {STATUS_NAMES[status] ?? status}
     </span>
+  );
+}
+
+const CANCELLABLE = ["pending_payment", "placed", "pending_confirmation"];
+
+function CancelBlock({ order }: { order: any }) {
+  const qc = useQueryClient();
+  const [busy, setBusy] = useState(false);
+  const prepaid = order.payment_method !== "cod" && order.payment_status === "paid";
+  if (order.status === "cancelled") {
+    if (order.refund_status === "pending")
+      return (
+        <div className="mx-4 mt-3 p-3 rounded-lg bg-warning-soft text-warning-ink text-sm">
+          Refund of {formatGHC(Number(order.total))} is being processed to your original payment account within 2 working business days.
+        </div>
+      );
+    if (order.refund_status === "refunded")
+      return (
+        <div className="mx-4 mt-3 p-3 rounded-lg bg-success-soft text-success-ink text-sm">
+          Refund of {formatGHC(Number(order.total))} completed{order.refunded_at ? ` on ${new Date(order.refunded_at).toLocaleDateString()}` : ""}.
+        </div>
+      );
+    return null;
+  }
+  const shippedItem = (order.order_items ?? []).some((i: any) => i.fulfillment_status === "shipped" || i.fulfillment_status === "delivered");
+  if (!CANCELLABLE.includes(order.status) || shippedItem)
+    return (
+      <p className="mx-4 mt-3 text-xs text-muted-foreground text-center">
+        This order is already being prepared or dispatched, so it can't be cancelled. Need help? Contact Support.
+      </p>
+    );
+  const cancel = async () => {
+    const msg = prepaid
+      ? `Cancel this order? Your refund of ${formatGHC(Number(order.total))} will be sent within 2 working business days.`
+      : "Cancel this order?";
+    if (!confirm(msg)) return;
+    setBusy(true);
+    const { data: refund, error } = await supabase.rpc("buyer_cancel_order", { _order_id: order.id });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success(refund === "pending" ? "Order cancelled. Refund within 2 working business days." : "Order cancelled.");
+    qc.invalidateQueries({ queryKey: ["order", order.id] });
+    qc.invalidateQueries({ queryKey: ["orders"] });
+  };
+  return (
+    <div className="px-4 mt-3">
+      <button
+        onClick={cancel}
+        disabled={busy}
+        className="w-full border border-destructive text-destructive font-bold py-3 rounded-lg disabled:opacity-50"
+      >
+        {busy ? "Cancelling…" : "Cancel order"}
+      </button>
+      {prepaid && (
+        <p className="text-xs text-muted-foreground mt-1 text-center">
+          Paid online: refunds are made within 2 working business days.
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -404,6 +465,8 @@ function OrderDetails() {
           </div>
         ))}
       </div>
+
+      <CancelBlock order={data} />
 
       {/* Need help */}
       <div className="px-4 py-4 mt-2 text-center">

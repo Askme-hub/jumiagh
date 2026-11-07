@@ -569,6 +569,8 @@ export type Database = {
       orders: {
         Row: {
           amount_paid: number | null
+          cancelled_at: string | null
+          cancelled_by: string | null
           coupon_code: string | null
           created_at: string
           delivery_address: string | null
@@ -588,6 +590,9 @@ export type Database = {
           payment_status: string
           paystack_access_code: string | null
           pickup_station: string | null
+          refund_note: string | null
+          refund_status: string
+          refunded_at: string | null
           shipping_fee: number
           status: string
           total: number
@@ -595,6 +600,8 @@ export type Database = {
         }
         Insert: {
           amount_paid?: number | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           coupon_code?: string | null
           created_at?: string
           delivery_address?: string | null
@@ -614,6 +621,9 @@ export type Database = {
           payment_status?: string
           paystack_access_code?: string | null
           pickup_station?: string | null
+          refund_note?: string | null
+          refund_status?: string
+          refunded_at?: string | null
           shipping_fee?: number
           status?: string
           total: number
@@ -621,6 +631,8 @@ export type Database = {
         }
         Update: {
           amount_paid?: number | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           coupon_code?: string | null
           created_at?: string
           delivery_address?: string | null
@@ -640,6 +652,9 @@ export type Database = {
           payment_status?: string
           paystack_access_code?: string | null
           pickup_station?: string | null
+          refund_note?: string | null
+          refund_status?: string
+          refunded_at?: string | null
           shipping_fee?: number
           status?: string
           total?: number
@@ -1252,6 +1267,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["subscription_plan"]
       }
+      buyer_cancel_order: { Args: { _order_id: string }; Returns: string }
       confirm_order_received: {
         Args: { _order_id: string }
         Returns: undefined

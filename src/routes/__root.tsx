@@ -22,7 +22,7 @@ import { themeInitScript } from "@/lib/theme";
 import { registerServiceWorker } from "@/lib/register-sw";
 import { useEffect } from "react";
 import { OfflineScreen } from "@/components/OfflineScreen";
-import { InstallSheet } from "@/components/InstallSheet";
+import { InstallSheet, InstalledNotificationPrompt } from "@/components/InstallSheet";
 
 import appCss from "../styles.css?url";
 
@@ -170,6 +170,7 @@ function RootComponent() {
 
       <OfflineBanner />
       {!workspace && <InstallSheet />}
+      <InstalledNotificationPrompt />
       <Toaster position="top-center" />
     </QueryClientProvider>
   );

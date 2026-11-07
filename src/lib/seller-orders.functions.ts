@@ -30,6 +30,10 @@ export type SellerOrder = {
   customer_name: string | null;
   items: SellerOrderItem[];
   subtotal: number;
+  payment_method: string;
+  order_total: number;
+  sole_seller: boolean;
+  shop: { shop_name: string; phone: string | null; store_region: string | null; location: string | null; slug: string | null } | null;
 };
 
 async function buildSellerOrders(userId: string, supabase: any, orderFilter?: string): Promise<SellerOrder[]> {
@@ -52,6 +56,10 @@ async function buildSellerOrders(userId: string, supabase: any, orderFilter?: st
   const { data: profiles } = await supabaseAdmin
     .from("profiles").select("id, email, display_name").in("id", userIds);
   const pmap = new Map((profiles ?? []).map((p: any) => [p.id, p]));
+  const [{ data: allItems }, { data: shop }] = await Promise.all([
+    supabaseAdmin.from("order_items").select("order_id, seller_id").in("order_id", orderIds),
+    supabaseAdmin.from("seller_profiles").select("shop_name, phone, store_region, location, slug").eq("user_id", userId).maybeSingle(),
+  ]);
 
   return orders.map((o: any) => {
     const myItems = items.filter((i: any) => i.order_id === o.id);
@@ -81,6 +89,10 @@ async function buildSellerOrders(userId: string, supabase: any, orderFilter?: st
         fulfillment_status: i.fulfillment_status,
       })),
       subtotal: myItems.reduce((a: number, i: any) => a + Number(i.price) * i.qty, 0),
+      payment_method: o.payment_method,
+      order_total: Number(o.total),
+      sole_seller: (allItems ?? []).filter((x: any) => x.order_id === o.id).every((x: any) => x.seller_id === userId),
+      shop: (shop as any) ?? null,
     };
   });
 }

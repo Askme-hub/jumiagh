@@ -68,6 +68,7 @@ import { Route as SellerProductsIdRouteImport } from './routes/seller.products.$
 import { Route as SellerProductsNewRouteImport } from './routes/seller.products.new'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as SellerOrdersIdSlipRouteImport } from './routes/seller.orders.$id_.slip'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -365,6 +366,11 @@ const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
   path: '/lovable/email/auth/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellerOrdersIdSlipRoute = SellerOrdersIdSlipRouteImport.update({
+  id: '/orders/$id_/slip',
+  path: '/orders/$id/slip',
+  getParentRoute: () => SellerRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -426,6 +432,7 @@ export interface FileRoutesByFullPath {
   '/seller/products/': typeof SellerProductsIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/seller/orders/$id/slip': typeof SellerOrdersIdSlipRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -484,6 +491,7 @@ export interface FileRoutesByTo {
   '/seller/products': typeof SellerProductsIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/seller/orders/$id/slip': typeof SellerOrdersIdSlipRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -546,6 +554,7 @@ export interface FileRoutesById {
   '/seller/products/': typeof SellerProductsIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/seller/orders/$id_/slip': typeof SellerOrdersIdSlipRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -609,6 +618,7 @@ export interface FileRouteTypes {
     | '/seller/products/'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
+    | '/seller/orders/$id/slip'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -667,6 +677,7 @@ export interface FileRouteTypes {
     | '/seller/products'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
+    | '/seller/orders/$id/slip'
   id:
     | '__root__'
     | '/'
@@ -728,6 +739,7 @@ export interface FileRouteTypes {
     | '/seller/products/'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
+    | '/seller/orders/$id_/slip'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1178,6 +1190,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/seller/orders/$id_/slip': {
+      id: '/seller/orders/$id_/slip'
+      path: '/orders/$id/slip'
+      fullPath: '/seller/orders/$id/slip'
+      preLoaderRoute: typeof SellerOrdersIdSlipRouteImport
+      parentRoute: typeof SellerRoute
+    }
   }
 }
 
@@ -1245,6 +1264,7 @@ interface SellerRouteChildren {
   SellerProductsNewRoute: typeof SellerProductsNewRoute
   SellerOrdersIndexRoute: typeof SellerOrdersIndexRoute
   SellerProductsIndexRoute: typeof SellerProductsIndexRoute
+  SellerOrdersIdSlipRoute: typeof SellerOrdersIdSlipRoute
 }
 
 const SellerRouteChildren: SellerRouteChildren = {
@@ -1260,6 +1280,7 @@ const SellerRouteChildren: SellerRouteChildren = {
   SellerProductsNewRoute: SellerProductsNewRoute,
   SellerOrdersIndexRoute: SellerOrdersIndexRoute,
   SellerProductsIndexRoute: SellerProductsIndexRoute,
+  SellerOrdersIdSlipRoute: SellerOrdersIdSlipRoute,
 }
 
 const SellerRouteWithChildren =

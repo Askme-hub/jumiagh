@@ -6,7 +6,8 @@ export function useDeliveryZones() {
   return useQuery({
     queryKey: ["delivery-zones"],
     queryFn: async () => {
-      const { data } = await supabase.from("delivery_zones").select("*").order("sort");
+      const { data, error } = await supabase.from("delivery_zones").select("*").order("sort");
+      if (error) throw error;
       return normalizeZones(data);
     },
     staleTime: 60_000,

@@ -120,6 +120,13 @@
       "when": 1794042113975,
       "tag": "0016_admin_update_order_items",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794042710778,
+      "tag": "0017_cancel_sync_and_lock",
+      "breakpoints": true
     }
   ]
 }

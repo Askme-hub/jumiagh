@@ -236,11 +236,16 @@ function AdminOrders() {
                   <p className="truncate text-foreground">{i.qty}× {i.name}</p>
                   <p className="text-muted-foreground truncate">{i.shop ?? "Kivora"} · {formatGHC(Number(i.price) * i.qty)}</p>
                 </div>
-                <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-secondary text-secondary-foreground">{i.fulfillment_status}</span>
+                <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${o.status === "cancelled" ? "bg-destructive/10 text-destructive" : "bg-secondary text-secondary-foreground"}`}>{o.status === "cancelled" ? "cancelled" : i.fulfillment_status}</span>
               </li>
             ))}
           </ul>
 
+          {o.status === "cancelled" && (
+            <button onClick={() => setStatus(o, "placed")} className="mt-2 w-full rounded bg-primary text-primary-foreground py-2 text-sm font-bold">
+              Restore order for seller
+            </button>
+          )}
           <select
             value={o.status}
             onChange={(e) => setStatus(o, e.target.value)}

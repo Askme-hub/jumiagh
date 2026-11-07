@@ -9,6 +9,6 @@ describe("code128", () => {
   it("every symbol is 11 modules wide", () => {
     const bars = code128Bars("JM2611");
     const total = bars.reduce((a, b) => a + b, 0);
-    expect(total).toBe(11 * 8 + 2); // 8 symbols + stop's extra 2 modules
+    expect(total).toBe(11 * 9 + 2); // start + 6 chars + check + stop, stop has 2 extra modules
   });
 });

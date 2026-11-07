@@ -17,7 +17,6 @@ export function InboxBell({ variant = "mobile" }: { variant?: "mobile" | "deskto
       const { count } = await supabase
         .from("inbox_messages")
         .select("id", { count: "exact", head: true })
-        .eq("user_id", user!.id)
         .eq("read", false);
       return count ?? 0;
     },

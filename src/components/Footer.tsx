@@ -23,12 +23,9 @@ const cols = [
   },
 ] as const;
 
-const socials = [
-  { label: "Facebook", icon: Facebook, href: "https://facebook.com" },
-  { label: "Instagram", icon: Instagram, href: "https://instagram.com" },
-  { label: "Twitter", icon: Twitter, href: "https://twitter.com" },
-  { label: "YouTube", icon: Youtube, href: "https://youtube.com" },
-];
+// Social links hidden until official Kivora handles exist. Add entries here to show them.
+const socials: { label: string; icon: typeof Facebook; href: string }[] = [];
+void Instagram; void Twitter; void Youtube;
 
 export function Footer() {
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -46,7 +43,7 @@ export function Footer() {
           <p className="mt-3 text-sm text-muted-foreground max-w-xs">
             Ghana's modern marketplace. Shop everything you need with fast delivery and secure payments.
           </p>
-          <div className="mt-4 flex items-center gap-3">
+          <div className={socials.length ? "mt-4 flex items-center gap-3" : "hidden"}>
             {socials.map((s) => (
               <a
                 key={s.label}

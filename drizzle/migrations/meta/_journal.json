@@ -127,6 +127,13 @@
       "when": 1794042710778,
       "tag": "0017_cancel_sync_and_lock",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794047733155,
+      "tag": "0018_seller_pos",
+      "breakpoints": true
     }
   ]
 }

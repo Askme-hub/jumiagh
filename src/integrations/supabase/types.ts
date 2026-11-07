@@ -739,6 +739,48 @@ export type Database = {
         }
         Relationships: []
       }
+      pos_sales: {
+        Row: {
+          created_at: string
+          customer_name: string | null
+          customer_phone: string | null
+          discount: number
+          id: string
+          items: Json
+          payment_method: string
+          receipt_number: string
+          seller_id: string
+          subtotal: number
+          total: number
+        }
+        Insert: {
+          created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
+          discount?: number
+          id?: string
+          items?: Json
+          payment_method?: string
+          receipt_number: string
+          seller_id: string
+          subtotal?: number
+          total?: number
+        }
+        Update: {
+          created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
+          discount?: number
+          id?: string
+          items?: Json
+          payment_method?: string
+          receipt_number?: string
+          seller_id?: string
+          subtotal?: number
+          total?: number
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           approval_status: string
@@ -1333,6 +1375,16 @@ export type Database = {
           shop_name: string
           value: number
         }[]
+      }
+      record_pos_sale: {
+        Args: {
+          _customer_name?: string
+          _customer_phone?: string
+          _discount?: number
+          _items: Json
+          _payment_method: string
+        }
+        Returns: string
       }
       release_seller_escrow: { Args: { _seller_id: string }; Returns: number }
       slugify: { Args: { _txt: string }; Returns: string }

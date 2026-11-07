@@ -11,6 +11,7 @@ const FSTYLE: Record<string, string> = {
   processing: "bg-warning-soft text-warning-ink",
   shipped: "bg-info-soft text-info-ink",
   delivered: "bg-success-soft text-success-ink",
+  cancelled: "bg-destructive/10 text-destructive",
 };
 
 function SellerOrders() {
@@ -35,7 +36,7 @@ function SellerOrders() {
     <div className="p-3 space-y-3 max-w-3xl mx-auto">
       <p className="text-sm text-muted-foreground">{data.length} order(s) include your products</p>
       {data.map((o) => {
-        const statuses = [...new Set(o.items.map((i) => i.fulfillment_status))];
+        const statuses = o.status === "cancelled" ? ["cancelled"] : [...new Set(o.items.map((i) => i.fulfillment_status))];
         return (
           <Link
             key={o.id}

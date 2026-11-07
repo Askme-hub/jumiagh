@@ -111,6 +111,12 @@ function SellerOrderDetail() {
       {/* Fulfillment */}
       <div className="bg-card border border-border rounded-xl p-4 print:hidden">
         <h2 className="font-bold text-sm mb-3">Fulfillment status</h2>
+        {order.status === "cancelled" ? (
+          <div className="rounded-lg bg-destructive/10 text-destructive p-3 text-sm">
+            <p className="font-bold">This order was cancelled — do not ship it.</p>
+            <p className="text-xs mt-1">It's locked. If it was cancelled by mistake, contact Kivora admin to restore it.</p>
+          </div>
+        ) : (<>
         {currentStatus === "processing" && (
           <div className="mb-3 grid gap-2 sm:grid-cols-2">
             <p className="sm:col-span-2 text-xs text-muted-foreground">Dispatch details (shared with the customer when you mark as shipped)</p>
@@ -134,6 +140,7 @@ function SellerOrderDetail() {
             </button>
           ))}
         </div>
+        </>)}
       </div>
     </div>
   );

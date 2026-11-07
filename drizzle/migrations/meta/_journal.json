@@ -99,6 +99,13 @@
       "when": 1793982252808,
       "tag": "0013_cod_otp_and_commission",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1794039009505,
+      "tag": "0014_seller_store_region",
+      "breakpoints": true
     }
   ]
 }

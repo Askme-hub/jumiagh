@@ -17,7 +17,10 @@ export function ProductCard({ product }: { product: Product }) {
     product.oldPrice ??
     (product.discount ? product.price + (product.price * product.discount) / 100 : null);
   const discount =
-    product.discount ?? (oldPrice && oldPrice > product.price ? Math.round(((oldPrice - product.price) / oldPrice) * 100) : 0);
+    product.discount ??
+    (oldPrice && oldPrice > product.price
+      ? Math.round(((oldPrice - product.price) / oldPrice) * 100)
+      : 0);
 
   const { data: ratings } = useProductRatingsMap();
   const rating = ratings?.[product.id];
@@ -32,16 +35,25 @@ export function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <div className="group flex h-full flex-col overflow-hidden rounded-md bg-card text-card-foreground transition-shadow duration-200 hover:shadow-elevated">
+    <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-card text-card-foreground shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:border-border hover:shadow-elevated">
+      {/* Image area */}
       <div className="relative">
-        <Link to="/products/$id" params={{ id: product.id }} className="block aspect-square overflow-hidden bg-card">
+        <Link
+          to="/products/$id"
+          params={{ id: product.id }}
+          className="block aspect-square overflow-hidden bg-muted/40"
+        >
           <img
             src={product.image}
             alt={product.name}
             loading="lazy"
-            className={`h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-105 ${outOfStock ? "opacity-50" : ""}`}
+            className={`h-full w-full object-contain p-3 transition-transform duration-500 group-hover:scale-[1.04] ${
+              outOfStock ? "opacity-45 grayscale" : ""
+            }`}
           />
         </Link>
+
+        {/* Wishlist */}
         <button
           onClick={() => {
             toggleWishlist(product);
@@ -49,15 +61,24 @@ export function ProductCard({ product }: { product: Product }) {
           }}
           aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
           aria-pressed={wished}
-          className={`absolute left-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-card/90 transition ${
-            wished ? "text-primary" : "text-muted-foreground hover:text-primary"
+          className={`absolute left-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 shadow-sm backdrop-blur-sm transition ${
+            wished
+              ? "text-primary"
+              : "text-muted-foreground hover:text-primary"
           }`}
         >
-          <Heart size={15} fill={wished ? "currentColor" : "none"} />
+          <Heart size={15} fill={wished ? "currentColor" : "none"} strokeWidth={2} />
         </button>
 
-        {/* Jumia-style quick add */}
-        <div className="absolute right-2 top-2">
+        {/* Discount badge */}
+        {discount > 0 && !outOfStock && (
+          <span className="absolute bottom-2.5 left-2.5 rounded-md bg-primary px-1.5 py-0.5 text-[11px] font-bold tracking-wide text-primary-foreground shadow-sm">
+            -{discount}%
+          </span>
+        )}
+
+        {/* Quick add / qty control */}
+        <div className="absolute right-2.5 top-2.5">
           {qty === 0 ? (
             <button
               disabled={outOfStock}
@@ -69,12 +90,21 @@ export function ProductCard({ product }: { product: Product }) {
               <Plus size={18} strokeWidth={2.5} />
             </button>
           ) : (
-            <div className="flex items-center gap-1 rounded-full bg-foreground p-0.5 text-background shadow-md">
-              <button onClick={() => updateQty(product.id, qty - 1)} aria-label="Decrease quantity" className="flex h-8 w-8 items-center justify-center rounded-full">
+            <div className="flex items-center gap-0.5 rounded-full bg-foreground p-0.5 text-background shadow-md">
+              <button
+                onClick={() => updateQty(product.id, qty - 1)}
+                aria-label="Decrease quantity"
+                className="flex h-8 w-8 items-center justify-center rounded-full"
+              >
                 <Minus size={14} />
               </button>
-              <span className="min-w-4 text-center text-sm font-bold">{qty}</span>
-              <button disabled={atMax} onClick={() => updateQty(product.id, qty + 1)} aria-label="Increase quantity" className="flex h-8 w-8 items-center justify-center rounded-full disabled:opacity-40">
+              <span className="min-w-[1.1rem] text-center text-sm font-bold">{qty}</span>
+              <button
+                disabled={atMax}
+                onClick={() => updateQty(product.id, qty + 1)}
+                aria-label="Increase quantity"
+                className="flex h-8 w-8 items-center justify-center rounded-full disabled:opacity-40"
+              >
                 <Plus size={14} />
               </button>
             </div>
@@ -82,29 +112,43 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
       </div>
 
-      <Link to="/products/$id" params={{ id: product.id }} className="flex flex-1 flex-col gap-1 p-2.5">
-        <p className="line-clamp-2 min-h-[2.5rem] break-words text-[13px] leading-5 text-foreground">{product.name}</p>
+      {/* Content */}
+      <Link
+        to="/products/$id"
+        params={{ id: product.id }}
+        className="flex flex-1 flex-col gap-1.5 px-3 pb-3 pt-2.5"
+      >
+        <p className="line-clamp-2 min-h-[2.4rem] text-[13px] font-medium leading-snug text-foreground">
+          {product.name}
+        </p>
 
         {rating ? (
           <div className="flex items-center gap-1 text-[12px]">
-            <Star size={13} className="text-warning" fill="currentColor" />
+            <Star size={12} className="text-amber-500" fill="currentColor" />
             <span className="font-semibold text-foreground">{rating.avg.toFixed(1)}</span>
             <span className="text-muted-foreground">({rating.count})</span>
           </div>
-        ) : null}
+        ) : (
+          <div className="h-[18px]" />
+        )}
 
-        <p className="text-lg font-bold leading-tight text-foreground">{formatGHC(product.price)}</p>
-        {oldPrice ? (
-          <div className="flex items-center gap-2 text-[12px]">
-            <span className="text-muted-foreground line-through">{formatGHC(oldPrice)}</span>
-            {discount > 0 && (
-              <span className="rounded bg-success px-1.5 py-0.5 text-[11px] font-bold text-success-foreground">-{discount}%</span>
-            )}
-          </div>
-        ) : null}
+        <div className="mt-auto">
+          <p className="text-[17px] font-bold leading-tight tracking-tight text-foreground">
+            {formatGHC(product.price)}
+          </p>
+          {oldPrice ? (
+            <p className="mt-0.5 text-[12px] text-muted-foreground line-through">
+              {formatGHC(oldPrice)}
+            </p>
+          ) : null}
+        </div>
 
         {(outOfStock || lowStock) && (
-          <p className={`text-[11px] font-medium ${outOfStock ? "text-destructive" : "text-flash"}`}>
+          <p
+            className={`text-[11px] font-semibold ${
+              outOfStock ? "text-destructive" : "text-amber-600"
+            }`}
+          >
             {outOfStock ? "Out of stock" : `Only ${stock} left`}
           </p>
         )}

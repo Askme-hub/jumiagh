@@ -1,7 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Zap, Phone, ChevronRight, PackageOpen, Truck } from "lucide-react";
+import {
+  Zap,
+  Phone,
+  ChevronRight,
+  PackageOpen,
+  Truck,
+  ShieldCheck,
+  BadgeCheck,
+} from "lucide-react";
 
 import { ProductCard } from "@/components/ProductCard";
 import { ProductCardSkeleton, ProductGridSkeleton } from "@/components/ProductCardSkeleton";
@@ -15,17 +23,6 @@ import { useActiveFlashSale, flashPriceMap } from "@/lib/flash-sales";
 import { supabase } from "@/integrations/supabase/client";
 import type { Product } from "@/lib/store";
 
-import {
-  Zap,
-  Phone,
-  ChevronRight,
-  PackageOpen,
-  Truck,
-  ShieldCheck,
-  BadgeCheck,
-  MapPin,
-} from "lucide-react";
-
 export const Route = createFileRoute("/")({
   component: Home,
 
@@ -38,7 +35,11 @@ export const Route = createFileRoute("/")({
           "Shop electronics, fashion, groceries, beauty products and more on Kivora Ghana. Fast delivery, secure payments and amazing deals.",
       },
       { property: "og:title", content: "Kivora Ghana – Everything You Need" },
-      { property: "og:description", content: "Shop electronics, fashion, groceries, beauty and more on Kivora Ghana with fast delivery and secure payments." },
+      {
+        property: "og:description",
+        content:
+          "Shop electronics, fashion, groceries, beauty and more on Kivora Ghana with fast delivery and secure payments.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -158,14 +159,14 @@ function Home() {
     : [];
   const displayFlash = flashProducts.length > 0 ? flashProducts : products.slice(0, 8);
 
-    return (
+  return (
     <div className="min-h-screen bg-background pb-12">
       <h1 className="sr-only">Kivora Ghana — shop electronics, fashion, groceries and more</h1>
 
       {/* HERO / BANNER SLIDER */}
       <BannerSlider />
 
-      {/* TRUST STRIP */}
+      {/* TRUST STRIP — key for credibility */}
       <div className="border-b border-border/50 bg-card">
         <div className="mx-auto grid max-w-7xl grid-cols-3 gap-1 px-3 py-3.5 sm:gap-4 sm:px-6">
           <div className="flex flex-col items-center gap-1.5 text-center sm:flex-row sm:justify-center sm:gap-2.5">
@@ -173,8 +174,12 @@ function Home() {
               <ShieldCheck size={16} strokeWidth={2.2} />
             </span>
             <div className="min-w-0">
-              <p className="text-[11px] font-bold leading-tight text-foreground sm:text-xs">Secure Payments</p>
-              <p className="hidden text-[10px] text-muted-foreground sm:block">MoMo · Card · Bank</p>
+              <p className="text-[11px] font-bold leading-tight text-foreground sm:text-xs">
+                Secure Payments
+              </p>
+              <p className="hidden text-[10px] text-muted-foreground sm:block">
+                MoMo · Card · Bank
+              </p>
             </div>
           </div>
           <div className="flex flex-col items-center gap-1.5 text-center sm:flex-row sm:justify-center sm:gap-2.5">
@@ -182,8 +187,12 @@ function Home() {
               <Truck size={16} strokeWidth={2.2} />
             </span>
             <div className="min-w-0">
-              <p className="text-[11px] font-bold leading-tight text-foreground sm:text-xs">Nationwide Delivery</p>
-              <p className="hidden text-[10px] text-muted-foreground sm:block">All 16 regions</p>
+              <p className="text-[11px] font-bold leading-tight text-foreground sm:text-xs">
+                Nationwide Delivery
+              </p>
+              <p className="hidden text-[10px] text-muted-foreground sm:block">
+                All 16 regions
+              </p>
             </div>
           </div>
           <div className="flex flex-col items-center gap-1.5 text-center sm:flex-row sm:justify-center sm:gap-2.5">
@@ -191,8 +200,12 @@ function Home() {
               <BadgeCheck size={16} strokeWidth={2.2} />
             </span>
             <div className="min-w-0">
-              <p className="text-[11px] font-bold leading-tight text-foreground sm:text-xs">Verified Sellers</p>
-              <p className="hidden text-[10px] text-muted-foreground sm:block">Quality checked</p>
+              <p className="text-[11px] font-bold leading-tight text-foreground sm:text-xs">
+                Verified Sellers
+              </p>
+              <p className="hidden text-[10px] text-muted-foreground sm:block">
+                Quality checked
+              </p>
             </div>
           </div>
         </div>
@@ -202,7 +215,7 @@ function Home() {
         <InstallAppButton />
       </div>
 
-      {/* CATEGORIES */}
+      {/* CATEGORIES — refined with real images */}
       {categories.length > 0 && (
         <section className="mt-8">
           <div className="mb-4 flex items-center justify-between gap-3 px-4">
@@ -273,7 +286,7 @@ function Home() {
         </div>
       </section>
 
-      {/* CALL TO ORDER */}
+      {/* CALL TO ORDER — professional contact strip */}
       <div className="mt-8 px-4">
         <a
           href="tel:0257573471"
@@ -283,7 +296,9 @@ function Home() {
             <Phone size={18} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-sm font-bold text-foreground">Need help ordering?</span>
+            <span className="block text-sm font-bold text-foreground">
+              Need help ordering?
+            </span>
             <span className="block truncate text-xs text-muted-foreground">
               Call 025 757 3471 · 055 247 4242
             </span>
@@ -291,7 +306,7 @@ function Home() {
           <ChevronRight size={18} className="shrink-0 text-muted-foreground" />
         </a>
       </div>
-      
+
       {/* RECOMMENDED */}
       <section className="mt-7">
         <SectionHead title="Recommended For You" />
@@ -322,4 +337,3 @@ function Home() {
     </div>
   );
 }
-

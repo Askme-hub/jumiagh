@@ -24,6 +24,7 @@ function SellerProfilePage() {
   const [whatsapp, setWhatsapp] = useState("");
   const [location, setLocation] = useState("");
   const [storeRegion, setStoreRegion] = useState("Greater Accra");
+  const [allRegions, setAllRegions] = useState(false);
   const [bizCat, setBizCat] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [bannerUrl, setBannerUrl] = useState("");
@@ -43,6 +44,7 @@ function SellerProfilePage() {
       setWhatsapp((profile as any).whatsapp_number ?? "");
       setLocation((profile as any).location ?? "");
       setStoreRegion((profile as any).store_region ?? "Greater Accra");
+      setAllRegions(Boolean((profile as any).deliver_all_regions));
       setBizCat((profile as any).business_category ?? "");
       setLogoUrl((profile as any).logo_url ?? "");
       setBannerUrl((profile as any).banner_url ?? "");
@@ -86,6 +88,7 @@ function SellerProfilePage() {
         whatsapp_number: whatsapp || null,
         location: location || null,
         store_region: storeRegion,
+        deliver_all_regions: allRegions,
         business_category: bizCat || null,
         logo_url: logoUrl || null,
         banner_url: bannerUrl || null,
@@ -164,6 +167,13 @@ function SellerProfilePage() {
         <select value={storeRegion} onChange={(e) => setStoreRegion(e.target.value)} className={inputCls}>
           {GH_REGIONS.map((r) => <option key={r}>{r}</option>)}
         </select>
+        <label className="mt-2 flex items-start gap-2 rounded-md border-2 border-border p-3 text-sm text-foreground">
+          <input type="checkbox" checked={allRegions} onChange={(e) => setAllRegions(e.target.checked)} className="mt-1 accent-primary" />
+          <span>
+            <span className="font-semibold">Deliver to all regions</span>
+            <span className="block text-xs text-muted-foreground">Let buyers anywhere in Ghana order your products with Pay on Delivery. Leave off to accept Pay on Delivery only in your store region.</span>
+          </span>
+        </label>
       </div>
       <input value={bizCat} onChange={(e) => setBizCat(e.target.value)} placeholder="Business category e.g. Electronics" className={inputCls} />
       <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={4} placeholder="About your shop" className={inputCls} />

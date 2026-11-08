@@ -87,8 +87,8 @@ export const placeCODOrder = createServerFn({ method: "POST" })
       const { data: sp } = await supabaseAdmin.from("products").select("seller_id").in("id", data.items.map((i) => i.product_id!));
       const sids = [...new Set((sp ?? []).map((p: any) => p.seller_id).filter(Boolean))] as string[];
       if (sids.length > 0) {
-        const { data: shops } = await supabaseAdmin.from("seller_profiles").select("shop_name, store_region").in("user_id", sids);
-        const far = (shops ?? []).filter((s: any) => (s.store_region ?? "") !== data.delivery.region);
+        const { data: shops } = await supabaseAdmin.from("seller_profiles").select("shop_name, store_region, deliver_all_regions").in("user_id", sids);
+        const far = (shops ?? []).filter((s: any) => !s.deliver_all_regions && (s.store_region ?? "") !== data.delivery.region);
         if (far.length > 0)
           throw new Error(`Pay on Delivery is only available for shops in ${data.delivery.region}. ${far.map((s: any) => s.shop_name).join(", ")} ships from another region — please pay online.`);
       }

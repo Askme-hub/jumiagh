@@ -10,6 +10,7 @@ export type SellerDelivery = {
   pickup_region: string | null;
   pickup_fee: number;
   store_region: string | null;
+  deliver_all_regions: boolean;
 };
 
 /** Fetch delivery settings for the given seller ids (approved shops, public-readable). */
@@ -21,7 +22,7 @@ export function useSellerDelivery(sellerIds: string[]) {
     queryFn: async (): Promise<SellerDelivery[]> => {
       const { data, error } = await supabase
         .from("seller_profiles")
-        .select("user_id, shop_name, door_delivery_fee, pickup_enabled, pickup_station, pickup_region, pickup_fee, store_region")
+        .select("user_id, shop_name, door_delivery_fee, pickup_enabled, pickup_station, pickup_region, pickup_fee, store_region, deliver_all_regions")
         .in("user_id", ids);
       if (error) throw error;
       return (data ?? []).map((d: any) => ({
@@ -33,6 +34,7 @@ export function useSellerDelivery(sellerIds: string[]) {
         pickup_region: d.pickup_region ?? null,
         pickup_fee: Number(d.pickup_fee ?? 10),
         store_region: d.store_region ?? null,
+        deliver_all_regions: Boolean(d.deliver_all_regions),
       }));
     },
   });

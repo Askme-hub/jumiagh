@@ -16,6 +16,8 @@ export function ProductCard({ product }: { product: Product }) {
   const oldPrice =
     product.oldPrice ??
     (product.discount ? product.price + (product.price * product.discount) / 100 : null);
+  const discount =
+    product.discount ?? (oldPrice && oldPrice > product.price ? Math.round(((oldPrice - product.price) / oldPrice) * 100) : 0);
 
   const { data: ratings } = useProductRatingsMap();
   const rating = ratings?.[product.id];
@@ -24,111 +26,89 @@ export function ProductCard({ product }: { product: Product }) {
   const lowStock = !outOfStock && stock <= 5;
   const atMax = qty >= stock;
 
+  const add = () => {
+    const ok = addToCart(product);
+    if (ok !== false) toast.success(`${product.name} added to cart`);
+  };
 
   return (
-    <div className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card text-card-foreground transition-shadow duration-200 hover:shadow-elevated">
-      <Link
-        to="/products/$id"
-        params={{ id: product.id }}
-        className="relative block aspect-square overflow-hidden bg-card"
-      >
-        <img
-          src={product.image}
-          alt={product.name}
-          loading="lazy"
-          className={`h-full w-full object-contain p-3 transition-transform duration-300 group-hover:scale-105 ${outOfStock ? "opacity-50" : ""}`}
-        />
-        {product.discount ? (
-          <span className="absolute left-2 top-2 rounded-md bg-primary-soft px-1.5 py-0.5 text-[11px] font-bold text-primary">
-            -{product.discount}%
-          </span>
-        ) : null}
+    <div className="group flex h-full flex-col overflow-hidden rounded-md bg-card text-card-foreground transition-shadow duration-200 hover:shadow-elevated">
+      <div className="relative">
+        <Link to="/products/$id" params={{ id: product.id }} className="block aspect-square overflow-hidden bg-card">
+          <img
+            src={product.image}
+            alt={product.name}
+            loading="lazy"
+            className={`h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-105 ${outOfStock ? "opacity-50" : ""}`}
+          />
+        </Link>
         <button
-          onClick={(e) => {
-            e.preventDefault();
+          onClick={() => {
             toggleWishlist(product);
             toast.success(wished ? "Removed from wishlist" : "Added to wishlist");
           }}
-          aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
+          aria label={wished ? "Remove from wishlist" : "Add to wishlist"}
           aria-pressed={wished}
-          className={`absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card transition ${
+          className={`absolute left-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-card/90 transition ${
             wished ? "text-primary" : "text-muted-foreground hover:text-primary"
           }`}
         >
           <Heart size={15} fill={wished ? "currentColor" : "none"} />
         </button>
-      </Link>
 
-      <div className="flex flex-1 flex-col gap-1 p-2.5">
-        <Link
-          to="/products/$id"
-          params={{ id: product.id }}
-          className="line-clamp-2 min-h-[2.5rem] break-words text-[13px] leading-5 text-foreground hover:text-primary"
-        >
-          {product.name}
-        </Link>
-
-        <div>
-          <p className="text-base font-bold text-foreground">{formatGHC(product.price)}</p>
-          {oldPrice ? (
-            <p className="text-[11px] text-muted-foreground">
-              <span className="line-through">{formatGHC(oldPrice)}</span>
-            </p>
-          ) : null}
-        </div>
-
-        <div className="flex items-center gap-1 text-[11px]">
-          {rating ? (
-            <>
-              <div className="flex text-warning">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <Star key={i} size={11} fill={i <= Math.round(rating.avg) ? "currentColor" : "none"} />
-                ))}
-              </div>
-              <span className="text-muted-foreground">({rating.count})</span>
-            </>
-          ) : null}
-        </div>
-
-        <p className={`text-[11px] font-medium ${outOfStock ? "text-destructive" : lowStock ? "text-flash" : "text-muted-foreground"}`}>
-          {outOfStock ? "Out of stock" : lowStock ? `Only ${stock} left` : "In stock"}
-        </p>
-
-        <div className="mt-auto pt-1.5">
+        {/* Jumia-style quick add */}
+        <div className="absolute right-2 top-2">
           {qty === 0 ? (
             <button
               disabled={outOfStock}
               data-add-cart
-              onClick={() => {
-                const ok = addToCart(product);
-                if (ok !== false) toast.success(`${product.name} added to cart`);
-              }}
-              className="w-full rounded-lg bg-primary py-2 text-xs font-bold uppercase tracking-wide text-primary-foreground transition hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+              onClick={add}
+              aria-label="Add to cart"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-background shadow-md transition active:scale-95 disabled:opacity-40"
             >
-              {outOfStock ? "Sold out" : "Add to cart"}
+              <Plus size={18} strokeWidth={2.5} />
             </button>
           ) : (
-            <div className="flex items-center justify-between">
-              <button
-                onClick={() => updateQty(product.id, qty - 1)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground active:scale-95"
-                aria-label="Decrease quantity"
-              >
+            <div className="flex items-center gap-1 rounded-full bg-foreground p-0.5 text-background shadow-md">
+              <button onClick={() => updateQty(product.id, qty - 1)} aria-label="Decrease quantity" className="flex h-8 w-8 items-center justify-center rounded-full">
                 <Minus size={14} />
               </button>
-              <span className="text-sm font-bold text-foreground">{qty}</span>
-              <button
-                disabled={atMax}
-                onClick={() => updateQty(product.id, qty + 1)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground active:scale-95 disabled:opacity-40"
-                aria-label="Increase quantity"
-              >
+              <span className="min-w-4 text-center text-sm font-bold">{qty}</span>
+              <button disabled={atMax} onClick={() => updateQty(product.id, qty + 1)} aria-label="Increase quantity" className="flex h-8 w-8 items-center justify-center rounded-full disabled:opacity-40">
                 <Plus size={14} />
               </button>
             </div>
           )}
         </div>
       </div>
+
+      <Link to="/products/$id" params={{ id: product.id }} className="flex flex-1 flex-col gap-1 p-2.5">
+        <p className="line-clamp-2 min-h-[2.5rem] break-words text-[13px] leading-5 text-foreground">{product.name}</p>
+
+        {rating ? (
+          <div className="flex items-center gap-1 text-[12px]">
+            <Star size={13} className="text-warning" fill="currentColor" />
+            <span className="font-semibold text-foreground">{rating.avg.toFixed(1)}</span>
+            <span className="text-muted-foreground">({rating.count})</span>
+          </div>
+        ) : null}
+
+        <p className="text-lg font-bold leading-tight text-foreground">{formatGHC(product.price)}</p>
+        {oldPrice ? (
+          <div className="flex items-center gap-2 text-[12px]">
+            <span className="text-muted-foreground line-through">{formatGHC(oldPrice)}</span>
+            {discount > 0 && (
+              <span className="rounded bg-success px-1.5 py-0.5 text-[11px] font-bold text-success-foreground">-{discount}%</span>
+            )}
+          </div>
+        ) : null}
+
+        {(outOfStock || lowStock) && (
+          <p className={`text-[11px] font-medium ${outOfStock ? "text-destructive" : "text-flash"}`}>
+            {outOfStock ? "Out of stock" : `Only ${stock} left`}
+          </p>
+        )}
+      </Link>
     </div>
   );
 }

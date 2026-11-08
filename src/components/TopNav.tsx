@@ -24,14 +24,14 @@ export function TopNav() {
 
   if (path === "/login") return null;
 
-  const pill = "flex items-center gap-2 rounded-md px-3 py-2 text-[15px] font-medium text-foreground transition hover:bg-muted";
+  const pill = "flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-foreground/80 transition hover:bg-primary/8 hover:text-primary";
 
   return (
-    <header className="sticky top-0 z-40 hidden border-b border-border bg-background shadow-sm md:block">
-      <div className="mx-auto flex max-w-7xl items-center gap-5 px-6 py-3">
+    <header className="sticky top-0 z-40 hidden border-b border-border/70 bg-background/95 shadow-soft backdrop-blur-xl md:block">
+      <div className="mx-auto flex max-w-7xl items-center gap-6 px-6 py-3.5">
         <Link to="/" className="flex shrink-0 items-center gap-2">
-          <img src={kivoraIcon} alt="Kivora" className="h-9 w-9 rounded-lg" />
-          <span className="text-2xl font-extrabold uppercase tracking-tight text-foreground">
+          <img src={kivoraIcon} alt="Kivora" className="h-10 w-10 rounded-xl shadow-soft" />
+          <span className="font-display text-2xl font-extrabold uppercase tracking-tight text-foreground">
             Kivora<span className="text-primary">★</span>
           </span>
         </Link>
@@ -39,11 +39,11 @@ export function TopNav() {
         <button
           onClick={() => openSearch(true)}
           aria-label="Search"
-          className="flex flex-1 items-center gap-3 rounded-full bg-muted py-1.5 pl-5 pr-1.5 text-left text-muted-foreground transition hover:bg-muted/70"
+          className="flex flex-1 items-center gap-3 rounded-2xl border border-border bg-card py-2 pl-5 pr-2 text-left text-muted-foreground shadow-sm transition hover:border-primary/40 hover:shadow-soft"
         >
           <Search size={20} className="shrink-0" />
           <span className="flex-1 truncate text-[15px]">Search products, brands and categories</span>
-          <span className="rounded-full bg-primary px-6 py-2 text-sm font-bold text-primary-foreground">Search</span>
+          <span className="rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-primary-foreground shadow-sm transition hover:brightness-95">Search</span>
         </button>
 
         <nav className="flex shrink-0 items-center gap-1">
@@ -70,7 +70,7 @@ export function TopNav() {
       </div>
 
       <div className="mx-auto max-w-7xl overflow-x-auto px-6 scrollbar-none">
-        <div className="flex items-center gap-6 pb-2.5 text-[15px] text-foreground">
+        <div className="flex items-center gap-6 pb-3 text-sm font-semibold text-foreground/75">
           <Link to="/categories" className="flex shrink-0 items-center gap-2 hover:text-primary">
             <LayoutGrid size={18} /> All Categories
           </Link>

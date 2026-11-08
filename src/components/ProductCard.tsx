@@ -47,7 +47,7 @@ export function ProductCard({ product }: { product: Product }) {
             toggleWishlist(product);
             toast.success(wished ? "Removed from wishlist" : "Added to wishlist");
           }}
-          aria label={wished ? "Remove from wishlist" : "Add to wishlist"}
+          aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
           aria-pressed={wished}
           className={`absolute left-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-card/90 transition ${
             wished ? "text-primary" : "text-muted-foreground hover:text-primary"

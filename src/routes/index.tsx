@@ -80,7 +80,7 @@ function useGroupedProducts() {
 function SectionHead({ title, category }: { title: string; category?: string }) {
   return (
     <div className="mb-3 flex items-center justify-between gap-3 px-4">
-      <h2 className="truncate text-xl font-bold tracking-tight text-foreground">{title}</h2>
+      <h2 className="truncate text-xl font-bold tracking-tight text-foreground md:text-3xl">{title}</h2>
       <SeeAll category={category} />
     </div>
   );
@@ -91,12 +91,10 @@ function SeeAll({ category }: { category?: string }) {
     <Link
       to="/categories"
       search={category ? { c: category } : ({} as { c?: string })}
-      className="flex shrink-0 items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+      className="flex shrink-0 items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:opacity-90 md:text-sm"
     >
-      See all
-      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-foreground">
-        <ChevronRight size={13} />
-      </span>
+      See All
+      <ChevronRight size={15} />
     </Link>
   );
 }

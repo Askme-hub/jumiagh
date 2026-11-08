@@ -1,22 +1,14 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, LayoutGrid, ShoppingCart, Heart, UserCircle2, Package, Store, Shield, Search, Mail } from "lucide-react";
+import { ShoppingCart, UserCircle2, Store, Shield, Search, HelpCircle, Package, Heart, LayoutGrid } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useShop } from "@/lib/store";
 import { useAuth, useIsAdmin } from "@/hooks/use-auth";
 import { useIsSeller } from "@/hooks/use-seller";
 import { useSearchUI } from "@/lib/search-ui";
+import { useCategories } from "@/lib/categories";
 import kivoraIcon from "@/assets/kivora-icon.png";
 import { UserAvatar } from "@/components/UserAvatar";
 import { InboxBell } from "@/components/InboxBell";
-
-const baseItems = [
-  { to: "/" as const, label: "Home", icon: Home },
-  { to: "/categories" as const, label: "Categories", icon: LayoutGrid },
-  { to: "/orders" as const, label: "Orders", icon: Package },
-  { to: "/wishlist" as const, label: "Wishlist", icon: Heart },
-  { to: "/inbox" as const, label: "Inbox", icon: Mail },
-  { to: "/account" as const, label: "Account", icon: UserCircle2 },
-];
 
 export function TopNav() {
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -26,70 +18,69 @@ export function TopNav() {
   const { user } = useAuth();
   const { data: isAdmin } = useIsAdmin(user);
   const { data: isSeller } = useIsSeller(user);
+  const { data: categories = [] } = useCategories();
 
   useEffect(() => setMounted(true), []);
 
   if (path === "/login") return null;
 
-  const linkCls = (active: boolean) =>
-    `relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition ${
-      active ? "bg-primary/10 text-primary" : "text-foreground/70 hover:bg-muted"
-    }`;
+  const pill = "flex items-center gap-2 rounded-md px-3 py-2 text-[15px] font-medium text-foreground transition hover:bg-muted";
 
   return (
-    <header className="hidden md:block sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border shadow-sm">
-      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center gap-6">
-        <Link to="/" className="flex items-center gap-2 shrink-0">
-          <img src={kivoraIcon} alt="Kivora" className="w-9 h-9 rounded-lg" />
-          <span className="text-xl font-extrabold tracking-tight text-primary">Kivora</span>
+    <header className="sticky top-0 z-40 hidden border-b border-border bg-background shadow-sm md:block">
+      <div className="mx-auto flex max-w-7xl items-center gap-5 px-6 py-3">
+        <Link to="/" className="flex shrink-0 items-center gap-2">
+          <img src={kivoraIcon} alt="Kivora" className="h-9 w-9 rounded-lg" />
+          <span className="text-2xl font-extrabold uppercase tracking-tight text-foreground">
+            Kivora<span className="text-primary">★</span>
+          </span>
         </Link>
-
-        <nav className="flex items-center gap-1 flex-1">
-          {baseItems.map(({ to, label, icon: Icon }) => {
-            const active = to === "/" ? path === "/" : path.startsWith(to);
-            return (
-              <Link key={to} to={to} className={linkCls(active)}>
-                {to === "/account" && user ? <UserAvatar user={user} size={20} /> : <Icon size={18} />}
-                {label}
-              </Link>
-            );
-          })}
-
-          {isSeller && (
-            <Link to="/seller" className={linkCls(path.startsWith("/seller"))}>
-              <Store size={18} /> Seller
-            </Link>
-          )}
-          {isAdmin && (
-            <Link to="/admin" className={linkCls(path.startsWith("/admin"))}>
-              <Shield size={18} /> Admin
-            </Link>
-          )}
-        </nav>
 
         <button
           onClick={() => openSearch(true)}
           aria-label="Search"
-          className="flex items-center gap-3 w-72 rounded-full bg-muted px-4 py-2.5 text-left text-muted-foreground hover:bg-muted/70 transition"
+          className="flex flex-1 items-center gap-3 rounded-full bg-muted py-1.5 pl-5 pr-1.5 text-left text-muted-foreground transition hover:bg-muted/70"
         >
-          <Search size={18} className="shrink-0" />
-          <span className="text-sm truncate">Search products, brands and categories</span>
+          <Search size={20} className="shrink-0" />
+          <span className="flex-1 truncate text-[15px]">Search products, brands and categories</span>
+          <span className="rounded-full bg-primary px-6 py-2 text-sm font-bold text-primary-foreground">Search</span>
         </button>
 
-        <InboxBell variant="desktop" />
+        <nav className="flex shrink-0 items-center gap-1">
+          <Link to="/account" className={pill}>
+            {user ? <UserAvatar user={user} size={22} /> : <UserCircle2 size={22} />}
+            {user ? "Account" : "Sign in"}
+          </Link>
+          <Link to="/orders" className={pill} aria-label="Orders"><Package size={20} /></Link>
+          <Link to="/wishlist" className={pill} aria-label="Wishlist"><Heart size={20} /></Link>
+          <Link to="/help" className={pill}><HelpCircle size={22} /> Help</Link>
+          {isSeller && <Link to="/seller" className={pill} aria-label="Seller Hub"><Store size={20} /></Link>}
+          {isAdmin && <Link to="/admin" className={pill} aria-label="Admin"><Shield size={20} /></Link>}
+          <InboxBell variant="desktop" />
+          <Link to="/cart" className={`${pill} relative`}>
+            <ShoppingCart size={22} />
+            Cart
+            {mounted && count > 0 && (
+              <span className="absolute left-5 top-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                {count}
+              </span>
+            )}
+          </Link>
+        </nav>
+      </div>
 
-        <Link
-          to="/cart"
-          className="relative flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-bold text-sm hover:bg-primary/90 transition"
-        >
-          <ShoppingCart size={18} />
-          Cart
-          {mounted && count > 0 && (
-            <span className="ml-1 bg-background text-primary text-xs px-1.5 rounded-full font-extrabold">
-              {count}
-            </span>
-          )}
-        </Link>
+      <div className="mx-auto max-w-7xl overflow-x-auto px-6 scrollbar-none">
+        <div className="flex items-center gap-6 pb-2.5 text-[15px] text-foreground">
+          <Link to="/categories" className="flex shrink-0 items-center gap-2 hover:text-primary">
+            <LayoutGrid size={18} /> All Categories
+          </Link>
+          {categories.map((c) => (
+            <Link key={c.id} to="/categories" search={{ c: c.name }} className="flex shrink-0 items-center gap-2 hover:text-primary">
+              {c.image_url && <img src={c.image_url} alt="" className="h-5 w-5 rounded object-cover" />}
+              {c.name}
+            </Link>
+          ))}
+        </div>
       </div>
     </header>
   );

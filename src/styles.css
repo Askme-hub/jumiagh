@@ -291,11 +291,12 @@
     min-height: 100vh;
     overflow-x: hidden;
 
+    /* Very subtle warm wash — professional, not flashy */
     background-image:
       radial-gradient(
-        circle at top right,
-        rgba(255, 122, 0, 0.08),
-        transparent 30%
+        ellipse 80% 50% at 100% -10%,
+        color-mix(in oklab, var(--primary) 7%, transparent),
+        transparent 55%
       );
   }
 }

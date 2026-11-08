@@ -292,12 +292,13 @@ export function MobileTopBar() {
       <div className="px-3 py-3">
         <button
           onClick={() => openSearch(true)}
-          className="flex w-full items-center gap-3 rounded-full bg-card px-5 py-3.5 text-left shadow-soft transition active:scale-[0.99]"
+          className="flex w-full items-center gap-3 rounded-full bg-muted py-1 pl-4 pr-1 text-left transition active:scale-[0.99]"
         >
-          <Search size={18} className="shrink-0 text-primary" />
-          <span className="truncate text-sm text-muted-foreground">
-            Search for your favourite products...
+          <Search size={18} className="shrink-0 text-muted-foreground" />
+          <span className="flex-1 truncate text-sm text-muted-foreground">
+            Search products, brands and categories
           </span>
+          <span className="rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground">Search</span>
         </button>
       </div>
     </header>

@@ -104,7 +104,7 @@
   --radius: 1rem;
 
   /* MAIN — warm cream canvas */
-  --background: oklch(0.972 0.014 78);
+  --background: oklch(0.985 0.006 78);
   --foreground: oklch(0.18 0.01 40);
 
   /* CARD */
@@ -291,12 +291,11 @@
     min-height: 100vh;
     overflow-x: hidden;
 
-    /* Very subtle warm wash — professional, not flashy */
     background-image:
       radial-gradient(
-        ellipse 80% 50% at 100% -10%,
-        color-mix(in oklab, var(--primary) 7%, transparent),
-        transparent 55%
+        circle at top right,
+        rgba(255, 122, 0, 0.045),
+        transparent 34%
       );
   }
 }
@@ -500,4 +499,43 @@
     transparent
   );
   animation: shimmer 1.6s infinite;
+}
+
+
+/* =========================================
+   KIVORA MARKETPLACE REFINEMENT
+========================================= */
+
+.home-page {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--primary) 2.5%, var(--background)) 0%, var(--background) 340px);
+}
+
+.home-section,
+.home-flash-section {
+  scroll-margin-top: 7rem;
+}
+
+.home-trust-strip {
+  backdrop-filter: blur(12px);
+}
+
+.home-page .home-hero img {
+  border-radius: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .home-page .home-hero img {
+    border-radius: 1.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-page *,
+  .home-page *::before,
+  .home-page *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }

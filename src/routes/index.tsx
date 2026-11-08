@@ -15,6 +15,16 @@ import { useActiveFlashSale, flashPriceMap } from "@/lib/flash-sales";
 import { supabase } from "@/integrations/supabase/client";
 import type { Product } from "@/lib/store";
 
+import {
+  Zap,
+  Phone,
+  ChevronRight,
+  PackageOpen,
+  Truck,
+  ShieldCheck,
+  BadgeCheck,
+  MapPin,
+} from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -79,8 +89,10 @@ function useGroupedProducts() {
 
 function SectionHead({ title, category }: { title: string; category?: string }) {
   return (
-    <div className="mb-3 flex items-center justify-between gap-3 px-4">
-      <h2 className="truncate text-xl font-bold tracking-tight text-foreground md:text-3xl">{title}</h2>
+    <div className="mb-4 flex items-center justify-between gap-3 px-4">
+      <h2 className="truncate text-lg font-bold tracking-tight text-foreground md:text-xl">
+        {title}
+      </h2>
       <SeeAll category={category} />
     </div>
   );
@@ -91,10 +103,10 @@ function SeeAll({ category }: { category?: string }) {
     <Link
       to="/categories"
       search={category ? { c: category } : ({} as { c?: string })}
-      className="flex shrink-0 items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:opacity-90 md:text-sm"
+      className="flex shrink-0 items-center gap-1 rounded-full border border-border/70 bg-card px-3.5 py-1.5 text-xs font-semibold text-foreground shadow-soft transition hover:border-primary/40 hover:text-primary md:text-sm"
     >
-      See All
-      <ChevronRight size={15} />
+      See all
+      <ChevronRight size={14} />
     </Link>
   );
 }
@@ -146,73 +158,97 @@ function Home() {
     : [];
   const displayFlash = flashProducts.length > 0 ? flashProducts : products.slice(0, 8);
 
-  return (
-    <div className="min-h-screen bg-background pb-10">
+    return (
+    <div className="min-h-screen bg-background pb-12">
       <h1 className="sr-only">Kivora Ghana — shop electronics, fashion, groceries and more</h1>
 
       {/* HERO / BANNER SLIDER */}
       <BannerSlider />
 
+      {/* TRUST STRIP */}
+      <div className="border-b border-border/50 bg-card">
+        <div className="mx-auto grid max-w-7xl grid-cols-3 gap-1 px-3 py-3.5 sm:gap-4 sm:px-6">
+          <div className="flex flex-col items-center gap-1.5 text-center sm:flex-row sm:justify-center sm:gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-success-soft text-success-ink">
+              <ShieldCheck size={16} strokeWidth={2.2} />
+            </span>
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold leading-tight text-foreground sm:text-xs">Secure Payments</p>
+              <p className="hidden text-[10px] text-muted-foreground sm:block">MoMo · Card · Bank</p>
+            </div>
+          </div>
+          <div className="flex flex-col items-center gap-1.5 text-center sm:flex-row sm:justify-center sm:gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-soft text-primary">
+              <Truck size={16} strokeWidth={2.2} />
+            </span>
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold leading-tight text-foreground sm:text-xs">Nationwide Delivery</p>
+              <p className="hidden text-[10px] text-muted-foreground sm:block">All 16 regions</p>
+            </div>
+          </div>
+          <div className="flex flex-col items-center gap-1.5 text-center sm:flex-row sm:justify-center sm:gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-info-soft text-info-ink">
+              <BadgeCheck size={16} strokeWidth={2.2} />
+            </span>
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold leading-tight text-foreground sm:text-xs">Verified Sellers</p>
+              <p className="hidden text-[10px] text-muted-foreground sm:block">Quality checked</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="px-4 mt-4">
         <InstallAppButton />
       </div>
 
-      {/* DELIVERY PROMO PILL */}
-      <div className="mt-4 px-4">
-        <Link
-          to="/shipping"
-          className="flex items-center justify-between gap-3 rounded-2xl bg-primary-soft px-4 py-3"
-        >
-          <span className="flex flex-wrap items-center gap-1.5 text-sm font-semibold text-foreground">
-            Delivery across
-            <span className="rounded-full bg-card px-2 py-0.5 text-xs font-bold text-primary">all 16 regions</span>
-            of Ghana
-          </span>
-          <Truck size={20} className="shrink-0 text-primary" />
-        </Link>
-      </div>
-
-      {/* CATEGORY CIRCLES */}
+      {/* CATEGORIES */}
       {categories.length > 0 && (
-        <section className="mt-7">
-        <div className="mb-3 flex items-center justify-between gap-3 px-4">
-          <h2 className="text-xl font-bold tracking-tight text-foreground">Categories</h2>
-          <SeeAll />
-        </div>
-        <div className="overflow-x-auto scrollbar-none">
-          <div className="flex gap-3 px-4">
-            {categories.slice(0, 10).map((c) => (
-              <Link
-                key={c.id}
-                to="/categories"
-                search={{ c: c.name }}
-                className="flex w-16 shrink-0 flex-col items-center gap-1.5 text-center"
-              >
-                <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 border-transparent bg-muted transition hover:border-primary">
-                  {c.image_url ? (
-                    <img src={c.image_url} alt={c.name} className="h-full w-full object-cover" />
-                  ) : (
-                    <PackageOpen size={22} className="text-primary" />
-                  )}
-                </div>
-                <span className="line-clamp-2 text-[11px] font-semibold leading-tight text-foreground">
-                  {c.name}
-                </span>
-              </Link>
-            ))}
+        <section className="mt-8">
+          <div className="mb-4 flex items-center justify-between gap-3 px-4">
+            <h2 className="text-lg font-bold tracking-tight text-foreground md:text-xl">
+              Shop by Category
+            </h2>
+            <SeeAll />
           </div>
-        </div>
+          <div className="overflow-x-auto scrollbar-none">
+            <div className="flex gap-4 px-4 pb-1">
+              {categories.slice(0, 12).map((c) => (
+                <Link
+                  key={c.id}
+                  to="/categories"
+                  search={{ c: c.name }}
+                  className="group flex w-[4.75rem] shrink-0 flex-col items-center gap-2 text-center"
+                >
+                  <div className="relative flex h-[4.75rem] w-[4.75rem] items-center justify-center overflow-hidden rounded-2xl bg-muted shadow-soft ring-1 ring-border/40 transition duration-300 group-hover:ring-primary/40 group-hover:shadow-elevated">
+                    {c.image_url ? (
+                      <img
+                        src={c.image_url}
+                        alt={c.name}
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <PackageOpen size={24} className="text-primary" />
+                    )}
+                  </div>
+                  <span className="line-clamp-2 text-[11px] font-semibold leading-tight text-foreground">
+                    {c.name}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
         </section>
       )}
 
       {/* FLASH SALES */}
-      <section id="flash-sales" className="mt-7 scroll-mt-20">
+      <section id="flash-sales" className="mt-9 scroll-mt-20">
         <div className="flex items-center justify-between gap-3 px-4">
-          <div className="flex min-w-0 items-center gap-2">
-            <h2 className="truncate text-xl font-bold tracking-tight text-foreground">
-              {flashSale?.title ?? "Flash Sale"}
+          <div className="flex min-w-0 items-center gap-2.5">
+            <h2 className="truncate text-lg font-bold tracking-tight text-foreground md:text-xl">
+              {flashSale?.title ?? "Flash Deals"}
             </h2>
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-flash px-1.5 py-0.5 text-[11px] font-bold text-flash-foreground">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-flash px-2.5 py-1 text-[11px] font-bold text-flash-foreground">
               <Zap size={11} fill="currentColor" />
               <Countdown to={flashSale?.ends_at} />
             </span>
@@ -220,16 +256,16 @@ function Home() {
           <SeeAll />
         </div>
 
-        <div className="mt-3 overflow-x-auto scrollbar-none">
-          <div className="flex gap-3 px-4 pb-2">
+        <div className="mt-4 overflow-x-auto scrollbar-none">
+          <div className="flex gap-3.5 px-4 pb-2">
             {isLoading
               ? Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="min-w-[160px] max-w-[170px]">
+                  <div key={i} className="min-w-[168px] max-w-[176px]">
                     <ProductCardSkeleton />
                   </div>
                 ))
               : displayFlash.map((p: Product) => (
-                  <div key={p.id} className="min-w-[160px] max-w-[170px]">
+                  <div key={p.id} className="min-w-[168px] max-w-[176px]">
                     <ProductCard product={p} />
                   </div>
                 ))}
@@ -238,23 +274,24 @@ function Home() {
       </section>
 
       {/* CALL TO ORDER */}
-      <div className="mt-6 px-4">
+      <div className="mt-8 px-4">
         <a
           href="tel:0257573471"
-          className="flex items-center gap-3 rounded-3xl bg-primary-soft px-4 py-3.5 shadow-soft"
+          className="flex items-center gap-3.5 rounded-2xl border border-border/60 bg-card px-4 py-3.5 shadow-soft transition hover:border-primary/30 hover:shadow-elevated"
         >
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full gradient-primary text-primary-foreground">
-            <Phone size={17} />
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full gradient-primary text-primary-foreground shadow-sm">
+            <Phone size={18} />
           </span>
-          <span className="min-w-0">
-            <span className="block text-sm font-extrabold text-foreground">Call to order</span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-bold text-foreground">Need help ordering?</span>
             <span className="block truncate text-xs text-muted-foreground">
-              025 757 3471 · 055 247 4242
+              Call 025 757 3471 · 055 247 4242
             </span>
           </span>
+          <ChevronRight size={18} className="shrink-0 text-muted-foreground" />
         </a>
       </div>
-
+      
       {/* RECOMMENDED */}
       <section className="mt-7">
         <SectionHead title="Recommended For You" />

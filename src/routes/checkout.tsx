@@ -253,7 +253,7 @@ function Checkout() {
   };
 
   // Pay on Delivery only when every shop in the cart is in the buyer's region
-  const farShops = sellerDelivery.filter((s) => (s.store_region ?? "") !== selectedRegion);
+  const farShops = sellerDelivery.filter((s) => !s.deliver_all_regions && (s.store_region ?? "") !== selectedRegion);
   const codAllowed = !!selected && farShops.length === 0;
   useEffect(() => {
     if (!codAllowed && paymentMethod === "cod" && !ONLINE_PAYMENTS_PAUSED) setPaymentMethod("online");

@@ -943,6 +943,7 @@ export type Database = {
           bio: string | null
           business_category: string | null
           created_at: string
+          deliver_all_regions: boolean
           door_delivery_fee: number
           location: string | null
           logo_url: string | null
@@ -969,6 +970,7 @@ export type Database = {
           bio?: string | null
           business_category?: string | null
           created_at?: string
+          deliver_all_regions?: boolean
           door_delivery_fee?: number
           location?: string | null
           logo_url?: string | null
@@ -995,6 +997,7 @@ export type Database = {
           bio?: string | null
           business_category?: string | null
           created_at?: string
+          deliver_all_regions?: boolean
           door_delivery_fee?: number
           location?: string | null
           logo_url?: string | null

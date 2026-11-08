@@ -1,0 +1,1 @@
+ALTER TABLE public.seller_profiles ADD COLUMN IF NOT EXISTS deliver_all_regions boolean NOT NULL DEFAULT false;

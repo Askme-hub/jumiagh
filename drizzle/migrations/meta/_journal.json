@@ -141,6 +141,13 @@
       "when": 1794098169234,
       "tag": "0019_seller_deliver_all_regions",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1794222512173,
+      "tag": "0020_signup_details_and_chat_push",
+      "breakpoints": true
     }
   ]
 }

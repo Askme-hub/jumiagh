@@ -32,14 +32,14 @@ export function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card text-card-foreground shadow-[0_1px_2px_rgba(0,0,0,0.025)] transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-elevated">
+    <div className="group flex h-full flex-col overflow-hidden rounded-md bg-card text-card-foreground transition-shadow duration-200 hover:shadow-elevated">
       <div className="relative">
-        <Link to="/products/$id" params={{ id: product.id }} className="block aspect-square overflow-hidden bg-gradient-to-b from-muted/40 to-card">
+        <Link to="/products/$id" params={{ id: product.id }} className="block aspect-square overflow-hidden bg-card">
           <img
             src={product.image}
             alt={product.name}
             loading="lazy"
-            className={`h-full w-full object-contain p-3 transition-transform duration-300 group-hover:scale-[1.04] ${outOfStock ? "opacity-50" : ""}`}
+            className={`h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-105 ${outOfStock ? "opacity-50" : ""}`}
           />
         </Link>
         <button
@@ -64,13 +64,13 @@ export function ProductCard({ product }: { product: Product }) {
               data-add-cart
               onClick={add}
               aria-label="Add to cart"
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md transition active:scale-95 disabled:opacity-40"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-background shadow-md transition active:scale-95 disabled:opacity-40"
             >
               <Plus size={18} strokeWidth={2.5} />
             </button>
           ) : (
-            <div className="flex items-center gap-1 rounded-xl bg-primary p-0.5 text-primary-foreground shadow-md">
-              <button onClick={() => updateQty(product.id, qty - 1)} aria-label="Decrease quantity" className="flex h-8 w-8 items-center justify-center rounded-lg">
+            <div className="flex items-center gap-1 rounded-full bg-foreground p-0.5 text-background shadow-md">
+              <button onClick={() => updateQty(product.id, qty - 1)} aria-label="Decrease quantity" className="flex h-8 w-8 items-center justify-center rounded-full">
                 <Minus size={14} />
               </button>
               <span className="min-w-4 text-center text-sm font-bold">{qty}</span>
@@ -82,8 +82,8 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
       </div>
 
-      <Link to="/products/$id" params={{ id: product.id }} className="flex flex-1 flex-col gap-1.5 p-3">
-        <p className="line-clamp-2 min-h-[2.5rem] break-words text-[12px] font-medium leading-[1.45rem] text-foreground sm:text-[13px]">{product.name}</p>
+      <Link to="/products/$id" params={{ id: product.id }} className="flex flex-1 flex-col gap-1 p-2.5">
+        <p className="line-clamp-2 min-h-[2.5rem] break-words text-[13px] leading-5 text-foreground">{product.name}</p>
 
         {rating ? (
           <div className="flex items-center gap-1 text-[12px]">
@@ -93,12 +93,12 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
         ) : null}
 
-        <p className="text-base font-extrabold leading-tight text-foreground sm:text-lg">{formatGHC(product.price)}</p>
+        <p className="text-lg font-bold leading-tight text-foreground">{formatGHC(product.price)}</p>
         {oldPrice ? (
           <div className="flex items-center gap-2 text-[12px]">
             <span className="text-muted-foreground line-through">{formatGHC(oldPrice)}</span>
             {discount > 0 && (
-              <span className="rounded-md bg-success-soft px-1.5 py-0.5 text-[10px] font-extrabold text-success-ink">-{discount}%</span>
+              <span className="rounded bg-success px-1.5 py-0.5 text-[11px] font-bold text-success-foreground">-{discount}%</span>
             )}
           </div>
         ) : null}

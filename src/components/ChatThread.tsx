@@ -50,9 +50,9 @@ export function ChatThread({
   };
 
   return (
-    <div className="flex h-[calc(100dvh-9rem)] flex-col md:h-[calc(100dvh-11rem)]">
+    <div className="fixed inset-0 z-50 flex flex-col bg-background md:static md:z-auto md:h-[calc(100dvh-11rem)]">
       {/* header */}
-      <div className="flex items-center gap-3 border-b border-border bg-card px-3 py-2.5">
+      <div className="flex items-center gap-3 border-b border-border bg-card px-3 py-2.5 pt-[max(0.625rem,env(safe-area-inset-top))] md:pt-2.5">
         {onBack && (
           <button onClick={onBack} className="rounded-full p-2 text-foreground hover:bg-muted md:hidden" aria-label="Back">
             <ArrowLeft size={18} />
@@ -83,7 +83,7 @@ export function ChatThread({
             return (
               <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-sm shadow-soft ${
+                  className={`max-w-[80%] md:max-w-[65%] rounded-2xl px-3.5 py-2 text-sm shadow-soft ${
                     mine
                       ? "gradient-primary rounded-br-md text-primary-foreground"
                       : "rounded-bl-md border border-border bg-card text-foreground"
@@ -103,7 +103,7 @@ export function ChatThread({
       </div>
 
       {/* composer */}
-      <div className="border-t border-border bg-card p-3">
+      <div className="border-t border-border bg-card p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <div className="flex items-end gap-2">
           <textarea
             value={text}

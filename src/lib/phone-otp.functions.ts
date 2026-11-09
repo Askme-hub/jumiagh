@@ -63,7 +63,11 @@ export const verifyPhoneOTP = createServerFn({ method: "POST" })
       await supabaseAdmin.from("phone_verifications").update({ attempts: row.attempts + 1 }).eq("id", row.id);
       throw new Error("Incorrect code");
     }
-    await supabaseAdmin.from("phone_verifications").update({ verified_at: new Date().toISOString() }).eq("id", row.id);
+    const now = new Date().toISOString();
+    await Promise.all([
+      supabaseAdmin.from("phone_verifications").update({ verified_at: now }).eq("id", row.id),
+      supabaseAdmin.from("profiles").update({ phone, phone_verified_at: now }).eq("id", context.userId),
+    ]);
     return { ok: true };
   });
 

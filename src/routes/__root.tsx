@@ -23,6 +23,7 @@ import { registerServiceWorker } from "@/lib/register-sw";
 import { useEffect } from "react";
 import { OfflineScreen } from "@/components/OfflineScreen";
 import { InstallSheet, InstalledNotificationPrompt } from "@/components/InstallSheet";
+import { CompleteAccountPrompt } from "@/components/CompleteAccountPrompt";
 
 import appCss from "../styles.css?url";
 
@@ -171,6 +172,7 @@ function RootComponent() {
       <OfflineBanner />
       {!workspace && <InstallSheet />}
       <InstalledNotificationPrompt />
+      <CompleteAccountPrompt />
       <Toaster position="top-center" />
     </QueryClientProvider>
   );

@@ -25,20 +25,23 @@ export function OrderTracking({ orderId, userId }: { orderId: string; userId: st
   const { data } = useQuery({
     queryKey: ["order-tracking", orderId],
     queryFn: async () => {
-      const [{ data: items }, { data: issues }] = await Promise.all([
+      const [{ data: items }, { data: issues }, { data: hist }] = await Promise.all([
         supabase.from("order_items").select("id, name, fulfillment_status, rider_name, rider_phone, tracking_note, escrow_released, escrow_release_at").eq("order_id", orderId),
         supabase.from("order_issues").select("*").eq("order_id", orderId).order("created_at", { ascending: false }),
+        supabase.from("order_status_history").select("created_at").eq("order_id", orderId).eq("status", "delivered").order("created_at", { ascending: false }).limit(1),
       ]);
-      return { items: items ?? [], issues: issues ?? [] };
+      return { items: items ?? [], issues: issues ?? [], deliveredAt: hist?.[0]?.created_at as string | undefined };
     },
+    refetchInterval: 15000,
   });
   if (!data || data.items.length === 0) return null;
 
   const shipped = data.items.filter((i) => i.fulfillment_status === "shipped" && (i.rider_name || i.rider_phone || i.tracking_note));
   const delivered = data.items.filter((i) => i.fulfillment_status === "delivered");
   const awaitingConfirm = delivered.some((i) => !i.escrow_released);
-  const lastDeliveredAt = delivered.map((i) => i.escrow_release_at).filter(Boolean).sort().pop();
-  const withinWindow = lastDeliveredAt ? Date.now() < new Date(lastDeliveredAt).getTime() + 24 * 3600_000 : false; // 72h after delivery
+  // Buyers can report an issue for 7 days after delivery (COD and online).
+  const deliveredAt = data.deliveredAt ? new Date(data.deliveredAt).getTime() : Date.now();
+  const withinWindow = delivered.length > 0 && Date.now() < deliveredAt + 7 * 24 * 3600_000;
   const openIssue = data.issues.find((i) => i.status === "open");
 
   const doConfirm = async () => {

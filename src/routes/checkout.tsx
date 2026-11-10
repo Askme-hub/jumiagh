@@ -2,7 +2,7 @@ import { createFileRoute, Link, redirect, useRouter } from "@tanstack/react-rout
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
-import { ChevronRight, MapPin, CreditCard, ShieldCheck, Truck, Store, Plus, Check, Trash2, TicketPercent, Loader2 } from "lucide-react";
+import { MapPin, CreditCard, ShieldCheck, Truck, Store, Plus, Check, Trash2, TicketPercent, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { formatGHC, useShop } from "@/lib/store";
 import { supabase } from "@/integrations/supabase/client";
@@ -356,21 +356,33 @@ function Checkout() {
 
 
   return (
-    <div className="pb-32">
+    <div className="min-h-screen bg-muted/30 pb-36">
       <PageHeader title="Checkout" />
 
-      <ol className="flex items-center gap-1 px-4 py-3 text-[11px] font-bold uppercase bg-card border-b border-border">
-        <li className="text-primary">1. Delivery</li>
-        <ChevronRight size={12} className="text-muted-foreground" />
-        <li className="text-primary">2. Payment</li>
-        <ChevronRight size={12} className="text-muted-foreground" />
-        <li className="text-muted-foreground">3. Confirmation</li>
-      </ol>
+      <main className="mx-auto w-full max-w-3xl px-3 pb-8 pt-4 sm:px-5">
+        <div className="mb-5 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-primary">Almost there</p>
+              <h2 className="mt-1 text-lg font-extrabold tracking-tight">Complete your order</h2>
+              <p className="mt-1 text-xs text-muted-foreground">Confirm where you want your items delivered.</p>
+            </div>
+            <div className="rounded-xl bg-primary/10 px-3 py-2 text-right">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Items</p>
+              <p className="text-lg font-extrabold text-primary">{itemCount}</p>
+            </div>
+          </div>
+          <ol className="grid grid-cols-3 gap-2 text-[11px] font-bold sm:text-xs">
+            <li className="flex items-center gap-2 rounded-lg bg-primary/10 px-2 py-2 text-primary"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">1</span><span>Delivery</span></li>
+            <li className="flex items-center gap-2 rounded-lg bg-primary/10 px-2 py-2 text-primary"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">2</span><span>Payment</span></li>
+            <li className="flex items-center gap-2 rounded-lg bg-secondary px-2 py-2 text-muted-foreground"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-background text-[10px]">3</span><span>Confirm</span></li>
+          </ol>
+        </div>
 
       {/* Saved addresses */}
-      <section id="address-section" className="bg-card mt-2">
+      <section id="address-section" className="mt-4 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
 
-        <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+        <div className="flex items-center gap-2 border-b border-border px-4 py-4 sm:px-5">
           <MapPin size={18} className="text-primary" />
           <h2 className="font-bold flex-1">Delivery Address</h2>
           {addresses.length > 0 && (
@@ -383,7 +395,7 @@ function Checkout() {
         {loadingAddrs && <div className="p-4 text-sm text-muted-foreground">Loading saved addresses…</div>}
 
         {!loadingAddrs && addresses.length > 0 && (
-          <div className="p-3 space-y-2">
+          <div className="space-y-3 p-4 sm:p-5">
             {addresses.map((a) => (
               <AddressCard
                 key={a.id}
@@ -403,14 +415,14 @@ function Checkout() {
         )}
 
         {(showForm || addresses.length === 0) && (
-          <div className="p-4 space-y-3 border-t border-border">
+          <div className="space-y-4 border-t border-border bg-muted/20 p-4 sm:p-5">
             <p className="text-xs font-bold uppercase text-muted-foreground">New Address</p>
             <Field label="Address label (e.g. Home, Work)" value={form.label} onChange={(v) => set("label", v)} error={errors.label} placeholder="Home" />
             <Field label="Full name" value={form.full_name} onChange={(v) => set("full_name", v)} error={errors.full_name} placeholder="Kwame Mensah" />
             <Field label="Phone number" value={form.phone} onChange={(v) => set("phone", v)} error={errors.phone} placeholder="024 000 0000" type="tel" inputMode="tel" />
             <div>
               <label className="block text-xs font-semibold text-muted-foreground mb-1">Region</label>
-              <select value={form.region} onChange={(e) => set("region", e.target.value)} className="w-full border border-border rounded px-3 py-2.5 bg-background text-sm">
+              <select value={form.region} onChange={(e) => set("region", e.target.value)} className="w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15">
                 {GH_REGIONS.map((r) => <option key={r}>{r}</option>)}
               </select>
             </div>
@@ -434,15 +446,15 @@ function Checkout() {
 
       {/* Delivery method */}
       {selected && (
-        <section id="delivery-section" className="bg-card mt-2">
+        <section id="delivery-section" className="mt-4 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
 
-          <div className="px-4 py-3 border-b border-border">
+          <div className="border-b border-border px-4 py-4 sm:px-5">
             <h2 className="font-bold">Delivery Method</h2>
           </div>
-          <div className="p-3 grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-3 p-4 sm:p-5">
             <button
               onClick={() => setDeliveryType("door")}
-              className={`p-3 rounded border-2 text-left ${deliveryType === "door" ? "border-primary bg-primary/5" : "border-border"}`}
+              className={`min-h-28 rounded-xl border-2 p-4 text-left transition ${deliveryType === "door" ? "border-primary bg-primary/5 shadow-sm" : "border-border bg-background hover:border-primary/40"}`}
             >
               <Truck size={18} className="text-primary mb-1" />
               <p className="font-bold text-sm">Door Delivery</p>
@@ -450,7 +462,7 @@ function Checkout() {
             </button>
             <button
               onClick={() => setDeliveryType("pickup")}
-              className={`p-3 rounded border-2 text-left ${deliveryType === "pickup" ? "border-primary bg-primary/5" : "border-border"}`}
+              className={`min-h-28 rounded-xl border-2 p-4 text-left transition ${deliveryType === "pickup" ? "border-primary bg-primary/5 shadow-sm" : "border-border bg-background hover:border-primary/40"}`}
             >
               <Store size={18} className="text-primary mb-1" />
               <p className="font-bold text-sm">Pickup Station</p>
@@ -459,7 +471,7 @@ function Checkout() {
           </div>
 
           {deliveryType === "pickup" && (
-            <div className="p-3 pt-0 space-y-2">
+            <div className="space-y-2 px-4 pb-4 sm:px-5 sm:pb-5">
               {stations.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No pickup stations available for these items. Use Door Delivery.</p>
               ) : stations.map((s) => (
@@ -484,12 +496,12 @@ function Checkout() {
       )}
 
       {/* Payment method */}
-      <section className="bg-card mt-2">
+      <section className="mt-4 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         <div className="px-4 py-3 flex items-center gap-2 border-b border-border">
           <CreditCard size={18} className="text-primary" />
           <h2 className="font-bold">Payment Method</h2>
         </div>
-        <div className="p-3 space-y-2">
+        <div className="space-y-3 p-4 sm:p-5">
           <button
             type="button"
             onClick={() => toast.info("Online payment is coming soon. Please use Pay on Delivery for now.")}
@@ -534,12 +546,12 @@ function Checkout() {
       </section>
 
       {/* Coupon */}
-      <section className="bg-card mt-2">
+      <section className="mt-4 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         <div className="px-4 py-3 flex items-center gap-2 border-b border-border">
           <TicketPercent size={18} className="text-primary" />
           <h2 className="font-bold">Coupon Code</h2>
         </div>
-        <div className="p-3">
+        <div className="p-4 sm:p-5">
           {appliedCoupon ? (
             <div className="flex items-center justify-between rounded-md bg-success/10 px-3 py-2.5">
               <div>
@@ -559,7 +571,7 @@ function Checkout() {
                 value={couponInput}
                 onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
                 placeholder="Enter coupon code"
-                className="flex-1 rounded-md border border-border bg-background px-3 py-2.5 text-sm uppercase"
+                className="min-w-0 flex-1 rounded-xl border border-border bg-background px-3.5 py-3 text-sm uppercase outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
               />
               <button
                 onClick={applyCoupon}
@@ -575,12 +587,12 @@ function Checkout() {
       </section>
 
       {/* Order summary */}
-      <section className="bg-card mt-2">
-        <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+      <section className="mt-4 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <div className="flex items-center justify-between border-b border-border px-4 py-4 sm:px-5">
           <h2 className="font-bold">Order Summary</h2>
           <Link to="/cart" className="text-xs text-primary font-semibold">Modify cart</Link>
         </div>
-        <div className="px-4 py-3 space-y-2 text-sm">
+        <div className="space-y-3 p-4 text-sm sm:p-5">
           <Row label={`Item's total (${itemCount})`} value={formatGHC(itemsTotal)} />
           <Row label="Shipping fees" value={shipping === 0 ? "FREE" : formatGHC(shipping)} />
           {deliveryType !== "pickup" && (
@@ -593,14 +605,14 @@ function Checkout() {
         </div>
       </section>
 
-      <p className="flex items-center gap-2 text-xs text-muted-foreground px-4 py-3">
+      <p className="flex items-center gap-2 rounded-xl border border-success/15 bg-success/5 px-4 py-3 text-xs text-muted-foreground">
         <ShieldCheck size={14} className="text-success" />
         {paymentMethod === "cod"
           ? "No payment now — pay the courier when your order is delivered."
           : "Your payment is encrypted and securely processed by Paystack."}
       </p>
 
-      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-card border-t border-border p-3 z-40">
+      <div className="fixed bottom-0 left-0 right-0 z-40 mx-auto w-full max-w-3xl border-t border-border bg-card/95 p-3 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-md sm:bottom-4 sm:rounded-2xl sm:border sm:p-4">
         {blocker && (
           <p className="mb-2 rounded-md bg-warning/10 px-3 py-2 text-xs font-semibold text-warning">
             {blocker}
@@ -613,7 +625,7 @@ function Checkout() {
         <button
           onClick={pay}
           disabled={paying}
-          className={`w-full font-bold py-3.5 rounded-md transition disabled:opacity-60 ${
+          className={`w-full rounded-xl py-4 font-extrabold shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60 ${
             blocker ? "bg-primary/60 text-primary-foreground" : "bg-primary text-primary-foreground"
           }`}
         >
@@ -623,6 +635,7 @@ function Checkout() {
         </button>
 
       </div>
+      </main>
 
       {otpPhone && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4">
@@ -633,7 +646,7 @@ function Checkout() {
               value={otpCode}
               onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
               inputMode="numeric" autoFocus placeholder="000000"
-              className="mt-4 w-full rounded border border-border bg-background px-3 py-2 text-center text-2xl tracking-[0.5em]"
+              className="mt-4 w-full rounded-xl border border-border bg-background px-3 py-3 text-center text-2xl tracking-[0.5em] outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
             />
             <button
               disabled={otpCode.length !== 6 || otpBusy}
@@ -647,7 +660,7 @@ function Checkout() {
                 } catch (e: any) { toast.error(e.message ?? "Verification failed"); }
                 finally { setOtpBusy(false); }
               }}
-              className="mt-3 w-full rounded bg-primary py-2.5 font-bold text-primary-foreground disabled:opacity-50"
+              className="mt-3 w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground disabled:opacity-50"
             >{otpBusy ? "Verifying…" : "Verify & place order"}</button>
             <div className="mt-2 flex justify-between text-sm">
               <button
@@ -670,7 +683,7 @@ function AddressCard({ a, selected, onSelect, onDelete }: {
   a: Address; selected: boolean; onSelect: () => void; onDelete: () => void;
 }) {
   return (
-    <div className={`p-3 rounded border-2 ${selected ? "border-primary bg-primary/5" : "border-border"}`}>
+    <div className={`rounded-xl border-2 p-4 transition ${selected ? "border-primary bg-primary/5 shadow-sm" : "border-border bg-background hover:border-primary/40"}`}>
       <button onClick={onSelect} className="w-full text-left flex gap-2">
         <div className="mt-0.5">
           <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${selected ? "border-primary bg-primary" : "border-border"}`}>
@@ -707,7 +720,7 @@ function Field({
   label: string; value: string; onChange: (v: string) => void;
   error?: string; placeholder?: string; type?: string; inputMode?: any; textarea?: boolean;
 }) {
-  const cls = `w-full border rounded px-3 py-2.5 bg-background text-sm ${error ? "border-destructive" : "border-border"}`;
+  const cls = `w-full rounded-xl border px-3.5 py-3 bg-background text-sm outline-none transition placeholder:text-muted-foreground/70 focus:border-primary focus:ring-2 focus:ring-primary/15 ${error ? "border-destructive" : "border-border"}`;
   return (
     <div>
       <label className="block text-xs font-semibold text-muted-foreground mb-1">{label}</label>

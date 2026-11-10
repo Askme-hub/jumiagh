@@ -1,66 +1,65 @@
 import { useEffect, useState } from "react";
+import { useRouterState } from "@tanstack/react-router";
 import kivoraIcon from "@/assets/kivora-icon.png";
 
-export function Preloader({ onDone }: { onDone?: () => void }) {
-  const [progress, setProgress] = useState(0);
-  const [fadeOut, setFadeOut] = useState(false);
+/**
+ * Brand splash shown on first app load. The page renders and loads underneath;
+ * the splash fades out once the app is ready (max ~2.5s).
+ */
+export function Preloader() {
+  const [phase, setPhase] = useState<"show" | "fade" | "gone">("show");
 
   useEffect(() => {
-    const totalDuration = 1600;
-    const interval = 30;
-    const step = 100 / (totalDuration / interval);
+    const start = Date.now();
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      const wait = Math.max(0, 700 - (Date.now() - start));
+      setTimeout(() => {
+        setPhase("fade");
+        setTimeout(() => setPhase("gone"), 400);
+      }, wait);
+    };
+    if (document.readyState === "complete") finish();
+    else window.addEventListener("load", finish, { once: true });
+    const cap = setTimeout(finish, 2500);
+    return () => {
+      clearTimeout(cap);
+      window.removeEventListener("load", finish);
+    };
+  }, []);
 
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        const next = prev + step;
-        if (next >= 100) {
-          clearInterval(timer);
-          setTimeout(() => {
-            setFadeOut(true);
-            setTimeout(() => onDone?.(), 350);
-          }, 200);
-          return 100;
-        }
-        return next;
-      });
-    }, interval);
-
-    return () => clearInterval(timer);
-  }, [onDone]);
+  if (phase === "gone") return null;
 
   return (
     <div
-      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background transition-opacity duration-300 ${
-        fadeOut ? "opacity-0 pointer-events-none" : "opacity-100"
+      aria-hidden
+      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background transition-opacity duration-400 ${
+        phase === "fade" ? "pointer-events-none opacity-0" : "opacity-100"
       }`}
     >
-      <div className="flex flex-col items-center gap-6">
-        <div className="relative">
-          <div className="w-24 h-24 rounded-2xl bg-primary/10 flex items-center justify-center p-3">
-            <img
-              src={kivoraIcon}
-              alt="Kivora"
-              className="w-full h-full object-contain"
-            />
-          </div>
-        </div>
-
-        <div className="text-center space-y-1">
-          <h1 className="text-2xl font-bold tracking-[0.2em] text-foreground uppercase">
-            KIVORA
-          </h1>
-          <p className="text-xs text-muted-foreground tracking-wide">
-            Everything You Need
-          </p>
-        </div>
-
-        <div className="w-44 h-1 bg-muted rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary transition-[width] duration-75 ease-linear rounded-full"
-            style={{ width: `${Math.min(progress, 100)}%` }}
-          />
-        </div>
+      <div className="relative flex h-24 w-24 items-center justify-center">
+        <span className="absolute inset-0 animate-ping rounded-3xl bg-primary/20" />
+        <img src={kivoraIcon} alt="" className="relative h-20 w-20 rounded-2xl shadow-lg" />
       </div>
+      <p className="mt-6 text-xl font-extrabold uppercase tracking-[0.25em] text-foreground">
+        Kivora<span className="text-primary">★</span>
+      </p>
+      <div className="mt-4 h-1 w-36 overflow-hidden rounded-full bg-muted">
+        <div className="h-full w-1/3 animate-[kivora-load_1s_ease-in-out_infinite] rounded-full bg-primary" />
+      </div>
+    </div>
+  );
+}
+
+/** Thin orange bar at the top while moving between pages. */
+export function RouteProgress() {
+  const loading = useRouterState({ select: (s) => s.status === "pending" });
+  if (!loading) return null;
+  return (
+    <div className="fixed inset-x-0 top-0 z-[90] h-0.5 overflow-hidden bg-primary/20">
+      <div className="h-full w-1/3 animate-[kivora-load_1s_ease-in-out_infinite] bg-primary" />
     </div>
   );
 }

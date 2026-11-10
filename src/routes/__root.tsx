@@ -24,6 +24,7 @@ import { useEffect } from "react";
 import { OfflineScreen } from "@/components/OfflineScreen";
 import { InstallSheet, InstalledNotificationPrompt } from "@/components/InstallSheet";
 import { CompleteAccountPrompt } from "@/components/CompleteAccountPrompt";
+import { Preloader, RouteProgress } from "@/components/Preloader";
 
 import appCss from "../styles.css?url";
 
@@ -157,6 +158,8 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LiveStockSync />
+      <Preloader />
+      <RouteProgress />
       <div className="min-h-screen flex flex-col bg-background">
         {!workspace && <MobileTopBar />}
         {!workspace && <TopNav />}

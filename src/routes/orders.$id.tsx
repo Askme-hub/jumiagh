@@ -169,6 +169,20 @@ function OrderDetails() {
     refetchInterval: 15000,
   });
 
+  const productIds: string[] = (data?.order_items ?? []).map((i: any) => i.product_id).filter(Boolean);
+  const { data: stockMap } = useQuery({
+    queryKey: ["order-stock", id, productIds.join(",")],
+    enabled: productIds.length > 0,
+    queryFn: async () => {
+      const { data: rows } = await supabase
+        .from("products")
+        .select("id, stock, price")
+        .in("id", productIds)
+        .eq("approval_status", "approved");
+      return Object.fromEntries((rows ?? []).map((r) => [r.id, { stock: r.stock, price: Number(r.price) }])) as Record<string, { stock: number; price: number }>;
+    },
+  });
+
   if (isLoading)
     return (
       <div>
@@ -449,19 +463,30 @@ function OrderDetails() {
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => {
-                addToCart({
-                  id: it.product_id ?? it.id,
-                  name: it.name,
-                  price: Number(it.price),
-                  image: it.image_url ?? "",
-                });
-              }}
-              className="w-full bg-primary text-primary-foreground font-bold py-3 flex items-center justify-center gap-2 active:opacity-90"
-            >
-              <RefreshCw size={16} /> Buy Again
-            </button>
+            {(() => {
+              const live = it.product_id ? stockMap?.[it.product_id] : undefined;
+              const unavailable = !it.product_id || !live || live.stock <= 0;
+              return (
+                <button
+                  disabled={unavailable}
+                  onClick={() => {
+                    if (!live || live.stock <= 0) return toast.error("Sorry, this item is out of stock.");
+                    const ok = addToCart({
+                      id: it.product_id,
+                      name: it.name,
+                      price: Number(live.price),
+                      image: it.image_url ?? "",
+                      stock: live.stock,
+                    } as any);
+                    if (ok === false) toast.error(`Only ${live.stock} left — you already have the maximum in your cart.`);
+                    else toast.success("Added to cart");
+                  }}
+                  className="w-full bg-primary text-primary-foreground font-bold py-3 flex items-center justify-center gap-2 active:opacity-90 disabled:bg-muted disabled:text-muted-foreground"
+                >
+                  <RefreshCw size={16} /> {unavailable ? "Out of stock" : "Buy Again"}
+                </button>
+              );
+            })()}
           </div>
         ))}
       </div>

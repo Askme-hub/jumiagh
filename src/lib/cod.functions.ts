@@ -133,8 +133,7 @@ export const placeCODOrder = createServerFn({ method: "POST" })
       discount = res.discount;
     }
     const total = Math.max(0, itemsTotal + shipping - discount);
-    if (total <= 0) throw new Error("Invalid cart total");
-    if (total > 1500) throw new Error("Pay on Delivery is limited to GH₵ 1,500 per order.");
+if (total <= 0) throw new Error("Invalid cart total");
 
     const { data: order, error } = await supabaseAdmin
       .from("orders")

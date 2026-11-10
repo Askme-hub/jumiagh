@@ -148,6 +148,13 @@
       "when": 1794222512173,
       "tag": "0020_signup_details_and_chat_push",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1794300547519,
+      "tag": "0021_sync_order_status_from_items",
+      "breakpoints": true
     }
   ]
 }

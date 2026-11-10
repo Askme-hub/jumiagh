@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Crown, Save, Users, Wallet, CalendarPlus, Ban } from "lucide-react";
+import { Crown, Save, Users, Wallet, CalendarPlus, Ban, Gift } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { subscriptionState, usePlans, type Plan, type PlanId } from "@/lib/subscriptions";
 
@@ -71,6 +71,8 @@ function AdminSubscriptions() {
         <p className="text-xs text-muted-foreground mt-2">Commission changes apply to orders delivered after saving. Price changes apply to the next payment.</p>
       </section>
 
+      <GiftPlan plans={plans} onDone={() => refetch()} />
+
       <section className="dashboard-panel rounded-2xl border border-border bg-card">
         <h2 className="font-display text-lg font-bold p-4 border-b border-border">Subscribers</h2>
         {subs.length === 0 ? (
@@ -115,6 +117,74 @@ function AdminSubscriptions() {
         )}
       </section>
     </div>
+  );
+}
+
+const DURATIONS = [
+  { days: 30, label: "1 month" },
+  { days: 90, label: "3 months" },
+  { days: 180, label: "6 months" },
+  { days: 365, label: "1 year" },
+  { days: 0, label: "No end date" },
+];
+
+function GiftPlan({ plans, onDone }: { plans: Plan[]; onDone: () => void }) {
+  const { data: shops = [] } = useQuery({
+    queryKey: ["admin-gift-shops"],
+    queryFn: async () => {
+      const { data } = await supabase.from("seller_profiles").select("user_id, shop_name").eq("status", "approved").order("shop_name");
+      return data ?? [];
+    },
+  });
+  const paid = plans.filter((p) => p.id !== "free");
+  const [userId, setUserId] = useState("");
+  const [plan, setPlan] = useState<PlanId>("premium");
+  const [days, setDays] = useState(30);
+  const [busy, setBusy] = useState(false);
+
+  const gift = async () => {
+    if (!userId) return toast.error("Choose a shop");
+    const shop = shops.find((s) => s.user_id === userId)?.shop_name ?? "Shop";
+    const planName = plans.find((p) => p.id === plan)?.name ?? plan;
+    if (!confirm(`Give ${shop} the ${planName} plan for free?`)) return;
+    setBusy(true);
+    const now = new Date();
+    const { error } = await supabase.from("seller_subscriptions").upsert(
+      {
+        user_id: userId, plan, status: "active", started_at: now.toISOString(),
+        expires_at: days ? new Date(now.getTime() + days * 86400000).toISOString() : null,
+        payment_reference: "ADMIN-GIFT",
+      },
+      { onConflict: "user_id" },
+    );
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success(`${shop} upgraded to ${planName} for free`);
+    onDone();
+  };
+
+  return (
+    <section className="dashboard-panel rounded-2xl border border-border bg-card p-4 space-y-3">
+      <div>
+        <h2 className="font-display text-lg font-bold flex items-center gap-2"><Gift size={18} className="text-primary" /> Upgrade a seller for free</h2>
+        <p className="text-xs text-muted-foreground">No payment needed. The seller gets the plan's commission, product limit and benefits straight away.</p>
+      </div>
+      <div className="grid gap-2 sm:grid-cols-4">
+        <select className={input} value={userId} onChange={(e) => setUserId(e.target.value)}>
+          <option value="">Choose shop…</option>
+          {shops.map((s) => <option key={s.user_id} value={s.user_id}>{s.shop_name}</option>)}
+        </select>
+        <select className={input} value={plan} onChange={(e) => setPlan(e.target.value as PlanId)}>
+          {paid.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+        </select>
+        <select className={input} value={days} onChange={(e) => setDays(Number(e.target.value))}>
+          {DURATIONS.map((d) => <option key={d.days} value={d.days}>{d.label}</option>)}
+        </select>
+        <button onClick={gift} disabled={busy} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-bold text-primary-foreground disabled:opacity-60">
+          <Gift size={16} /> {busy ? "Upgrading…" : "Upgrade free"}
+        </button>
+      </div>
+    </section>
   );
 }
 

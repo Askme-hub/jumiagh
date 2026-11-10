@@ -247,6 +247,7 @@ export function MobileTopBar() {
   const count = useShop((s) => s.cartCount());
   const openSearch = useSearchUI((s) => s.setOpen);
   const [mounted, setMounted] = useState(false);
+  const { user } = useAuth();
   useEffect(() => setMounted(true), []);
 
   if (path === "/login") return null;
@@ -267,14 +268,25 @@ export function MobileTopBar() {
           </span>
         </Link>
         <div className="flex shrink-0 items-center gap-2">
-          <InboxBell />
-          <Link
-            to="/account"
-            aria-label="Account"
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-foreground shadow-soft transition active:scale-95"
-          >
-            <UserCircle2 size={20} />
-          </Link>
+          {mounted && !user ? (
+            <Link
+              to="/login"
+              className="flex h-10 items-center gap-1 rounded-full bg-primary px-3 text-xs font-bold text-primary-foreground shadow-soft transition active:scale-95"
+            >
+              <LogIn size={15} /> Login
+            </Link>
+          ) : (
+            <>
+              <InboxBell />
+              <Link
+                to="/account"
+                aria-label="Account"
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-foreground shadow-soft transition active:scale-95"
+              >
+                <UserCircle2 size={20} />
+              </Link>
+            </>
+          )}
           <Link
             to="/cart"
             aria-label="Cart"

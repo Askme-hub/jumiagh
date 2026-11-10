@@ -20,7 +20,7 @@ import { ShareStore } from "@/components/ShareStore";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { MessageSellerButton } from "@/components/MessageSellerButton";
 
-const SITE = "https://kivoragh.lovable.app";
+const SITE = "https://kivoragh.shop";
 
 export const Route = createFileRoute("/shop/$slug")({
   loader: ({ params }) => fetchPublicStore({ data: { slug: params.slug } }),

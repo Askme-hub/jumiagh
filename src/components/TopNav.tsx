@@ -47,10 +47,16 @@ export function TopNav() {
         </button>
 
         <nav className="flex shrink-0 items-center gap-1">
-          <Link to="/account" className={pill}>
-            {user ? <UserAvatar user={user} size={22} /> : <UserCircle2 size={22} />}
-            {user ? "Account" : "Sign in"}
-          </Link>
+          {mounted && !user ? (
+            <Link to="/login" className="mr-1 flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition hover:opacity-90">
+              <UserCircle2 size={18} /> Login / Sign up
+            </Link>
+          ) : (
+            <Link to="/account" className={pill}>
+              {user ? <UserAvatar user={user} size={22} /> : <UserCircle2 size={22} />}
+              Account
+            </Link>
+          )}
           <Link to="/orders" className={pill} aria-label="Orders"><Package size={20} /></Link>
           <Link to="/wishlist" className={pill} aria-label="Wishlist"><Heart size={20} /></Link>
           <Link to="/help" className={pill}><HelpCircle size={22} /> Help</Link>

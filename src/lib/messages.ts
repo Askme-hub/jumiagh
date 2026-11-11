@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { flushMyPushes } from "./push.functions";
@@ -23,6 +23,9 @@ export type ChatMessage = {
   conversation_id: string;
   sender_id: string;
   body: string;
+  /** True once the recipient client received the message */
+  delivered: boolean;
+  /** True once the recipient opened the conversation */
   read: boolean;
   created_at: string;
 };
@@ -109,8 +112,40 @@ export function useConversations(userId: string | undefined) {
   });
 }
 
-/** Messages in one conversation, live-updating via realtime. */
-export function useMessages(conversationId: string | undefined) {
+/** Mark messages from the other party as delivered (recipient's client received them). */
+export async function markConversationDelivered(conversationId: string, userId: string) {
+  await supabase
+    .from("messages")
+    .update({ delivered: true })
+    .eq("conversation_id", conversationId)
+    .eq("delivered", false)
+    .neq("sender_id", userId);
+}
+
+/** Mark messages sent by the other party as read (and delivered). */
+export async function markConversationRead(conversationId: string, userId: string) {
+  await supabase
+    .from("messages")
+    .update({ read: true, delivered: true })
+    .eq("conversation_id", conversationId)
+    .eq("read", false)
+    .neq("sender_id", userId);
+}
+
+/** Touch last_seen_at on the current user's profile (best-effort). */
+export async function touchLastSeen(userId: string) {
+  try {
+    await supabase
+      .from("profiles")
+      .update({ last_seen_at: new Date().toISOString() })
+      .eq("id", userId);
+  } catch {
+    /* column may not exist yet — ignore */
+  }
+}
+
+/** Messages in one conversation, live-updating via realtime (insert + status updates). */
+export function useMessages(conversationId: string | undefined, userId?: string) {
   const qc = useQueryClient();
   const query = useQuery({
     queryKey: ["messages", conversationId],
@@ -121,7 +156,11 @@ export function useMessages(conversationId: string | undefined) {
         .eq("conversation_id", conversationId!)
         .order("created_at", { ascending: true });
       if (error) throw error;
-      return (data ?? []) as ChatMessage[];
+      return (data ?? []).map((m) => ({
+        ...m,
+        delivered: !!(m as ChatMessage).delivered,
+        read: !!m.read,
+      })) as ChatMessage[];
     },
     enabled: !!conversationId,
   });
@@ -132,17 +171,47 @@ export function useMessages(conversationId: string | undefined) {
       .channel(`messages:${conversationId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          const row = payload.new as ChatMessage;
+          if (userId && row.sender_id !== userId && !row.delivered) {
+            void supabase
+              .from("messages")
+              .update({ delivered: true })
+              .eq("id", row.id)
+              .then(() => {
+                qc.invalidateQueries({ queryKey: ["messages", conversationId] });
+              });
+          }
+          qc.invalidateQueries({ queryKey: ["messages", conversationId] });
+          qc.invalidateQueries({ queryKey: ["conversations"] });
+          qc.invalidateQueries({ queryKey: ["chat-unread"] });
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
         () => {
           qc.invalidateQueries({ queryKey: ["messages", conversationId] });
           qc.invalidateQueries({ queryKey: ["conversations"] });
+          qc.invalidateQueries({ queryKey: ["chat-unread"] });
         },
       )
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId, qc]);
+  }, [conversationId, userId, qc]);
 
   return query;
 }
@@ -153,27 +222,22 @@ export function useSendMessage(conversationId: string | undefined) {
     mutationFn: async ({ body, senderId }: { body: string; senderId: string }) => {
       const text = body.trim();
       if (!text) throw new Error("Type a message first.");
-      const { error } = await supabase
-        .from("messages")
-        .insert({ conversation_id: conversationId!, sender_id: senderId, body: text });
+      const { error } = await supabase.from("messages").insert({
+        conversation_id: conversationId!,
+        sender_id: senderId,
+        body: text,
+        delivered: false,
+        read: false,
+      });
       if (error) throw error;
       void flushMyPushes().catch(() => {});
+      void touchLastSeen(senderId);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["messages", conversationId] });
       qc.invalidateQueries({ queryKey: ["conversations"] });
     },
   });
-}
-
-/** Mark messages sent by the other party as read. */
-export async function markConversationRead(conversationId: string, userId: string) {
-  await supabase
-    .from("messages")
-    .update({ read: true })
-    .eq("conversation_id", conversationId)
-    .eq("read", false)
-    .neq("sender_id", userId);
 }
 
 /** Total unread chat messages for the badge. */
@@ -203,6 +267,9 @@ export function useUnreadChatCount(userId: string | undefined) {
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, () => {
         qc.invalidateQueries({ queryKey: ["chat-unread", userId] });
       })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "messages" }, () => {
+        qc.invalidateQueries({ queryKey: ["chat-unread", userId] });
+      })
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
@@ -210,4 +277,181 @@ export function useUnreadChatCount(userId: string | undefined) {
   }, [userId, qc]);
 
   return query;
+}
+
+// ---------------------------------------------------------------------------
+// Presence + typing (Realtime Presence + Broadcast — no extra tables required)
+// ---------------------------------------------------------------------------
+
+export type PartnerPresence = {
+  online: boolean;
+  typing: boolean;
+  lastSeenAt: string | null;
+};
+
+/**
+ * Join a conversation presence channel:
+ * - Tracks online/offline for the other party
+ * - Broadcasts typing state
+ * - Loads/updates last_seen_at on profiles
+ */
+export function useChatPresence(
+  conversationId: string | undefined,
+  userId: string | undefined,
+  otherUserId: string | undefined,
+) {
+  const [partner, setPartner] = useState<PartnerPresence>({
+    online: false,
+    typing: false,
+    lastSeenAt: null,
+  });
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTypedAt = useRef(0);
+
+  // Load persisted last_seen for the partner
+  useEffect(() => {
+    if (!otherUserId) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("last_seen_at")
+        .eq("id", otherUserId)
+        .maybeSingle();
+      if (!cancelled && data?.last_seen_at) {
+        setPartner((p) => ({ ...p, lastSeenAt: data.last_seen_at as string }));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [otherUserId]);
+
+  useEffect(() => {
+    if (!conversationId || !userId) return;
+
+    const channel = supabase.channel(`presence:chat:${conversationId}`, {
+      config: { presence: { key: userId } },
+    });
+    channelRef.current = channel;
+
+    const syncPresence = () => {
+      const state = channel.presenceState() as Record<
+        string,
+        Array<{ user_id?: string; online_at?: string }>
+      >;
+      let online = false;
+      let seen: string | null = null;
+      for (const [key, metas] of Object.entries(state)) {
+        if (key === userId) continue;
+        if (otherUserId && key !== otherUserId) continue;
+        online = true;
+        const at = metas?.[0]?.online_at;
+        if (at) seen = at;
+      }
+      setPartner((p) => ({
+        ...p,
+        online,
+        lastSeenAt: seen ?? p.lastSeenAt,
+        // clear typing if they went offline
+        typing: online ? p.typing : false,
+      }));
+    };
+
+    channel
+      .on("presence", { event: "sync" }, syncPresence)
+      .on("presence", { event: "join" }, syncPresence)
+      .on("presence", { event: "leave" }, () => {
+        syncPresence();
+        // Partner left — refresh last_seen from DB shortly
+        if (otherUserId) {
+          void supabase
+            .from("profiles")
+            .select("last_seen_at")
+            .eq("id", otherUserId)
+            .maybeSingle()
+            .then(({ data }) => {
+              if (data?.last_seen_at) {
+                setPartner((p) => ({ ...p, lastSeenAt: data.last_seen_at as string, online: false }));
+              }
+            });
+        }
+      })
+      .on("broadcast", { event: "typing" }, ({ payload }) => {
+        if (!payload || payload.user_id === userId) return;
+        setPartner((p) => ({ ...p, typing: !!payload.typing }));
+        if (payload.typing) {
+          if (typingTimeout.current) clearTimeout(typingTimeout.current);
+          typingTimeout.current = setTimeout(() => {
+            setPartner((p) => ({ ...p, typing: false }));
+          }, 3000);
+        }
+      })
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          await channel.track({
+            user_id: userId,
+            online_at: new Date().toISOString(),
+          });
+          void touchLastSeen(userId);
+        }
+      });
+
+    // Heartbeat last_seen while the thread is open
+    const heartbeat = setInterval(() => {
+      void touchLastSeen(userId);
+      void channel.track({
+        user_id: userId,
+        online_at: new Date().toISOString(),
+      });
+    }, 45_000);
+
+    return () => {
+      clearInterval(heartbeat);
+      if (typingTimeout.current) clearTimeout(typingTimeout.current);
+      void touchLastSeen(userId);
+      void supabase.removeChannel(channel);
+      channelRef.current = null;
+    };
+  }, [conversationId, userId, otherUserId]);
+
+  /** Call while the user is typing in the composer (throttled). */
+  const notifyTyping = useCallback(() => {
+    const ch = channelRef.current;
+    if (!ch || !userId) return;
+    const now = Date.now();
+    if (now - lastTypedAt.current < 800) return;
+    lastTypedAt.current = now;
+    void ch.send({
+      type: "broadcast",
+      event: "typing",
+      payload: { user_id: userId, typing: true },
+    });
+  }, [userId]);
+
+  /** Call when the composer is cleared / message sent. */
+  const notifyStoppedTyping = useCallback(() => {
+    const ch = channelRef.current;
+    if (!ch || !userId) return;
+    void ch.send({
+      type: "broadcast",
+      event: "typing",
+      payload: { user_id: userId, typing: false },
+    });
+  }, [userId]);
+
+  return { partner, notifyTyping, notifyStoppedTyping };
+}
+
+/** Human-readable last-seen label. */
+export function formatLastSeen(iso: string | null | undefined): string {
+  if (!iso) return "Offline";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "Offline";
+  const diff = Date.now() - d.getTime();
+  if (diff < 60_000) return "Last seen just now";
+  if (diff < 3_600_000) return `Last seen ${Math.floor(diff / 60_000)}m ago`;
+  if (diff < 86_400_000) return `Last seen ${Math.floor(diff / 3_600_000)}h ago`;
+  return `Last seen ${d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`;
 }

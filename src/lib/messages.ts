@@ -63,9 +63,11 @@ export function useConversations(userId: string | undefined) {
   return useQuery({
     queryKey: ["conversations", userId],
     queryFn: async () => {
+      // Explicit filter so we never surface other users' chats even if RLS is misconfigured
       const { data, error } = await supabase
         .from("conversations")
         .select("*")
+        .or(`customer_id.eq.${userId},seller_id.eq.${userId}`)
         .order("last_message_at", { ascending: false });
       if (error) throw error;
       const convos = (data ?? []) as Conversation[];
@@ -247,7 +249,11 @@ export function useUnreadChatCount(userId: string | undefined) {
   const query = useQuery({
     queryKey: ["chat-unread", userId],
     queryFn: async () => {
-      const { data: convos } = await supabase.from("conversations").select("id");
+      // Only count conversations the current user belongs to
+      const { data: convos } = await supabase
+        .from("conversations")
+        .select("id")
+        .or(`customer_id.eq.${userId},seller_id.eq.${userId}`);
       const ids = (convos ?? []).map((c) => c.id);
       if (ids.length === 0) return 0;
       const { count } = await supabase

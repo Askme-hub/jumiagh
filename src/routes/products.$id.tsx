@@ -98,7 +98,6 @@ function ProductDetails() {
   const addToCart = useShop((s) => s.addToCart);
   const updateQty = useShop((s) => s.updateQty);
   const toggleWishlist = useShop((s) => s.toggleWishlist);
-  const [activeImg, setActiveImg] = useState(0);
   useEffect(() => { if (data?.id) trackViewed(data.id); }, [data?.id]);
   const productId = data?.id;
 

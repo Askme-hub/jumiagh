@@ -1,4 +1,5 @@
 import { InboxBell } from "@/components/InboxBell";
+import { MessageBell } from "@/components/MessageBell";
 import { Link, useRouterState, useRouter } from "@tanstack/react-router";
 import {
   Home,
@@ -33,6 +34,7 @@ import { useSearchUI } from "@/lib/search-ui";
 import kivoraIcon from "@/assets/kivora-icon.png";
 import { UserAvatar } from "@/components/UserAvatar";
 import { InstallAppButton } from "@/components/InstallAppButton";
+import { useUnreadChatCount } from "@/lib/messages";
 
 const accountItems = [
   { to: "/orders" as const, label: "Orders", icon: Package },
@@ -68,6 +70,7 @@ export function AppDrawer() {
   const { data: isAdmin } = useIsAdmin(user);
   const { data: categories = [] } = useCategories();
   const { data: isSeller } = useIsSeller(user);
+  const { data: chatUnread = 0 } = useUnreadChatCount(user?.id);
 
   // close on route change
   useEffect(() => {
@@ -86,11 +89,13 @@ export function AppDrawer() {
     label,
     icon: Icon,
     active,
+    badge,
   }: {
     to: string;
     label: string;
     icon: typeof Home;
     active: boolean;
+    badge?: number;
   }) => (
     <Link
       to={to}
@@ -100,8 +105,20 @@ export function AppDrawer() {
           : "text-foreground/80 hover:bg-muted"
       }`}
     >
-      <Icon size={20} strokeWidth={active ? 2.4 : 1.9} />
+      <span className="relative">
+        <Icon size={20} strokeWidth={active ? 2.4 : 1.9} />
+        {!!badge && badge > 0 && (
+          <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-0.5 text-[9px] font-bold text-primary-foreground">
+            {badge > 9 ? "9+" : badge}
+          </span>
+        )}
+      </span>
       {label}
+      {!!badge && badge > 0 && (
+        <span className="ml-auto rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary">
+          {badge > 99 ? "99+" : badge}
+        </span>
+      )}
     </Link>
   );
 
@@ -145,7 +162,7 @@ export function AppDrawer() {
           <SectionLabel>My Orders & Lists</SectionLabel>
           <div className="px-2 space-y-0.5">
             {accountItems.map(({ to, label, icon }) => (
-              <NavLink key={to} to={to} label={label} icon={icon} active={path.startsWith(to)} />
+              <NavLink key={to} to={to} label={label} icon={icon} active={path.startsWith(to)} badge={to === "/messages" ? chatUnread : undefined} />
             ))}
           </div>
 
@@ -193,7 +210,7 @@ export function AppDrawer() {
                 <NavLink to="/seller" label="Overview" icon={Store} active={path === "/seller"} />
                 <NavLink to="/seller/products" label="My Products" icon={Package} active={path.startsWith("/seller/products")} />
                 <NavLink to="/seller/orders" label="Orders" icon={ShoppingCart} active={path.startsWith("/seller/orders")} />
-                <NavLink to="/seller/messages" label="Messages" icon={MessageCircle} active={path.startsWith("/seller/messages")} />
+                <NavLink to="/seller/messages" label="Messages" icon={MessageCircle} active={path.startsWith("/seller/messages")} badge={chatUnread} />
                 <NavLink to="/seller/wallet" label="Wallet" icon={Wallet} active={path.startsWith("/seller/wallet")} />
                 <NavLink to="/seller/subscription" label="Plans" icon={Tag} active={path.startsWith("/seller/subscription")} />
                 <NavLink to="/seller/profile" label="Store Settings" icon={UserCircle2} active={path.startsWith("/seller/profile")} />
@@ -277,6 +294,7 @@ export function MobileTopBar() {
             </Link>
           ) : (
             <>
+              <MessageBell variant="mobile" />
               <InboxBell />
               <Link
                 to="/account"

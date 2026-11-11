@@ -165,7 +165,15 @@ export function ChatThread({
       { body: text, senderId: userId },
       {
         onSuccess: () => setText(""),
-        onError: (e) => toast.error(e instanceof Error ? e.message : "Couldn't send message"),
+        onError: (e: unknown) => {
+          const msg =
+            e instanceof Error
+              ? e.message
+              : typeof e === "object" && e && "message" in e
+                ? String((e as { message: unknown }).message)
+                : "Couldn't send message";
+          toast.error(msg);
+        },
       },
     );
   };

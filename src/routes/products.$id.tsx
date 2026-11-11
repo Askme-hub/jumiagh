@@ -10,6 +10,7 @@ import { toProduct, type DbProduct } from "@/lib/products";
 import { useSellerBadge } from "@/lib/stores";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { MessageSellerButton } from "@/components/MessageSellerButton";
+import { ProductGallery } from "@/components/ProductGallery";
 import { ProductReviews } from "@/components/ProductReviews";
 import { useProductReviews } from "@/lib/reviews";
 import { Heart, ShoppingCart, Truck, Shield, PackageX, Minus, Plus, ChevronRight, Star, PackageCheck } from "lucide-react";
@@ -134,7 +135,7 @@ function ProductDetails() {
   }
 
   const product = toProduct(data);
-  const images = [product.image].filter(Boolean);
+  const images = Array.from(new Set([product.image, ...((data as DbProduct & { image_urls?: string[] }).image_urls ?? [])].filter(Boolean))) as string[];
   const oldPrice = product.discount ? product.price + (product.price * product.discount) / 100 : null;
 
   const wishlistButton = (
@@ -233,29 +234,18 @@ function ProductDetails() {
           {/* LEFT: gallery + description */}
           <div className="contents lg:block lg:space-y-4">
             <div className="order-1 bg-card lg:rounded-2xl lg:border lg:border-border lg:shadow-soft lg:overflow-hidden">
-              <div className="relative aspect-square bg-muted pb-6 lg:aspect-[4/3] lg:pb-0">
-                <img src={images[activeImg]} alt={product.name} className="h-full w-full object-contain p-8 mix-blend-multiply dark:mix-blend-normal" />
-                {product.discount && (
-                  <div className="absolute left-3 top-3 rounded-full bg-flash px-2.5 py-1 text-xs font-bold text-flash-foreground shadow">
-                    -{product.discount}%
-                  </div>
-                )}
-                {wishlistButton}
-              </div>
-
-              {images.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto px-3 py-2">
-                  {images.map((img, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setActiveImg(i)}
-                      className={`h-16 w-16 shrink-0 rounded border-2 ${i === activeImg ? "border-primary" : "border-border"}`}
-                    >
-                      <img src={img} alt="" className="h-full w-full object-contain" />
-                    </button>
-                  ))}
-                </div>
-              )}
+              <ProductGallery
+                images={images}
+                alt={product.name}
+                overlay={<>
+                  {product.discount && (
+                    <div className="absolute left-3 top-3 rounded-full bg-flash px-2.5 py-1 text-xs font-bold text-flash-foreground shadow">
+                      -{product.discount}%
+                    </div>
+                  )}
+                  {wishlistButton}
+                </>}
+              />
             </div>
 
             <div className="order-3 mt-2 bg-card p-4 lg:mt-0 lg:rounded-2xl lg:border lg:border-border">

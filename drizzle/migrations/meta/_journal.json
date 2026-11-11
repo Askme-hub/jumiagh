@@ -155,6 +155,13 @@
       "when": 1794300547519,
       "tag": "0021_sync_order_status_from_items",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1794370173886,
+      "tag": "0022_product_image_gallery",
+      "breakpoints": true
     }
   ]
 }

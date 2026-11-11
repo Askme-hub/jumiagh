@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Check, CheckCheck, SendHorizonal, X, Store, User } from "lucide-react";
+import { ArrowLeft, Check, CheckCheck, SendHorizonal, X, Store, User, ChevronDown } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import {
@@ -259,6 +259,9 @@ export function ChatThread({
   const [text, setText] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
   const [shopSlug, setShopSlug] = useState<string | null>(null);
+  const [showJump, setShowJump] = useState(false);
+  const [keyboardPad, setKeyboardPad] = useState(0);
+  const [viewportH, setViewportH] = useState<number | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -283,9 +286,45 @@ export function ChatThread({
     };
   }, [otherIsSeller, otherUserId]);
 
+  // Lock body scroll only on mobile full-screen chat
   useEffect(() => {
+    if (!window.matchMedia("(max-width: 767px)").matches) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
+  // Keep layout stable when mobile keyboard opens (stops header jump)
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const sync = () => {
+      // How much the keyboard is covering the layout viewport
+      const covered = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      setKeyboardPad(covered > 40 ? covered : 0);
+      setViewportH(vv.height);
+    };
+
+    sync();
+    vv.addEventListener("resize", sync);
+    vv.addEventListener("scroll", sync);
+    return () => {
+      vv.removeEventListener("resize", sync);
+      vv.removeEventListener("scroll", sync);
+    };
+  }, []);
+
+  const scrollToBottom = (smooth = true) => {
     const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: smooth ? "smooth" : "auto" });
+  };
+
+  useEffect(() => {
+    scrollToBottom(false);
   }, [
     messages?.length,
     messages?.[messages.length - 1]?.read,
@@ -298,6 +337,24 @@ export function ChatThread({
     void markConversationRead(conversation.id, userId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversation.id]);
+
+  // Focus composer shortly after open so users see the input quickly
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      // Don't steal focus on desktop multi-pane
+      if (window.matchMedia("(max-width: 767px)").matches) {
+        textareaRef.current?.focus({ preventScroll: true });
+      }
+    }, 350);
+    return () => window.clearTimeout(t);
+  }, [conversation.id]);
+
+  const onScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const dist = el.scrollHeight - el.scrollTop - el.clientHeight;
+    setShowJump(dist > 140);
+  };
 
   const groups = useMemo(() => groupByDay(messages ?? []), [messages]);
 
@@ -320,6 +377,7 @@ export function ChatThread({
           if (textareaRef.current) {
             textareaRef.current.style.height = "auto";
           }
+          requestAnimationFrame(() => scrollToBottom(true));
         },
         onError: (e: unknown) => {
           const msg =
@@ -335,24 +393,31 @@ export function ChatThread({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background md:static md:z-auto md:h-[calc(100dvh-11rem)]">
-      {/* Sticky WhatsApp-style header */}
-      <header className="sticky top-0 z-20 flex items-center gap-2 border-b border-border bg-card/95 px-2 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/90 md:px-3 md:pt-2">
+    <div
+      className="fixed inset-x-0 top-0 z-50 flex flex-col bg-background md:static md:inset-auto md:z-auto md:h-[calc(100dvh-11rem)]"
+      style={
+        viewportH != null
+          ? { height: viewportH, bottom: "auto" }
+          : { height: "100dvh", bottom: 0 }
+      }
+    >
+      {/* Fixed flex header — does not jump with keyboard */}
+      <header className="z-20 flex shrink-0 items-center gap-1 border-b border-border bg-card px-1.5 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] shadow-sm md:gap-2 md:px-3 md:pt-2">
         {onBack && (
           <button
             type="button"
             onClick={onBack}
-            className="shrink-0 rounded-full p-2 text-foreground hover:bg-muted md:hidden"
+            className="shrink-0 rounded-full p-2.5 text-foreground active:bg-muted md:hidden"
             aria-label="Back"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={22} />
           </button>
         )}
 
         <button
           type="button"
           onClick={() => setProfileOpen(true)}
-          className="flex min-w-0 flex-1 items-center gap-3 rounded-xl px-1 py-1 text-left transition hover:bg-muted/60 active:bg-muted"
+          className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl px-1 py-1 text-left active:bg-muted/60"
         >
           <div className="relative shrink-0">
             <ChatAvatar name={displayName} />
@@ -389,14 +454,16 @@ export function ChatThread({
         </button>
       </header>
 
-      {/* Chat background + messages */}
+      {/* Messages */}
       <div
         ref={scrollRef}
-        className="relative flex-1 space-y-0.5 overflow-y-auto px-2 py-3 sm:px-3"
+        onScroll={onScroll}
+        className="relative min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-contain px-2 py-2 sm:px-3"
         style={{
           backgroundImage:
             "radial-gradient(circle at 1px 1px, hsl(var(--muted-foreground) / 0.06) 1px, transparent 0)",
           backgroundSize: "18px 18px",
+          WebkitOverflowScrolling: "touch",
         }}
       >
         {isLoading ? (
@@ -409,7 +476,7 @@ export function ChatThread({
             ))}
           </div>
         ) : (messages?.length ?? 0) === 0 ? (
-          <div className="flex flex-col items-center justify-center px-6 pt-16 text-center">
+          <div className="flex flex-col items-center justify-center px-6 pt-12 text-center">
             <button type="button" onClick={() => setProfileOpen(true)}>
               <ChatAvatar name={displayName} size="lg" />
             </button>
@@ -418,11 +485,18 @@ export function ChatThread({
               Say hello — your conversation starts here. You’ll see when they receive and read your
               messages.
             </p>
+            <button
+              type="button"
+              onClick={() => textareaRef.current?.focus()}
+              className="mt-4 rounded-full border border-border bg-card px-4 py-2 text-xs font-bold text-primary shadow-sm"
+            >
+              Type a message
+            </button>
           </div>
         ) : (
           groups.map((g) => (
             <div key={g.label} className="space-y-1">
-              <div className="sticky top-0 z-[1] flex justify-center py-2">
+              <div className="sticky top-1 z-[1] flex justify-center py-1.5">
                 <span className="rounded-full border border-border/80 bg-card/90 px-3 py-0.5 text-[10px] font-semibold text-muted-foreground shadow-sm backdrop-blur">
                   {g.label}
                 </span>
@@ -439,16 +513,15 @@ export function ChatThread({
                     className={cn(
                       "flex",
                       mine ? "justify-end" : "justify-start",
-                      sameAsPrev ? "mt-0.5" : "mt-2",
+                      sameAsPrev ? "mt-0.5" : "mt-1.5",
                     )}
                   >
                     <div
                       className={cn(
-                        "relative max-w-[85%] px-3 py-1.5 text-[15px] leading-snug shadow-sm sm:max-w-[75%]",
+                        "relative max-w-[88%] px-3 py-1.5 text-[15px] leading-snug shadow-sm sm:max-w-[75%]",
                         mine
                           ? "bg-primary text-primary-foreground"
                           : "border border-border bg-card text-foreground",
-                        // bubble tails / grouping
                         mine
                           ? sameAsNext
                             ? "rounded-2xl rounded-br-md"
@@ -456,8 +529,6 @@ export function ChatThread({
                           : sameAsNext
                             ? "rounded-2xl rounded-bl-md"
                             : "rounded-2xl rounded-bl-sm",
-                        !sameAsPrev && mine && "rounded-tr-2xl",
-                        !sameAsPrev && !mine && "rounded-tl-2xl",
                       )}
                     >
                       <p className="whitespace-pre-wrap break-words">{m.body}</p>
@@ -497,12 +568,31 @@ export function ChatThread({
           </div>
         )}
 
-        <div ref={bottomRef} />
+        <div ref={bottomRef} className="h-1" />
       </div>
 
-      {/* Composer */}
-      <div className="border-t border-border bg-card px-2 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:px-3 sm:py-3">
-        <div className="flex items-end gap-2">
+      {/* Jump to latest */}
+      {showJump && (
+        <button
+          type="button"
+          onClick={() => scrollToBottom(true)}
+          className="absolute bottom-24 right-3 z-30 grid h-9 w-9 place-items-center rounded-full border border-border bg-card text-foreground shadow-md active:scale-95 md:bottom-28"
+          aria-label="Jump to latest messages"
+        >
+          <ChevronDown size={18} />
+        </button>
+      )}
+
+      {/* Composer — lifted, always visible above keyboard */}
+      <div
+        className="z-20 shrink-0 border-t border-border bg-card px-2 pt-2 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] sm:px-3"
+        style={{
+          paddingBottom: keyboardPad > 0
+            ? 8
+            : "max(0.5rem, env(safe-area-inset-bottom))",
+        }}
+      >
+        <div className="mx-auto flex max-w-3xl items-end gap-2">
           <textarea
             ref={textareaRef}
             value={text}
@@ -514,6 +604,10 @@ export function ChatThread({
               if (e.target.value.trim()) notifyTyping();
               else notifyStoppedTyping();
             }}
+            onFocus={() => {
+              // Keep latest messages visible when focusing input
+              setTimeout(() => scrollToBottom(true), 250);
+            }}
             onBlur={() => notifyStoppedTyping()}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
@@ -523,18 +617,21 @@ export function ChatThread({
             }}
             rows={1}
             placeholder="Type a message"
-            className="max-h-28 min-h-[42px] flex-1 resize-none rounded-3xl border border-border bg-background px-4 py-2.5 text-[15px] text-foreground outline-none focus:border-primary"
+            className="max-h-28 min-h-[44px] flex-1 resize-none rounded-3xl border border-border bg-background px-4 py-2.5 text-[15px] text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
           />
           <button
             type="button"
             onClick={submit}
             disabled={!text.trim() || send.isPending}
-            className="grid h-[42px] w-[42px] shrink-0 place-items-center rounded-full gradient-primary text-primary-foreground shadow-sm transition active:scale-95 disabled:opacity-40"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full gradient-primary text-primary-foreground shadow-md transition active:scale-95 disabled:opacity-40"
             aria-label="Send"
           >
             <SendHorizonal size={18} />
           </button>
         </div>
+        <p className="mx-auto mt-1 max-w-3xl px-1 text-[10px] text-muted-foreground">
+          Enter to send · Shift+Enter for new line
+        </p>
       </div>
 
       <ChatProfileSheet

@@ -117,32 +117,63 @@ function Overview({ userId, shopName }: { userId: string; shopName: string }) {
 
   return (
     <div className="dashboard-canvas p-4 md:p-6">
-      <div className="mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
+      {/* Greeting + primary CTAs */}
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs font-bold text-primary">KIVORA SELLER</p>
-          <h1 className="mt-1 truncate font-display text-2xl font-bold md:text-3xl">Hello, {shopName}</h1>
+          <p className="text-[11px] font-bold uppercase tracking-wide text-primary">Kivora Seller</p>
+          <h1 className="mt-0.5 truncate font-display text-2xl font-bold tracking-tight md:text-3xl">
+            Hello, {shopName}
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">Your shop at a glance today.</p>
         </div>
-        <Button asChild size="icon" className="rounded-xl"><Link to="/seller/products/new" aria-label="Add product"><Plus /></Link></Button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button asChild variant="outline" className="rounded-xl">
+            <Link to="/seller/orders">Orders</Link>
+          </Button>
+          <Button asChild className="rounded-xl gap-1.5">
+            <Link to="/seller/products/new">
+              <Plus className="h-4 w-4" /> Add product
+            </Link>
+          </Button>
+        </div>
       </div>
 
-      <div className="mb-4"><PushToggle compact /></div>
+      <div className="mb-4">
+        <PushToggle compact />
+      </div>
 
-      <section className="relative overflow-hidden rounded-2xl bg-secondary p-5 text-secondary-foreground shadow-xl md:p-6">
+      {/* Wallet card */}
+      <section className="relative overflow-hidden rounded-2xl bg-secondary p-5 text-secondary-foreground shadow-lg md:p-6">
         <div className="absolute -bottom-12 -right-8 h-40 w-40 rounded-full bg-primary/20" />
-        <div className="relative grid gap-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+        <div className="relative grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
           <div>
-            <div className="flex items-center gap-2 text-sm opacity-75"><Wallet size={16} /> Available balance</div>
-            <p className="mt-2 font-display text-3xl font-bold md:text-4xl">{formatGHC(Number(wallet?.balance ?? 0))}</p>
-            <p className="mt-2 text-xs opacity-65">{formatGHC(Number(wallet?.pending ?? 0))} pending · {formatGHC(Number(wallet?.total_earned ?? 0))} earned</p>
+            <div className="flex items-center gap-2 text-sm opacity-75">
+              <Wallet size={16} /> Available balance
+            </div>
+            <p className="mt-2 font-display text-3xl font-bold tracking-tight md:text-4xl">
+              {formatGHC(Number(wallet?.balance ?? 0))}
+            </p>
+            <p className="mt-2 text-xs opacity-65">
+              {formatGHC(Number(wallet?.pending ?? 0))} pending ·{" "}
+              {formatGHC(Number(wallet?.total_earned ?? 0))} earned
+            </p>
           </div>
-          <div className="flex gap-2">
-            <Button asChild variant="outline" className="border-secondary-foreground/20 bg-secondary-foreground/10 text-secondary-foreground hover:bg-secondary-foreground/20"><Link to="/seller/wallet">Withdraw</Link></Button>
-            <Button asChild><Link to="/seller/wallet">Details</Link></Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              asChild
+              variant="outline"
+              className="rounded-xl border-secondary-foreground/20 bg-secondary-foreground/10 text-secondary-foreground hover:bg-secondary-foreground/20"
+            >
+              <Link to="/seller/wallet">Withdraw</Link>
+            </Button>
+            <Button asChild className="rounded-xl">
+              <Link to="/seller/wallet">Details</Link>
+            </Button>
           </div>
         </div>
       </section>
 
+      {/* Quick stats */}
       <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="Approved" value={approved} icon={CheckCircle2} color="text-success" />
         <Stat label="Pending" value={pending} icon={Clock} color="text-warning" />

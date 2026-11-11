@@ -1,12 +1,110 @@
-import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, SendHorizonal } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, Check, CheckCheck, SendHorizonal } from "lucide-react";
 import { toast } from "sonner";
-import { useMessages, useSendMessage, markConversationRead, type Conversation } from "@/lib/messages";
+import {
+  useMessages,
+  useSendMessage,
+  markConversationRead,
+  markConversationDelivered,
+  useChatPresence,
+  formatLastSeen,
+  type Conversation,
+  type ChatMessage,
+} from "@/lib/messages";
+import { cn } from "@/lib/utils";
+
 export function ChatAvatar({ name }: { name?: string | null }) {
   const initial = (name ?? "K").charAt(0).toUpperCase();
   return (
     <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary">
       {initial}
+    </span>
+  );
+}
+
+/** WhatsApp-style ticks: sent → delivered → read */
+function MessageTicks({
+  delivered,
+  read,
+  onPrimary,
+}: {
+  delivered: boolean;
+  read: boolean;
+  onPrimary?: boolean;
+}) {
+  if (read) {
+    return (
+      <CheckCheck
+        size={14}
+        className={cn("shrink-0", onPrimary ? "text-sky-200" : "text-sky-500")}
+        aria-label="Read"
+      />
+    );
+  }
+  if (delivered) {
+    return (
+      <CheckCheck
+        size={14}
+        className={cn(
+          "shrink-0 opacity-80",
+          onPrimary ? "text-primary-foreground/80" : "text-muted-foreground",
+        )}
+        aria-label="Delivered"
+      />
+    );
+  }
+  return (
+    <Check
+      size={14}
+      className={cn(
+        "shrink-0 opacity-70",
+        onPrimary ? "text-primary-foreground/70" : "text-muted-foreground",
+      )}
+      aria-label="Sent"
+    />
+  );
+}
+
+function dayLabel(iso: string) {
+  const d = new Date(iso);
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+  const sameDay = (a: Date, b: Date) =>
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
+  if (sameDay(d, today)) return "Today";
+  if (sameDay(d, yesterday)) return "Yesterday";
+  return d.toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function groupByDay(messages: ChatMessage[]) {
+  const groups: { label: string; items: ChatMessage[] }[] = [];
+  let current = "";
+  for (const m of messages) {
+    const label = dayLabel(m.created_at);
+    if (label !== current) {
+      groups.push({ label, items: [m] });
+      current = label;
+    } else {
+      groups[groups.length - 1].items.push(m);
+    }
+  }
+  return groups;
+}
+
+function TypingDots() {
+  return (
+    <span className="inline-flex items-center gap-0.5 px-0.5" aria-label="Typing">
+      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
+      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
+      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
     </span>
   );
 }
@@ -20,8 +118,17 @@ export function ChatThread({
   userId: string;
   onBack?: () => void;
 }) {
-  const { data: messages, isLoading } = useMessages(conversation.id);
+  const otherUserId =
+    conversation.customer_id === userId ? conversation.seller_id : conversation.customer_id;
+
+  const { data: messages, isLoading } = useMessages(conversation.id, userId);
   const send = useSendMessage(conversation.id);
+  const { partner, notifyTyping, notifyStoppedTyping } = useChatPresence(
+    conversation.id,
+    userId,
+    otherUserId,
+  );
+
   const [text, setText] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -29,17 +136,31 @@ export function ChatThread({
   useEffect(() => {
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [messages?.length]);
+  }, [
+    messages?.length,
+    messages?.[messages.length - 1]?.read,
+    messages?.[messages.length - 1]?.delivered,
+    partner.typing,
+  ]);
 
+  // When opening the thread: mark incoming as delivered + read
   useEffect(() => {
-    if (conversation.unread && conversation.unread > 0) {
-      markConversationRead(conversation.id, userId);
-    }
+    void markConversationDelivered(conversation.id, userId);
+    void markConversationRead(conversation.id, userId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversation.id]);
 
+  const groups = useMemo(() => groupByDay(messages ?? []), [messages]);
+
+  const statusLine = partner.typing
+    ? "typing…"
+    : partner.online
+      ? "Online"
+      : formatLastSeen(partner.lastSeenAt);
+
   const submit = () => {
     if (!text.trim() || send.isPending) return;
+    notifyStoppedTyping();
     send.mutate(
       { body: text, senderId: userId },
       {
@@ -54,51 +175,120 @@ export function ChatThread({
       {/* header */}
       <div className="flex items-center gap-3 border-b border-border bg-card px-3 py-2.5 pt-[max(0.625rem,env(safe-area-inset-top))] md:pt-2.5">
         {onBack && (
-          <button onClick={onBack} className="rounded-full p-2 text-foreground hover:bg-muted md:hidden" aria-label="Back">
+          <button
+            onClick={onBack}
+            className="rounded-full p-2 text-foreground hover:bg-muted md:hidden"
+            aria-label="Back"
+          >
             <ArrowLeft size={18} />
           </button>
         )}
-        <ChatAvatar name={conversation.other_name} />
-        <div className="min-w-0">
+        <div className="relative">
+          <ChatAvatar name={conversation.other_name} />
+          {partner.online && (
+            <span
+              className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-card bg-success"
+              title="Online"
+            />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-bold text-foreground">{conversation.other_name}</p>
-          <p className="text-[11px] text-muted-foreground">Chat on Kivora</p>
+          <p
+            className={cn(
+              "truncate text-[11px]",
+              partner.typing
+                ? "font-medium text-primary"
+                : partner.online
+                  ? "font-medium text-success"
+                  : "text-muted-foreground",
+            )}
+          >
+            {partner.typing ? (
+              <span className="inline-flex items-center gap-1.5">
+                typing <TypingDots />
+              </span>
+            ) : (
+              statusLine
+            )}
+          </p>
         </div>
       </div>
 
       {/* messages */}
-      <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto bg-background px-3 py-4">
+      <div ref={scrollRef} className="flex-1 space-y-1 overflow-y-auto bg-background px-3 py-3">
         {isLoading ? (
-          <div className="space-y-2">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className={`h-9 w-2/3 animate-pulse rounded-2xl bg-foreground/10 ${i % 2 ? "ml-auto" : ""}`} />
+          <div className="space-y-2 pt-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className={`h-10 w-2/3 max-w-[240px] animate-pulse rounded-2xl bg-foreground/10 ${i % 2 ? "ml-auto" : ""}`}
+              />
             ))}
           </div>
         ) : (messages?.length ?? 0) === 0 ? (
-          <p className="pt-10 text-center text-xs text-muted-foreground">
-            Say hello — your conversation with {conversation.other_name} starts here.
-          </p>
+          <div className="flex flex-col items-center justify-center pt-16 text-center">
+            <ChatAvatar name={conversation.other_name} />
+            <p className="mt-3 text-sm font-semibold text-foreground">{conversation.other_name}</p>
+            <p className="mt-1 max-w-[240px] text-xs text-muted-foreground">
+              Say hello — your conversation starts here. You’ll see when they receive and read your
+              messages.
+            </p>
+          </div>
         ) : (
-          messages!.map((m) => {
-            const mine = m.sender_id === userId;
-            return (
-              <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-                <div
-                  className={`max-w-[80%] md:max-w-[65%] rounded-2xl px-3.5 py-2 text-sm shadow-soft ${
-                    mine
-                      ? "gradient-primary rounded-br-md text-primary-foreground"
-                      : "rounded-bl-md border border-border bg-card text-foreground"
-                  }`}
-                >
-                  <p className="whitespace-pre-wrap break-words">{m.body}</p>
-                  <p className={`mt-0.5 text-right text-[10px] ${mine ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                    {new Date(m.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
-                    {mine && (m.read ? " · Read" : "")}
-                  </p>
-                </div>
+          groups.map((g) => (
+            <div key={g.label} className="space-y-1.5">
+              <div className="sticky top-0 z-[1] flex justify-center py-2">
+                <span className="rounded-full border border-border bg-card/95 px-3 py-0.5 text-[10px] font-semibold text-muted-foreground shadow-sm backdrop-blur">
+                  {g.label}
+                </span>
               </div>
-            );
-          })
+              {g.items.map((m) => {
+                const mine = m.sender_id === userId;
+                return (
+                  <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+                    <div
+                      className={cn(
+                        "max-w-[80%] rounded-2xl px-3.5 py-2 text-sm shadow-soft md:max-w-[65%]",
+                        mine
+                          ? "rounded-br-md gradient-primary text-primary-foreground"
+                          : "rounded-bl-md border border-border bg-card text-foreground",
+                      )}
+                    >
+                      <p className="whitespace-pre-wrap break-words">{m.body}</p>
+                      <div
+                        className={cn(
+                          "mt-0.5 flex items-center justify-end gap-1 text-[10px]",
+                          mine ? "text-primary-foreground/75" : "text-muted-foreground",
+                        )}
+                      >
+                        <span>
+                          {new Date(m.created_at).toLocaleTimeString("en-GB", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                        {mine && (
+                          <MessageTicks delivered={!!m.delivered} read={!!m.read} onPrimary />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ))
         )}
+
+        {/* Live typing bubble */}
+        {partner.typing && (
+          <div className="flex justify-start pt-1">
+            <div className="rounded-2xl rounded-bl-md border border-border bg-card px-4 py-2.5 text-muted-foreground shadow-soft">
+              <TypingDots />
+            </div>
+          </div>
+        )}
+
         <div ref={bottomRef} />
       </div>
 
@@ -107,7 +297,12 @@ export function ChatThread({
         <div className="flex items-end gap-2">
           <textarea
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => {
+              setText(e.target.value);
+              if (e.target.value.trim()) notifyTyping();
+              else notifyStoppedTyping();
+            }}
+            onBlur={() => notifyStoppedTyping()}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
@@ -127,6 +322,9 @@ export function ChatThread({
             <SendHorizonal size={17} />
           </button>
         </div>
+        <p className="mt-1.5 px-1 text-[10px] text-muted-foreground">
+          ✓ Sent · ✓✓ Delivered · <span className="text-sky-500">✓✓</span> Read
+        </p>
       </div>
     </div>
   );

@@ -3,6 +3,8 @@ import { MessageCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useUnreadChatCount } from "@/lib/messages";
 
+type MessageRoute = "/messages" | "/seller/messages";
+
 /** Header message icon with live unread chat badge. Links to buyer or seller messages. */
 export function MessageBell({
   variant = "mobile",
@@ -10,7 +12,7 @@ export function MessageBell({
 }: {
   variant?: "mobile" | "desktop" | "workspace";
   /** Override destination (e.g. always /seller/messages inside seller workspace). */
-  forceTo?: string;
+  forceTo?: MessageRoute;
 }) {
   const { user } = useAuth();
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -18,7 +20,7 @@ export function MessageBell({
 
   if (!user) return null;
 
-  const href =
+  const href: MessageRoute =
     forceTo ?? (path.startsWith("/seller") ? "/seller/messages" : "/messages");
 
   const cls =

@@ -222,14 +222,15 @@ export function useSendMessage(conversationId: string | undefined) {
     mutationFn: async ({ body, senderId }: { body: string; senderId: string }) => {
       const text = body.trim();
       if (!text) throw new Error("Type a message first.");
+      // Don't send delivered/read here — DB defaults handle them after migration 0022.
+      // Inserting unknown columns would fail before the migration is applied.
       const { error } = await supabase.from("messages").insert({
         conversation_id: conversationId!,
         sender_id: senderId,
         body: text,
-        delivered: false,
-        read: false,
       });
       if (error) throw error;
+
       void flushMyPushes().catch(() => {});
       void touchLastSeen(senderId);
     },

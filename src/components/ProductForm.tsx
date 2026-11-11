@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { X, ImagePlus, Loader2, ChevronDown, Check } from "lucide-react";
+import { X, ImagePlus, Loader2, ChevronDown, Camera, Globe, Star } from "lucide-react";
+import { ImageFinder } from "@/components/ImageFinder";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useCategories } from "@/lib/categories";
@@ -13,6 +14,7 @@ type ProductRow = {
   price?: number | string;
   old_price?: number | string | null;
   image_url?: string | null;
+  image_urls?: string[] | null;
   stock?: number;
   discount?: number | null;
   category?: string | null;
@@ -20,6 +22,7 @@ type ProductRow = {
 };
 
 const MAX_MB = 5;
+const MAX_PHOTOS = 8;
 
 export function ProductForm({
   initial,
@@ -33,6 +36,8 @@ export function ProductForm({
   const { user } = useAuth();
   const { data: categories = [] } = useCategories();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const [finder, setFinder] = useState(false);
 
   const [name, setName] = useState(initial?.name ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
@@ -40,7 +45,13 @@ export function ProductForm({
   const [oldPrice, setOldPrice] = useState(initial?.old_price != null ? String(initial.old_price) : "");
   const [stock, setStock] = useState(initial?.stock != null ? String(initial.stock) : "1");
   const [category, setCategory] = useState(initial?.category ?? "");
-  const [imageUrl, setImageUrl] = useState(initial?.image_url ?? "");
+  const [images, setImages] = useState<string[]>(() => {
+    const list = initial?.image_urls?.length ? [...initial.image_urls] : [];
+    if (initial?.image_url && !list.includes(initial.image_url)) list.unshift(initial.image_url);
+    return list;
+  });
+  const [linkUrl, setLinkUrl] = useState("");
+  const addImage = (u: string) => setImages((l) => (l.includes(u) || l.length >= MAX_PHOTOS ? l : [...l, u]));
   const [uploading, setUploading] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -60,13 +71,19 @@ export function ProductForm({
     if (initial?.old_price || initial?.description || (initial?.stock ?? 1) !== 1) setShowMore(true);
   }, [initial]);
 
+  const uploadFiles = async (files: File[]) => {
+    const room = MAX_PHOTOS - images.length;
+    if (room <= 0) return toast.error(`Up to ${MAX_PHOTOS} photos`);
+    for (const f of files.slice(0, room)) await uploadFile(f);
+  };
+
   const uploadFile = async (file: File) => {
     if (!user) return toast.error("Please log in first");
     if (!file.type.startsWith("image/")) return toast.error("That file is not an image");
     if (file.size > MAX_MB * 1024 * 1024) return toast.error(`Image must be under ${MAX_MB}MB`);
     setUploading(true);
     const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-    const path = `${user.id}/products/${Date.now()}.${ext}`;
+    const path = `${user.id}/products/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
     const { error } = await supabase.storage
       .from("product-images")
       .upload(path, file, { upsert: false, contentType: file.type });
@@ -75,10 +92,8 @@ export function ProductForm({
       return toast.error(error.message);
     }
     const { data } = supabase.storage.from("product-images").getPublicUrl(path);
-    setImageUrl(data.publicUrl);
-    setErrors((e) => ({ ...e, image: "" }));
+    addImage(data.publicUrl);
     setUploading(false);
-    toast.success("Photo added");
   };
 
   const validate = () => {
@@ -113,7 +128,8 @@ export function ProductForm({
       description: description?.trim() || null,
       price: Number(price),
       old_price: oldPrice.trim() ? Number(oldPrice) : null,
-      image_url: imageUrl.trim() || null,
+      image_url: images[0] ?? null,
+      image_urls: images,
       stock: Number(stock || 0),
       discount,
       category: category || null,
@@ -137,96 +153,58 @@ export function ProductForm({
 
   return (
     <form onSubmit={save} className="space-y-5">
-      {/* Step 1 — photo */}
+      {/* Step 1 — photos */}
       <section className="rounded-2xl border border-border bg-card p-4 shadow-soft">
-        <StepLabel n={1} title="Add a photo" hint="Optional, but products with photos sell far better" />
+        <StepLabel n={1} title="Add photos" hint={`Up to ${MAX_PHOTOS} — front, back, side, packaging. First photo is the cover.`} />
         <div
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragging(true);
-          }}
+          onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
           onDragLeave={() => setDragging(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDragging(false);
-            const f = e.dataTransfer.files?.[0];
-            if (f) void uploadFile(f);
-          }}
-          className={`mt-3 rounded-xl border-2 border-dashed transition ${
-            dragging ? "border-primary bg-primary/5" : "border-border"
-          }`}
+          onDrop={(e) => { e.preventDefault(); setDragging(false); void uploadFiles(Array.from(e.dataTransfer.files ?? [])); }}
+          className={`mt-3 rounded-xl border-2 border-dashed p-3 transition ${dragging ? "border-primary bg-primary/5" : "border-border"}`}
         >
-          {imageUrl ? (
-            <div className="flex items-center gap-4 p-3">
-              <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-muted">
-                <img src={imageUrl} alt="Product preview" className="h-full w-full object-contain" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-1 text-sm font-semibold text-success-ink">
-                  <Check size={14} /> Photo ready
-                </p>
-                <div className="mt-2 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold"
-                  >
-                    Replace
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setImageUrl("")}
-                    className="flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-destructive"
-                  >
-                    <X size={12} /> Remove
-                  </button>
+          {images.length > 0 && (
+            <div className="mb-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {images.map((u, k) => (
+                <div key={u} className={`relative aspect-square overflow-hidden rounded-xl border-2 bg-muted ${k === 0 ? "border-primary" : "border-border"}`}>
+                  <img src={u} alt={`Photo ${k + 1}`} className="h-full w-full object-contain" />
+                  {k === 0 ? (
+                    <span className="absolute left-1 top-1 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">Cover</span>
+                  ) : (
+                    <button type="button" onClick={() => setImages((l) => [u, ...l.filter((x) => x !== u)])} className="absolute left-1 top-1 flex items-center gap-0.5 rounded-full bg-card/90 px-1.5 py-0.5 text-[10px] font-semibold"><Star size={10} /> Cover</button>
+                  )}
+                  <button type="button" aria-label="Remove photo" onClick={() => setImages((l) => l.filter((x) => x !== u))} className="absolute right-1 top-1 rounded-full bg-destructive p-1 text-destructive-foreground"><X size={12} /></button>
                 </div>
-              </div>
+              ))}
             </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className="flex w-full flex-col items-center justify-center gap-1 px-4 py-8 text-muted-foreground disabled:opacity-60"
-            >
-              {uploading ? <Loader2 size={26} className="animate-spin" /> : <ImagePlus size={26} />}
-              <span className="text-sm font-semibold text-foreground">
-                {uploading ? "Uploading…" : "Tap to upload a photo"}
-              </span>
-              <span className="text-xs">Drag & drop or browse · JPG/PNG up to {MAX_MB}MB</span>
-            </button>
           )}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) void uploadFile(f);
-              e.target.value = "";
-            }}
-          />
-        </div>
-        {!imageUrl && (
-          <div className="mt-2">
-            <button
-              type="button"
-              onClick={() => setShowUrl((v) => !v)}
-              className="text-xs font-semibold text-primary"
-            >
-              {showUrl ? "Hide link option" : "Use an image link instead"}
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <button type="button" disabled={uploading || images.length >= MAX_PHOTOS} onClick={() => cameraRef.current?.click()} className="flex items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60">
+              <Camera size={16} /> Take photo
             </button>
-            {showUrl && (
-              <input
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="https://…"
-                className="mt-2 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-              />
-            )}
+            <button type="button" disabled={uploading || images.length >= MAX_PHOTOS} onClick={() => fileInputRef.current?.click()} className="flex items-center justify-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm font-semibold disabled:opacity-60">
+              {uploading ? <Loader2 size={16} className="animate-spin" /> : <ImagePlus size={16} />} {uploading ? "Uploading…" : "From gallery"}
+            </button>
+            <button type="button" disabled={images.length >= MAX_PHOTOS} onClick={() => { if (!name.trim()) return toast.error("Type the product name first (step 2)"); setFinder(true); }} className="flex items-center justify-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm font-semibold disabled:opacity-60">
+              <Globe size={16} /> Find online
+            </button>
           </div>
+          <p className="mt-2 text-center text-xs text-muted-foreground">{images.length}/{MAX_PHOTOS} photos · JPG/PNG up to {MAX_MB}MB each</p>
+          <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => { void uploadFiles(Array.from(e.target.files ?? [])); e.target.value = ""; }} />
+          <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { void uploadFiles(Array.from(e.target.files ?? [])); e.target.value = ""; }} />
+        </div>
+        <div className="mt-2">
+          <button type="button" onClick={() => setShowUrl((v) => !v)} className="text-xs font-semibold text-primary">
+            {showUrl ? "Hide link option" : "Paste an image link"}
+          </button>
+          {showUrl && (
+            <div className="mt-2 flex gap-2">
+              <input value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="https://…" className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm" />
+              <button type="button" onClick={() => { if (/^https?:\/\//.test(linkUrl.trim())) { addImage(linkUrl.trim()); setLinkUrl(""); } else toast.error("Enter a valid link"); }} className="rounded-lg bg-primary px-3 text-sm font-semibold text-primary-foreground">Add</button>
+            </div>
+          )}
+        </div>
+        {finder && (
+          <ImageFinder initialQuery={name} onClose={() => setFinder(false)} onPick={(u) => { addImage(u); toast.success("Photo added"); }} />
         )}
       </section>
 

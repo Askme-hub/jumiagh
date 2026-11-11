@@ -15,6 +15,7 @@ import {
   MessageCircle,
   ArrowUpDown,
   BadgeCheck,
+  Share2,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -296,51 +297,85 @@ function StorePage() {
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-4 gap-2 sm:hidden">
-            <MessageSellerButton
-              sellerId={store.user_id}
-              className="flex flex-col items-center justify-center gap-1 rounded-2xl bg-primary/10 py-2.5 text-[11px] font-bold text-primary"
-              label="Chat"
-            />
-            {waNumber ? (
-              <a
-                href={`https://wa.me/${waNumber}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center gap-1 rounded-2xl bg-success/10 py-2.5 text-[11px] font-bold text-success"
-              >
-                <Phone size={18} />
-                Call
-              </a>
-            ) : (
-              <div className="flex flex-col items-center gap-1 rounded-2xl bg-muted py-2.5 text-[11px] font-bold text-muted-foreground opacity-50">
-                <Phone size={18} />
-                Call
-              </div>
-            )}
-            <div className="flex flex-col items-center justify-center rounded-2xl bg-muted/80 py-2.5">
-              <ShareStore shopName={store.shop_name} url={url} />
+          {/* Mobile actions — clean stacked buttons */}
+          <div className="mt-4 space-y-2 sm:hidden">
+            <div className="grid grid-cols-2 gap-2">
+              <MessageSellerButton
+                sellerId={store.user_id}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl gradient-primary py-3 text-sm font-bold text-primary-foreground shadow-sm disabled:opacity-50"
+                label="Message"
+              />
+              {waNumber ? (
+                <a
+                  href={`https://wa.me/${waNumber}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-background py-3 text-sm font-bold text-foreground"
+                >
+                  <Phone size={16} />
+                  WhatsApp
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-muted py-3 text-sm font-bold text-muted-foreground opacity-60"
+                >
+                  <Phone size={16} />
+                  WhatsApp
+                </button>
+              )}
             </div>
-            <Dialog>
-              <DialogTrigger className="flex flex-col items-center gap-1 rounded-2xl bg-muted/80 py-2.5 text-[11px] font-bold text-foreground">
-                <QrCode size={18} />
-                Card
-              </DialogTrigger>
-              <DialogContent className="max-h-[90vh] overflow-y-auto">
-                <DialogTitle>{store.shop_name} shop card</DialogTitle>
-                <ShopCardStudio
-                  shop={{
-                    shop_name: store.shop_name,
-                    slug: store.slug,
-                    logo_url: store.logo_url,
-                    location: store.location,
-                    whatsapp_number: store.whatsapp_number,
-                    business_category: store.business_category,
-                    verified: isVerified,
-                  }}
-                />
-              </DialogContent>
-            </Dialog>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={async () => {
+                  const message = `🛍️ Check out ${store.shop_name} on Kivora Ghana.\n${url}`;
+                  if (typeof navigator !== "undefined" && navigator.share) {
+                    try {
+                      await navigator.share({
+                        title: `${store.shop_name} — Kivora Ghana`,
+                        text: message,
+                        url,
+                      });
+                      return;
+                    } catch {
+                      /* cancelled */
+                    }
+                  }
+                  try {
+                    await navigator.clipboard.writeText(url);
+                    toast.success("Store link copied");
+                  } catch {
+                    toast.error("Could not share");
+                  }
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-card py-2.5 text-xs font-bold text-foreground"
+              >
+                <Share2 size={15} />
+                Share store
+              </button>
+              <Dialog>
+                <DialogTrigger className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-card py-2.5 text-xs font-bold text-foreground">
+                  <QrCode size={15} />
+                  Shop card
+                </DialogTrigger>
+                <DialogContent className="max-h-[90vh] overflow-y-auto">
+                  <DialogTitle>{store.shop_name} shop card</DialogTitle>
+                  <ShopCardStudio
+                    shop={{
+                      shop_name: store.shop_name,
+                      slug: store.slug,
+                      logo_url: store.logo_url,
+                      location: store.location,
+                      whatsapp_number: store.whatsapp_number,
+                      business_category: store.business_category,
+                      verified: isVerified,
+                    }}
+                  />
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
 
@@ -645,11 +680,11 @@ function StorePage() {
       </div>
 
       {/* MOBILE STICKY CTA */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 px-3 py-2.5 backdrop-blur supports-[backdrop-filter]:bg-card/90 sm:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 px-3 pt-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] backdrop-blur supports-[backdrop-filter]:bg-card/90 sm:hidden">
         <div className="mx-auto flex max-w-lg gap-2">
           <MessageSellerButton
             sellerId={store.user_id}
-            className="flex flex-1 items-center justify-center gap-2 rounded-full gradient-primary py-3 text-sm font-bold text-primary-foreground shadow-md"
+            className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl gradient-primary px-4 text-sm font-bold text-primary-foreground shadow-md disabled:opacity-50"
             label="Message seller"
           />
           {waNumber && (
@@ -657,7 +692,8 @@ function StorePage() {
               href={`https://wa.me/${waNumber}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-full border border-border bg-background px-4 py-3 text-sm font-bold text-foreground"
+              className="flex min-h-12 min-w-12 items-center justify-center gap-2 rounded-2xl border border-border bg-background px-4 text-sm font-bold text-foreground"
+              aria-label="WhatsApp"
             >
               <Phone size={18} />
             </a>

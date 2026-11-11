@@ -9,6 +9,7 @@ import { useCategories } from "@/lib/categories";
 import kivoraIcon from "@/assets/kivora-icon.png";
 import { UserAvatar } from "@/components/UserAvatar";
 import { InboxBell } from "@/components/InboxBell";
+import { MessageBell } from "@/components/MessageBell";
 
 export function TopNav() {
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -62,6 +63,7 @@ export function TopNav() {
           <Link to="/help" className={pill}><HelpCircle size={22} /> Help</Link>
           {isSeller && <Link to="/seller" className={pill} aria-label="Seller Hub"><Store size={20} /></Link>}
           {isAdmin && <Link to="/admin" className={pill} aria-label="Admin"><Shield size={20} /></Link>}
+          <MessageBell variant="desktop" />
           <InboxBell variant="desktop" />
           <Link to="/cart" className={`${pill} relative`}>
             <ShoppingCart size={22} />

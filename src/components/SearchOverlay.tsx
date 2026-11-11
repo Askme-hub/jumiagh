@@ -4,8 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchUI } from "@/lib/search-ui";
 import { useProducts } from "@/lib/products";
 import { formatGHC } from "@/lib/store";
+import { searchProducts } from "@/lib/search-match";
 
-const TRENDING = ["iPhone", "Sneakers", "PlayStation", "Smart TV", "AirPods"];
 
 export function SearchOverlay() {
   const { open, setOpen } = useSearchUI();
@@ -16,9 +16,14 @@ export function SearchOverlay() {
 
   const term = value.trim().toLowerCase();
   const suggestions = useMemo(
-    () => (term.length < 2 ? [] : products.filter((p) => p.name.toLowerCase().includes(term)).slice(0, 6)),
+    () => (term.length < 2 ? [] : searchProducts(products, term).slice(0, 6)),
     [term, products]
   );
+  const TRENDING = useMemo(() => {
+    const cats = Array.from(new Set(products.map((p) => p.category).filter(Boolean) as string[])).slice(0, 4);
+    const names = products.slice(0, 3).map((p) => p.name.split(" ").slice(0, 2).join(" "));
+    return Array.from(new Set([...cats, ...names])).slice(0, 7);
+  }, [products]);
 
 
   // focus + lock scroll when open

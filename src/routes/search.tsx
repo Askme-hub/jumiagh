@@ -7,7 +7,7 @@ import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { useProducts } from "@/lib/products";
 import { useSearchUI } from "@/lib/search-ui";
-import type { Product } from "@/lib/store";
+import { searchProducts } from "@/lib/search-match";
 
 const SearchSchema = z.object({ q: z.string().optional().default("") });
 
@@ -23,9 +23,8 @@ function SearchPage() {
   const openSearch = useSearchUI((s) => s.setOpen);
 
   const results = useMemo(() => {
-    const term = q.trim().toLowerCase();
-    if (!term) return [];
-    return products.filter((p: Product) => p.name.toLowerCase().includes(term));
+    if (!q.trim()) return [];
+    return searchProducts(products, q);
   }, [q, products]);
 
   return (

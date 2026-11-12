@@ -270,7 +270,7 @@ export function useUnreadChatCount(userId: string | undefined) {
   useEffect(() => {
     if (!userId) return;
     const channel = supabase
-      .channel("chat-unread")
+      .channel(`chat-unread-${userId}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, () => {
         qc.invalidateQueries({ queryKey: ["chat-unread", userId] });
       })

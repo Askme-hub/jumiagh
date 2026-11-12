@@ -53,6 +53,12 @@ function Cart() {
       <PageHeader title="Cart" />
 
       <div className="mx-auto max-w-2xl px-4 pt-3">
+        {cart.length > 0 && (
+          <div className="mb-3 flex items-center justify-between rounded-2xl border border-border bg-card px-4 py-3">
+            <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Cart summary · Subtotal</span>
+            <span className="text-lg font-extrabold text-foreground">{formatGHC(total)}</span>
+          </div>
+        )}
         <Link to="/shipping" className="flex items-center gap-3 rounded-2xl bg-muted px-4 py-3">
           <Truck size={18} className="shrink-0 text-primary" />
           <span className="flex-1 text-sm font-medium text-foreground">Delivery fees are calculated by region at checkout</span>

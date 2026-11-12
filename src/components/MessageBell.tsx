@@ -15,7 +15,7 @@ export function MessageBell({ variant = "mobile" }: { variant?: "mobile" | "desk
       : "relative flex h-10 w-10 items-center justify-center rounded-full bg-muted text-foreground hover:bg-muted/70 transition";
 
   return (
-    <Link to="/messages" aria-label={unread ? `Messages, ${unread} unread` : "Messages"} className={cls}>
+    <Link to="/messages" search={{}} aria-label={unread ? `Messages, ${unread} unread` : "Messages"} className={cls}>
       <MessageCircle size={20} />
       {unread > 0 && (
         <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">

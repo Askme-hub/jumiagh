@@ -36,14 +36,14 @@ export function InboxBell({ variant = "mobile" }: { variant?: "mobile" | "deskto
 
   const cls =
     variant === "mobile"
-      ? "relative flex h-11 w-11 items-center justify-center rounded-full bg-card text-foreground shadow-soft transition active:scale-95"
-      : "relative flex h-10 w-10 items-center justify-center rounded-full bg-muted text-foreground hover:bg-muted/70 transition";
+      ? "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-card text-foreground shadow-soft transition active:scale-95"
+      : "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-foreground hover:bg-muted transition";
 
   return (
     <Link to="/inbox" aria-label={unread ? `Notifications, ${unread} unread` : "Notifications"} className={cls}>
       <Bell size={20} />
       {unread > 0 && (
-        <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+        <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 ring-2 ring-background items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-primary-foreground">
           {unread > 9 ? "9+" : unread}
         </span>
       )}

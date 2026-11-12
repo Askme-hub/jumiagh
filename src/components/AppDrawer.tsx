@@ -274,9 +274,9 @@ export function MobileTopBar() {
       <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-3 pt-3">
         <AppDrawer />
         <Link to="/" className="flex min-w-0 items-center gap-2">
-          <img src={kivoraIcon} alt="Kivora" className="h-9 w-9 shrink-0 rounded-xl" />
+          <img src={kivoraIcon} alt="Kivora" className="h-8 w-8 shrink-0 rounded-xl min-[400px]:h-9 min-[400px]:w-9" />
           <span className="min-w-0">
-            <span className="block truncate text-[11px] font-medium text-muted-foreground">
+            <span className="hidden truncate text-[11px] font-medium text-muted-foreground min-[400px]:block">
               Hello there 👋
             </span>
             <span className="block truncate text-base font-extrabold leading-tight tracking-tight text-primary">
@@ -284,7 +284,7 @@ export function MobileTopBar() {
             </span>
           </span>
         </Link>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1.5">
           {mounted && !user ? (
             <Link
               to="/login"
@@ -299,7 +299,7 @@ export function MobileTopBar() {
               <Link
                 to="/account"
                 aria-label="Account"
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-foreground shadow-soft transition active:scale-95"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-card text-foreground shadow-soft transition active:scale-95"
               >
                 <UserCircle2 size={20} />
               </Link>
@@ -308,7 +308,7 @@ export function MobileTopBar() {
           <Link
             to="/cart"
             aria-label="Cart"
-            className="relative flex h-11 w-11 items-center justify-center rounded-full bg-card text-foreground shadow-soft transition active:scale-95"
+            className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-card text-foreground shadow-soft transition active:scale-95"
           >
             <ShoppingCart size={20} />
             {mounted && count > 0 && (

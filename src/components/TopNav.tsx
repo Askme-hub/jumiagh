@@ -25,11 +25,11 @@ export function TopNav() {
 
   if (path === "/login") return null;
 
-  const pill = "flex items-center gap-2 rounded-md px-3 py-2 text-[15px] font-medium text-foreground transition hover:bg-muted";
+  const pill = "flex shrink-0 items-center gap-2 rounded-md px-2.5 py-2 text-[15px] font-medium text-foreground transition hover:bg-muted";
 
   return (
     <header className="sticky top-0 z-40 hidden border-b border-border bg-background shadow-sm md:block">
-      <div className="mx-auto flex max-w-7xl items-center gap-5 px-6 py-3">
+      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 lg:gap-5 lg:px-6">
         <Link to="/" className="flex shrink-0 items-center gap-2">
           <img src={kivoraIcon} alt="Kivora" className="h-9 w-9 rounded-lg" />
           <span className="text-2xl font-extrabold uppercase tracking-tight text-foreground">
@@ -40,34 +40,34 @@ export function TopNav() {
         <button
           onClick={() => openSearch(true)}
           aria-label="Search"
-          className="flex flex-1 items-center gap-3 rounded-full bg-muted py-1.5 pl-5 pr-1.5 text-left text-muted-foreground transition hover:bg-muted/70"
+          className="flex min-w-[180px] flex-1 items-center gap-3 rounded-full bg-muted py-1.5 pl-5 pr-1.5 text-left text-muted-foreground transition hover:bg-muted/70"
         >
           <Search size={20} className="shrink-0" />
           <span className="flex-1 truncate text-[15px]">Search products, brands and categories</span>
-          <span className="rounded-full bg-primary px-6 py-2 text-sm font-bold text-primary-foreground">Search</span>
+          <span className="rounded-full bg-primary hidden px-6 py-2 text-sm font-bold text-primary-foreground lg:inline">Search</span>
         </button>
 
-        <nav className="flex shrink-0 items-center gap-1">
+        <nav className="flex shrink-0 items-center gap-0.5 lg:gap-1">
           {mounted && !user ? (
             <Link to="/login" className="mr-1 flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition hover:opacity-90">
-              <UserCircle2 size={18} /> Login / Sign up
+              <UserCircle2 size={18} /> <span className="hidden lg:inline">Login / Sign up</span><span className="lg:hidden">Login</span>
             </Link>
           ) : (
             <Link to="/account" className={pill}>
               {user ? <UserAvatar user={user} size={22} /> : <UserCircle2 size={22} />}
-              Account
+              <span className="hidden xl:inline">Account</span>
             </Link>
           )}
           <Link to="/orders" className={pill} aria-label="Orders"><Package size={20} /></Link>
           <Link to="/wishlist" className={pill} aria-label="Wishlist"><Heart size={20} /></Link>
-          <Link to="/help" className={pill}><HelpCircle size={22} /> Help</Link>
+          <Link to="/help" className={pill} aria-label="Help"><HelpCircle size={22} /> <span className="hidden xl:inline">Help</span></Link>
           {isSeller && <Link to="/seller" className={pill} aria-label="Seller Hub"><Store size={20} /></Link>}
           {isAdmin && <Link to="/admin" className={pill} aria-label="Admin"><Shield size={20} /></Link>}
           <MessageBell variant="desktop" />
           <InboxBell variant="desktop" />
           <Link to="/cart" className={`${pill} relative`}>
             <ShoppingCart size={22} />
-            Cart
+            <span className="hidden xl:inline">Cart</span>
             {mounted && count > 0 && (
               <span className="absolute left-5 top-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
                 {count}

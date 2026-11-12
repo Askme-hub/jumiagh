@@ -355,6 +355,7 @@ export type Database = {
           body: string
           conversation_id: string
           created_at: string
+          delivered: boolean
           id: string
           read: boolean
           sender_id: string
@@ -363,6 +364,7 @@ export type Database = {
           body: string
           conversation_id: string
           created_at?: string
+          delivered?: boolean
           id?: string
           read?: boolean
           sender_id: string
@@ -371,6 +373,7 @@ export type Database = {
           body?: string
           conversation_id?: string
           created_at?: string
+          delivered?: boolean
           id?: string
           read?: boolean
           sender_id?: string
@@ -836,6 +839,7 @@ export type Database = {
           display_name: string | null
           email: string | null
           id: string
+          last_seen_at: string | null
           phone: string | null
           phone_verified_at: string | null
           terms_accepted_at: string | null
@@ -846,6 +850,7 @@ export type Database = {
           display_name?: string | null
           email?: string | null
           id: string
+          last_seen_at?: string | null
           phone?: string | null
           phone_verified_at?: string | null
           terms_accepted_at?: string | null
@@ -856,6 +861,7 @@ export type Database = {
           display_name?: string | null
           email?: string | null
           id?: string
+          last_seen_at?: string | null
           phone?: string | null
           phone_verified_at?: string | null
           terms_accepted_at?: string | null
@@ -1334,6 +1340,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_conversation_participant: {
+        Args: { conv_id: string }
         Returns: boolean
       }
       is_order_seller: {

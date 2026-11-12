@@ -1,89 +1,51 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, LayoutGrid, ShoppingBag, Heart, UserCircle2 } from "lucide-react";
+import { Home, LayoutGrid, ShoppingCart, UserCircle2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useShop } from "@/lib/store";
-import { InstallAppButton } from "@/components/InstallAppButton";
-import { useInstallPrompt } from "@/lib/pwa";
 
-const left = [
-  { to: "/" as const, label: "Home", icon: Home, exact: true },
-  { to: "/categories" as const, label: "Shop", icon: LayoutGrid },
-];
+const tabs = [
+  { to: "/", label: "Home", icon: Home, exact: true },
+  { to: "/categories", label: "Categories", icon: LayoutGrid },
+  { to: "/cart", label: "Cart", icon: ShoppingCart, cart: true },
+  { to: "/account", label: "Account", icon: UserCircle2 },
+] as const;
 
-const right = [
-  { to: "/wishlist" as const, label: "Saved", icon: Heart },
-  { to: "/account" as const, label: "Profile", icon: UserCircle2 },
-];
-
-function mountedSafe(available: boolean, installed: boolean, isIOS: boolean) {
-  return !installed && (available || isIOS);
-}
-
+/** Jumia-style edge-to-edge 4-tab bar for phones. */
 export function MobileBottomNav() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const count = useShop((s) => s.cartCount());
-  const { available, installed, isIOS } = useInstallPrompt();
-  const showInstall = mountedSafe(available, installed, isIOS);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
   if (path === "/login" || path === "/checkout") return null;
 
-  const Item = ({
-    to,
-    label,
-    icon: Icon,
-    exact,
-  }: {
-    to: string;
-    label: string;
-    icon: typeof Home;
-    exact?: boolean;
-  }) => {
-    const active = exact ? path === to : path === to || path.startsWith(to + "/");
-    return (
-      <Link
-        to={to}
-        className={`flex flex-1 flex-col items-center justify-center gap-1 py-1 text-[10px] font-semibold transition ${
-          active ? "text-primary" : "text-muted-foreground"
-        }`}
-      >
-        <Icon size={21} strokeWidth={active ? 2.4 : 1.9} />
-        {label}
-      </Link>
-    );
-  };
-
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 px-3 pb-3 pt-1 pointer-events-none">
-      <div className="pointer-events-auto relative mx-auto flex max-w-md items-stretch rounded-[28px] border border-border bg-card/95 px-2 py-2 shadow-elevated backdrop-blur-xl">
-        {left.map((i) => (
-          <Item key={i.to} {...i} />
-        ))}
-
-        {/* Center elevated cart */}
-        <div className="relative w-16 shrink-0">
-          <Link
-            to="/cart"
-            aria-label="Cart"
-            className="absolute left-1/2 -top-7 -translate-x-1/2 flex h-14 w-14 items-center justify-center rounded-full gradient-primary text-primary-foreground shadow-elevated ring-4 ring-background transition active:scale-95"
-          >
-            <ShoppingBag size={22} />
-            {mounted && count > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-flash px-1 text-[10px] font-bold text-flash-foreground ring-2 ring-card">
-                {count}
+    <nav className="md:hidden fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card pb-[env(safe-area-inset-bottom)]">
+      <div className="flex">
+        {tabs.map((t) => {
+          const active = "exact" in t ? path === t.to : path === t.to || path.startsWith(t.to + "/");
+          const Icon = t.icon;
+          return (
+            <Link
+              key={t.to}
+              to={t.to}
+              className={`relative flex flex-1 flex-col items-center gap-0.5 pt-2 pb-1.5 text-[11px] font-semibold ${
+                active ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              {active && <span className="absolute inset-x-6 top-0 h-0.5 rounded-full bg-primary" />}
+              <span className="relative">
+                <Icon size={22} strokeWidth={active ? 2.4 : 1.9} />
+                {"cart" in t && mounted && count > 0 && (
+                  <span className="absolute -right-2.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-primary-foreground">
+                    {count}
+                  </span>
+                )}
               </span>
-            )}
-          </Link>
-          <span className="absolute bottom-1 left-0 right-0 text-center text-[10px] font-semibold text-muted-foreground">
-            Cart
-          </span>
-        </div>
-
-        {right.map((i) => (
-          <Item key={i.to} {...i} />
-        ))}
-        {showInstall && <InstallAppButton variant="nav" />}
+              {t.label}
+            </Link>
+          );
+        })}
       </div>
     </nav>
   );

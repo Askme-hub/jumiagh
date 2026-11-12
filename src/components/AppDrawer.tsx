@@ -20,6 +20,7 @@ import {
   Tag,
   MessageCircle,
 
+  Phone,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -331,6 +332,12 @@ export function MobileTopBar() {
           <span className="rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground">Search</span>
         </button>
       </div>
+      <a
+        href="tel:+233257573471"
+        className="flex items-center justify-center gap-2 border-y border-border bg-card py-2 text-xs font-semibold text-foreground"
+      >
+        <Phone size={14} className="text-primary" /> Call to Order: <span className="text-primary">025 757 3471</span>
+      </a>
     </header>
   );
 }

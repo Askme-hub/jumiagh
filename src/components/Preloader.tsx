@@ -35,19 +35,16 @@ export function Preloader() {
   return (
     <div
       aria-hidden
-      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background transition-opacity duration-400 ${
+      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-primary transition-opacity duration-400 ${
         phase === "fade" ? "pointer-events-none opacity-0" : "opacity-100"
       }`}
     >
-      <div className="relative flex h-24 w-24 items-center justify-center">
-        <span className="absolute inset-0 animate-ping rounded-3xl bg-primary/20" />
-        <img src={kivoraIcon} alt="" className="relative h-20 w-20 rounded-2xl shadow-lg" />
+      <div className="flex h-28 w-28 items-center justify-center rounded-full bg-card shadow-lg animate-pulse">
+        <img src={kivoraIcon} alt="" className="h-20 w-20 rounded-full" />
       </div>
-      <p className="mt-6 text-xl font-extrabold uppercase tracking-[0.25em] text-foreground">
-        Kivora<span className="text-primary">★</span>
-      </p>
-      <div className="mt-4 h-1 w-36 overflow-hidden rounded-full bg-muted">
-        <div className="h-full w-1/3 animate-[kivora-load_1s_ease-in-out_infinite] rounded-full bg-primary" />
+      <p className="mt-6 text-3xl font-extrabold uppercase tracking-[0.2em] text-primary-foreground">Kivora★</p>
+      <div className="mt-5 h-1 w-36 overflow-hidden rounded-full bg-primary-foreground/25">
+        <div className="h-full w-1/3 animate-[kivora-load_1s_ease-in-out_infinite] rounded-full bg-primary-foreground" />
       </div>
     </div>
   );

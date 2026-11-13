@@ -127,7 +127,8 @@ export const initiatePaystackCheckout = createServerFn({ method: "POST" })
     }
 
     // init paystack
-    const reference = `JM_${order.id.replace(/-/g, "").slice(0, 16)}_${Date.now()}`;
+    // init paystack
+const reference = `KV_${order.id.replace(/-/g, "").slice(0, 16)}_${Date.now()}`;
     const res = await fetch("https://api.paystack.co/transaction/initialize", {
       method: "POST",
       headers: {

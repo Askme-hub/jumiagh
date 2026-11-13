@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect, useRouter } from "@tanstack/react-router";
+import { ClientOnly, createFileRoute, Link, redirect, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
@@ -39,7 +39,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/checkout")({
-  component: Checkout,
+  component: () => <ClientOnly fallback={<PageHeader title="Checkout" />}><Checkout /></ClientOnly>,
   head: () => ({ meta: [
     { title: "Delivery & Payment – Kivora Ghana" },
     { name: "description", content: "Choose your delivery address and payment method, then review your Kivora order." },

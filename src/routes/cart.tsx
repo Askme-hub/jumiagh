@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { ClientOnly, createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { Minus, Plus, Trash2, Truck, ShoppingBag, ChevronRight, Phone, ShoppingCart } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { formatGHC, useShop, type Product } from "@/lib/store";
@@ -10,7 +10,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/cart")({
-  component: Cart,
+  component: () => <ClientOnly fallback={<PageHeader title="Cart" />}><Cart /></ClientOnly>,
   head: () => ({
     meta: [
       { title: "Your Cart – Kivora Ghana" },

@@ -33,13 +33,26 @@ export type SellerOrder = {
   payment_method: string;
   order_total: number;
   sole_seller: boolean;
-  shop: { shop_name: string; phone: string | null; store_region: string | null; location: string | null; slug: string | null } | null;
+  shop: {
+    shop_name: string;
+    phone: string | null;
+    store_region: string | null;
+    location: string | null;
+    slug: string | null;
+  } | null;
 };
 
-async function buildSellerOrders(userId: string, supabase: any, orderFilter?: string): Promise<SellerOrder[]> {
-  // confirm seller role
+async function buildSellerOrders(
+  userId: string,
+  supabase: any,
+  orderFilter?: string
+): Promise<SellerOrder[]> {
   const { data: roleRow } = await supabase
-    .from("user_roles").select("role").eq("user_id", userId).eq("role", "seller").maybeSingle();
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "seller")
+    .maybeSingle();
   if (!roleRow) return [];
 
   let itemsQ = supabase.from("order_items").select("*").eq("seller_id", userId);
@@ -49,21 +62,30 @@ async function buildSellerOrders(userId: string, supabase: any, orderFilter?: st
 
   const orderIds = [...new Set(items.map((i: any) => i.order_id))] as string[];
   const { data: orders } = await supabase
-    .from("orders").select("*").in("id", orderIds).order("created_at", { ascending: false });
+    .from("orders")
+    .select("*")
+    .in("id", orderIds)
+    .order("created_at", { ascending: false });
   if (!orders) return [];
 
   const userIds = [...new Set(orders.map((o: any) => o.user_id))] as string[];
   const { data: profiles } = await supabaseAdmin
-    .from("profiles").select("id, email, display_name").in("id", userIds);
+    .from("profiles")
+    .select("id, email, display_name")
+    .in("id", userIds);
   const pmap = new Map((profiles ?? []).map((p: any) => [p.id, p]));
   const [{ data: allItems }, { data: shop }] = await Promise.all([
     supabaseAdmin.from("order_items").select("order_id, seller_id").in("order_id", orderIds),
-    supabaseAdmin.from("seller_profiles").select("shop_name, phone, store_region, location, slug").eq("user_id", userId).maybeSingle(),
+    supabaseAdmin
+      .from("seller_profiles")
+      .select("shop_name, phone, store_region, location, slug")
+      .eq("user_id", userId)
+      .maybeSingle(),
   ]);
 
   return orders.map((o: any) => {
     const myItems = items.filter((i: any) => i.order_id === o.id);
-    const prof: any = pmap.get(o.user_id);
+    const profile = pmap.get(o.user_id);
     return {
       id: o.id,
       order_number: o.order_number,
@@ -78,8 +100,8 @@ async function buildSellerOrders(userId: string, supabase: any, orderFilter?: st
       delivery_type: o.delivery_type,
       pickup_station: o.pickup_station,
       delivery_notes: o.delivery_notes,
-      customer_email: prof?.email ?? null,
-      customer_name: prof?.display_name ?? o.delivery_name ?? null,
+      customer_email: profile?.email ?? null,
+      customer_name: profile?.display_name ?? o.delivery_name,
       items: myItems.map((i: any) => ({
         id: i.id,
         name: i.name,
@@ -88,11 +110,21 @@ async function buildSellerOrders(userId: string, supabase: any, orderFilter?: st
         image_url: i.image_url,
         fulfillment_status: i.fulfillment_status,
       })),
-      subtotal: myItems.reduce((a: number, i: any) => a + Number(i.price) * i.qty, 0),
+      subtotal: myItems.reduce((s: number, i: any) => s + Number(i.price) * i.qty, 0),
       payment_method: o.payment_method,
       order_total: Number(o.total),
-      sole_seller: (allItems ?? []).filter((x: any) => x.order_id === o.id).every((x: any) => x.seller_id === userId),
-      shop: (shop as any) ?? null,
+      sole_seller: (allItems ?? [])
+        .filter((x: any) => x.order_id === o.id)
+        .every((x: any) => x.seller_id === userId),
+      shop: shop
+        ? {
+            shop_name: shop.shop_name,
+            phone: shop.phone,
+            store_region: shop.store_region,
+            location: shop.location,
+            slug: shop.slug,
+          }
+        : null,
     };
   });
 }
@@ -114,28 +146,72 @@ export const getSellerOrder = createServerFn({ method: "GET" })
 export const updateItemFulfillment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      itemIds: z.array(z.string().uuid()).min(1).max(100),
-      status: z.enum(["processing", "shipped", "delivered"]),
-      rider_name: z.string().trim().max(80).optional(),
-      rider_phone: z.string().trim().max(20).optional(),
-      tracking_note: z.string().trim().max(300).optional(),
-    }).parse(input)
+    z
+      .object({
+        itemIds: z.array(z.string().uuid()).min(1).max(100),
+        status: z.enum(["processing", "shipped", "delivered"]),
+        rider_name: z.string().trim().max(80).optional(),
+        rider_phone: z.string().trim().max(20).optional(),
+        tracking_note: z.string().trim().max(300).optional(),
+      })
+      .parse(input)
   )
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
+
+    // Fulfillment can only move forward. Sellers cannot undo shipped/delivered.
+    // Rank: processing (0) → shipped (1) → delivered (2). Admin must reverse if needed.
+    const rank: Record<string, number> = {
+      pending: 0,
+      processing: 0,
+      shipped: 1,
+      delivered: 2,
+      cancelled: -1,
+    };
+    const targetRank = rank[data.status];
+    if (targetRank === undefined || targetRank < 0) {
+      throw new Error("Invalid fulfillment status");
+    }
+
+    const { data: existing, error: loadErr } = await supabase
+      .from("order_items")
+      .select("id, fulfillment_status")
+      .in("id", data.itemIds)
+      .eq("seller_id", userId);
+    if (loadErr) throw new Error(loadErr.message);
+    if (!existing?.length) throw new Error("No matching order items found");
+
+    for (const row of existing) {
+      const current = String(row.fulfillment_status ?? "processing").toLowerCase();
+      const currentRank = rank[current] ?? 0;
+      if (current === "cancelled") {
+        throw new Error("Cancelled items cannot be updated");
+      }
+      if (targetRank <= currentRank) {
+        throw new Error(
+          `Cannot change status from "${current}" to "${data.status}". ` +
+            "Shipped and delivered updates cannot be undone. Contact admin if a correction is needed."
+        );
+      }
+    }
+
     const { data: updated, error } = await supabase
       .from("order_items")
       .update({
         fulfillment_status: data.status,
         ...(data.status === "shipped"
-          ? { rider_name: data.rider_name || null, rider_phone: data.rider_phone || null, tracking_note: data.tracking_note || null }
+          ? {
+              rider_name: data.rider_name || null,
+              rider_phone: data.rider_phone || null,
+              tracking_note: data.tracking_note || null,
+            }
           : {}),
       })
       .in("id", data.itemIds)
       .eq("seller_id", userId)
       .select("order_id");
     if (error) throw new Error(error.message);
+    if (!updated?.length) throw new Error("Update failed — no items were changed");
 
     // Notify buyers by SMS when items ship or are delivered (best-effort)
     if (data.status === "shipped" || data.status === "delivered") {
@@ -146,10 +222,19 @@ export const updateItemFulfillment = createServerFn({ method: "POST" })
           .select("order_number, delivery_phone")
           .in("id", orderIds as string[]);
         const { trySendSMS } = await import("./sms.server");
-        const { data: shop } = await supabaseAdmin.from("seller_profiles").select("shop_name").eq("user_id", userId).maybeSingle();
+        const { data: shop } = await supabaseAdmin
+          .from("seller_profiles")
+          .select("shop_name")
+          .eq("user_id", userId)
+          .maybeSingle();
         const from = shop?.shop_name ? ` from ${shop.shop_name}` : "";
-        const rider = data.rider_name ? ` Rider: ${data.rider_name}${data.rider_phone ? " (" + data.rider_phone + ")" : ""}.` : "";
-        const verb = data.status === "shipped" ? `is on its way.${rider}` : "has been delivered. Please confirm receipt in the app.";
+        const rider = data.rider_name
+          ? ` Rider: ${data.rider_name}${data.rider_phone ? " (" + data.rider_phone + ")" : ""}.`
+          : "";
+        const verb =
+          data.status === "shipped"
+            ? `is on its way.${rider}`
+            : "has been delivered. Please confirm receipt in the app.";
         for (const o of orders ?? []) {
           if (o.delivery_phone) {
             await trySendSMS(

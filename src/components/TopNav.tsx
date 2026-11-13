@@ -25,7 +25,7 @@ export function TopNav() {
 
   if (path === "/login") return null;
 
-  const pill = "flex shrink-0 items-center gap-2 rounded-md px-2.5 py-2 text-[15px] font-medium text-foreground transition hover:bg-muted";
+  const pill = "flex shrink-0 items-center gap-2 rounded-md px-1.5 py-2 lg:px-2.5 text-[15px] font-medium text-foreground transition hover:bg-muted";
 
   return (
     <header className="sticky top-0 z-40 hidden border-b border-border bg-background shadow-sm md:block">
@@ -40,10 +40,10 @@ export function TopNav() {
         <button
           onClick={() => openSearch(true)}
           aria-label="Search"
-          className="flex min-w-[180px] flex-1 items-center gap-3 rounded-full bg-muted py-1.5 pl-5 pr-1.5 text-left text-muted-foreground transition hover:bg-muted/70"
+          className="flex min-w-0 flex-1 items-center gap-3 rounded-full bg-muted py-1.5 pl-5 pr-1.5 text-left text-muted-foreground transition hover:bg-muted/70"
         >
           <Search size={20} className="shrink-0" />
-          <span className="flex-1 truncate text-[15px]">Search products, brands and categories</span>
+          <span className="min-w-0 flex-1 truncate text-[15px]">Search products, brands and categories</span>
           <span className="rounded-full bg-primary hidden px-6 py-2 text-sm font-bold text-primary-foreground lg:inline">Search</span>
         </button>
 

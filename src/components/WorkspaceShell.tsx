@@ -203,9 +203,9 @@ export function WorkspaceShell({
             </div>
           </div>
 
-          {/* Mobile quick navigate strip */}
+          {/* Mobile quick navigate strip — larger touch targets */}
           {quickItems.length > 0 && (
-            <div className="flex gap-1.5 overflow-x-auto border-t border-border/60 px-3 py-2 scrollbar-none md:hidden">
+            <div className="flex gap-2 overflow-x-auto border-t border-border/60 px-3 py-2.5 scrollbar-none md:hidden">
               {quickItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = active(item);
@@ -214,16 +214,16 @@ export function WorkspaceShell({
                     key={item.to}
                     to={item.to}
                     className={cn(
-                      "inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition",
+                      "inline-flex shrink-0 items-center gap-2 rounded-full px-3.5 py-2 text-xs font-semibold transition active:scale-95",
                       isActive
                         ? "bg-primary text-primary-foreground shadow-sm"
                         : "bg-muted/80 text-muted-foreground hover:bg-muted hover:text-foreground",
                     )}
                   >
-                    <Icon className="h-3.5 w-3.5" />
+                    <Icon className="h-4 w-4" />
                     {item.label}
                     {!!item.badge && (
-                      <span className="rounded-full bg-background/20 px-1 text-[10px] leading-4">
+                      <span className="rounded-full bg-background/20 px-1.5 text-[10px] leading-4">
                         {item.badge > 99 ? "99+" : item.badge}
                       </span>
                     )}

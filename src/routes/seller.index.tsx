@@ -4,8 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Package, Clock, CheckCircle2, Store, ArrowRight, MessageCircle, ShoppingBag, Wallet, Plus, TrendingUp, AlertTriangle } from "lucide-react";
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Package, Clock, CheckCircle2, Store, MessageCircle, ShoppingBag, Wallet, Plus, AlertTriangle, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useIsSeller, useSellerProfile } from "@/hooks/use-seller";
@@ -95,7 +94,11 @@ function Overview({ userId, shopName }: { userId: string; shopName: string }) {
   const { data: wallet } = useQuery({
     queryKey: ["seller-dashboard-wallet", userId],
     queryFn: async () => {
-      const { data } = await supabase.from("seller_wallets").select("balance, pending, total_earned").eq("user_id", userId).maybeSingle();
+      const { data } = await supabase
+        .from("seller_wallets")
+        .select("balance, pending, total_earned")
+        .eq("user_id", userId)
+        .maybeSingle();
       return data;
     },
   });
@@ -110,239 +113,231 @@ function Overview({ userId, shopName }: { userId: string; shopName: string }) {
   });
 
   const approved = products?.filter((p) => p.approval_status === "approved").length ?? 0;
-  const pending = products?.filter((p) => p.approval_status === "pending").length ?? 0;
-  const rejected = products?.filter((p) => p.approval_status === "rejected").length ?? 0;
-  const totalValue = products?.reduce((s, p) => s + Number(p.price) * (p.stock ?? 0), 0) ?? 0;
+  const pendingProducts = products?.filter((p) => p.approval_status === "pending").length ?? 0;
   const lowStock = products?.filter((p) => p.approval_status === "approved" && (p.stock ?? 0) <= 3) ?? [];
+  const openOrders = orders.filter((o) =>
+    ["placed", "pending", "processing", "confirmed"].includes(String(o.status).toLowerCase())
+    || o.items?.some((i: any) => ["pending", "processing"].includes(String(i.fulfillment_status).toLowerCase()))
+  );
+  const recentOrders = orders.slice(0, 5);
+
+  const actions = [
+    { to: "/seller/orders" as const, label: "Orders", hint: openOrders.length ? `${openOrders.length} open` : "Manage", icon: ShoppingBag, tone: "primary" },
+    { to: "/seller/products/new" as const, label: "Add product", hint: "List new item", icon: Plus, tone: "default" },
+    { to: "/seller/wallet" as const, label: "Wallet", hint: formatGHC(Number(wallet?.balance ?? 0)), icon: Wallet, tone: "default" },
+    { to: "/seller/messages" as const, label: "Messages", hint: "Chat buyers", icon: MessageCircle, tone: "default" },
+  ];
 
   return (
-    <div className="dashboard-canvas p-4 md:p-6">
-      {/* Greeting + primary CTAs */}
-      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+    <div className="dashboard-canvas space-y-5 p-4 pb-8 md:p-6">
+      {/* Header */}
+      <div className="flex items-end justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-primary">Kivora Seller</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">Seller hub</p>
           <h1 className="mt-0.5 truncate font-display text-2xl font-bold tracking-tight md:text-3xl">
-            Hello, {shopName}
+            {shopName}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">Your shop at a glance today.</p>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <Button asChild variant="outline" className="rounded-xl">
-            <Link to="/seller/orders">Orders</Link>
-          </Button>
-          <Button asChild className="rounded-xl gap-1.5">
-            <Link to="/seller/products/new">
-              <Plus className="h-4 w-4" /> Add product
-            </Link>
-          </Button>
-        </div>
-      </div>
-
-      <div className="mb-4">
         <PushToggle compact />
       </div>
 
-      {/* Wallet card */}
-      <section className="relative overflow-hidden rounded-2xl bg-secondary p-5 text-secondary-foreground shadow-lg md:p-6">
-        <div className="absolute -bottom-12 -right-8 h-40 w-40 rounded-full bg-primary/20" />
-        <div className="relative grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-          <div>
-            <div className="flex items-center gap-2 text-sm opacity-75">
-              <Wallet size={16} /> Available balance
-            </div>
-            <p className="mt-2 font-display text-3xl font-bold tracking-tight md:text-4xl">
-              {formatGHC(Number(wallet?.balance ?? 0))}
-            </p>
-            <p className="mt-2 text-xs opacity-65">
-              {formatGHC(Number(wallet?.pending ?? 0))} pending ·{" "}
-              {formatGHC(Number(wallet?.total_earned ?? 0))} earned
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              asChild
-              variant="outline"
-              className="rounded-xl border-secondary-foreground/20 bg-secondary-foreground/10 text-secondary-foreground hover:bg-secondary-foreground/20"
+      {/* Primary actions — large touch targets */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {actions.map((a) => {
+          const Icon = a.icon;
+          return (
+            <Link
+              key={a.to}
+              to={a.to}
+              className={
+                a.tone === "primary"
+                  ? "flex flex-col items-start gap-3 rounded-2xl bg-primary p-4 text-primary-foreground shadow-sm transition active:scale-[0.98] hover:opacity-95"
+                  : "flex flex-col items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm transition active:scale-[0.98] hover:bg-muted/40"
+              }
             >
-              <Link to="/seller/wallet">Withdraw</Link>
-            </Button>
-            <Button asChild className="rounded-xl">
-              <Link to="/seller/wallet">Details</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Quick stats */}
-      <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Approved" value={approved} icon={CheckCircle2} color="text-success" />
-        <Stat label="Pending" value={pending} icon={Clock} color="text-warning" />
-        <Stat label="Rejected" value={rejected} icon={Package} color="text-destructive" />
-        <Stat label="Inventory value" value={formatGHC(totalValue)} icon={TrendingUp} color="text-primary" />
+              <span
+                className={
+                  a.tone === "primary"
+                    ? "grid h-10 w-10 place-items-center rounded-xl bg-primary-foreground/15"
+                    : "grid h-10 w-10 place-items-center rounded-xl bg-muted"
+                }
+              >
+                <Icon className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="text-sm font-bold leading-tight">{a.label}</p>
+                <p className={`mt-0.5 text-xs ${a.tone === "primary" ? "opacity-80" : "text-muted-foreground"}`}>
+                  {a.hint}
+                </p>
+              </div>
+            </Link>
+          );
+        })}
       </div>
 
-      {lowStock.length > 0 && (
-        <Link
-          to="/seller/products"
-          className="mt-5 flex items-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-4 transition hover:bg-warning/15"
-        >
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-warning/20 text-warning">
-            <AlertTriangle size={19} />
-          </span>
-          <div className="min-w-0">
-            <p className="text-sm font-bold">
-              {lowStock.length} product{lowStock.length === 1 ? "" : "s"} low on stock
-            </p>
-            <p className="truncate text-xs text-muted-foreground">
-              {lowStock.map((p) => p.name).join(", ")}
-            </p>
-          </div>
-          <ArrowRight size={16} className="ml-auto shrink-0 text-warning" />
-        </Link>
-      )}
+      {/* Wallet strip */}
+      <Link
+        to="/seller/wallet"
+        className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3.5 shadow-sm transition hover:bg-muted/30 active:scale-[0.99]"
+      >
+        <div className="min-w-0">
+          <p className="text-xs font-medium text-muted-foreground">Available balance</p>
+          <p className="mt-0.5 font-display text-xl font-bold tracking-tight">
+            {formatGHC(Number(wallet?.balance ?? 0))}
+          </p>
+          <p className="mt-0.5 text-[11px] text-muted-foreground">
+            {formatGHC(Number(wallet?.pending ?? 0))} pending
+          </p>
+        </div>
+        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">
+          Withdraw <ChevronRight className="h-3.5 w-3.5" />
+        </span>
+      </Link>
 
-      <div className="mt-6 grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,.75fr)]">
-        <section className="dashboard-panel">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold text-primary">LAST 30 DAYS</p>
-              <h2 className="font-display text-xl font-bold">Sales performance</h2>
-            </div>
-            <div className="text-right">
-              <p className="font-display text-lg font-bold">{formatGHC(analytics?.totalRevenue ?? 0)}</p>
-              <p className="text-[10px] text-muted-foreground">
-                {analytics?.totalOrders ?? 0} orders · {analytics?.totalUnits ?? 0} units
-              </p>
-            </div>
-          </div>
-          <div className="mt-4 h-52">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={analytics?.daily ?? []} margin={{ top: 4, right: 4, left: -18, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="salesFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.35} />
-                    <stop offset="100%" stopColor="var(--primary)" stopOpacity={0.02} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                <XAxis
-                  dataKey="label"
-                  tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
-                  tickLine={false}
-                  axisLine={false}
-                  interval={4}
-                />
-                <YAxis
-                  tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
-                  tickLine={false}
-                  axisLine={false}
-                  width={52}
-                  tickFormatter={(v: number) => (v >= 1000 ? `${(v / 1000).toFixed(1)}k` : `${v}`)}
-                />
-                <Tooltip
-                  formatter={(value: number) => [formatGHC(value), "Revenue"]}
-                  contentStyle={{
-                    borderRadius: 12,
-                    border: "1px solid var(--border)",
-                    background: "var(--card)",
-                    fontSize: 12,
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="var(--primary)"
-                  strokeWidth={2.5}
-                  fill="url(#salesFill)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </section>
-
-        <section className="dashboard-panel">
-          <p className="text-xs font-bold text-primary">BEST SELLERS</p>
-          <h2 className="font-display text-xl font-bold">Top products</h2>
-          <div className="mt-4 space-y-3">
-            {(analytics?.topProducts ?? []).map((p, i) => (
-              <div key={p.name} className="flex items-center gap-3">
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary-soft text-xs font-extrabold text-primary">
-                  {i + 1}
+      {/* Needs attention — only when relevant */}
+      {(openOrders.length > 0 || lowStock.length > 0 || pendingProducts > 0) && (
+        <section className="space-y-2">
+          <p className="px-0.5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+            Needs attention
+          </p>
+          <div className="space-y-2">
+            {openOrders.length > 0 && (
+              <Link
+                to="/seller/orders"
+                className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3.5 transition hover:bg-muted/30 active:scale-[0.99]"
+              >
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <ShoppingBag className="h-5 w-5" />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">{p.name}</p>
-                  <p className="text-[11px] text-muted-foreground">{p.qty} sold</p>
+                  <p className="text-sm font-bold">
+                    {openOrders.length} order{openOrders.length === 1 ? "" : "s"} to process
+                  </p>
+                  <p className="truncate text-xs text-muted-foreground">Pack, ship, or mark delivered</p>
                 </div>
-                <p className="shrink-0 text-sm font-bold">{formatGHC(p.revenue)}</p>
-              </div>
-            ))}
-            {(analytics?.topProducts ?? []).length === 0 && (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                Your best-selling products will appear here once you make sales.
-              </p>
+                <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+              </Link>
+            )}
+            {lowStock.length > 0 && (
+              <Link
+                to="/seller/products"
+                className="flex items-center gap-3 rounded-2xl border border-warning/30 bg-warning/5 p-3.5 transition hover:bg-warning/10 active:scale-[0.99]"
+              >
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-warning/20 text-warning-ink">
+                  <AlertTriangle className="h-5 w-5" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold">
+                    {lowStock.length} low-stock item{lowStock.length === 1 ? "" : "s"}
+                  </p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {lowStock.map((p) => p.name).slice(0, 3).join(", ")}
+                    {lowStock.length > 3 ? "…" : ""}
+                  </p>
+                </div>
+                <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+              </Link>
+            )}
+            {pendingProducts > 0 && (
+              <Link
+                to="/seller/products"
+                className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3.5 transition hover:bg-muted/30 active:scale-[0.99]"
+              >
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-muted text-muted-foreground">
+                  <Clock className="h-5 w-5" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold">
+                    {pendingProducts} product{pendingProducts === 1 ? "" : "s"} awaiting approval
+                  </p>
+                  <p className="truncate text-xs text-muted-foreground">Admin review in progress</p>
+                </div>
+                <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+              </Link>
             )}
           </div>
         </section>
+      )}
+
+      {/* Snapshot numbers */}
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <div className="rounded-2xl border border-border bg-card p-3 text-center sm:p-4">
+          <p className="font-display text-lg font-bold sm:text-xl">{approved}</p>
+          <p className="mt-0.5 text-[11px] text-muted-foreground">Live products</p>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-3 text-center sm:p-4">
+          <p className="font-display text-lg font-bold sm:text-xl">{analytics?.totalOrders ?? 0}</p>
+          <p className="mt-0.5 text-[11px] text-muted-foreground">Orders (30d)</p>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-3 text-center sm:p-4">
+          <p className="truncate font-display text-lg font-bold sm:text-xl">
+            {formatGHC(analytics?.totalRevenue ?? 0)}
+          </p>
+          <p className="mt-0.5 text-[11px] text-muted-foreground">Sales (30d)</p>
+        </div>
       </div>
 
-      <section className="mt-6">
-        <div className="mb-3 flex items-center justify-between"><h2 className="font-display text-lg font-bold">Quick actions</h2><Link to="/seller/products" className="text-xs font-bold text-primary">View products</Link></div>
-        <div className="grid grid-cols-4 gap-2 sm:gap-3">
-          {[{ to: "/seller/products/new", label: "Add item", icon: Plus }, { to: "/seller/orders", label: "Orders", icon: ShoppingBag }, { to: "/seller/messages", label: "Messages", icon: MessageCircle }, { to: "/seller/wallet", label: "Wallet", icon: Wallet }].map(({ to, label, icon: Icon }, index) => (
-            <Link key={to} to={to} className="group flex min-w-0 flex-col items-center gap-2 text-center text-xs font-semibold text-muted-foreground">
-              <span className={`grid aspect-square w-full max-w-16 place-items-center rounded-xl border border-border transition group-hover:-translate-y-0.5 ${index === 0 ? "bg-primary text-primary-foreground" : "bg-card text-foreground"}`}><Icon size={21} /></span>
-              <span className="w-full truncate">{label}</span>
+      {/* Recent orders */}
+      <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <h2 className="text-sm font-bold">Recent orders</h2>
+          <Link to="/seller/orders" className="text-xs font-semibold text-primary">
+            See all
+          </Link>
+        </div>
+        <div className="divide-y divide-border">
+          {recentOrders.map((order) => (
+            <Link
+              key={order.id}
+              to="/seller/orders/$id"
+              params={{ id: order.id }}
+              className="flex items-center gap-3 px-4 py-3 transition hover:bg-muted/40 active:bg-muted/60"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold">
+                  {order.items?.map((item: any) => item.name).join(", ") || "Order"}
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  #{order.order_number} · {new Date(order.created_at).toLocaleDateString()}
+                </p>
+              </div>
+              <div className="shrink-0 text-right">
+                <p className="text-sm font-bold">{formatGHC(order.subtotal)}</p>
+                <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
+                  {order.status}
+                </p>
+              </div>
             </Link>
           ))}
+          {recentOrders.length === 0 && (
+            <p className="px-4 py-10 text-center text-sm text-muted-foreground">
+              No orders yet. Share your shop to get your first sale.
+            </p>
+          )}
         </div>
       </section>
 
-      <div className="mt-6 grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,.75fr)]">
-        <section className="dashboard-panel">
-          <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-primary">LATEST SALES</p><h2 className="font-display text-xl font-bold">Recent orders</h2></div><Link to="/seller/orders" className="text-xs font-bold text-primary">View all</Link></div>
-          <div className="mt-3 divide-y divide-border">
-            {orders.slice(0, 4).map((order) => (
-              <Link key={order.id} to="/seller/orders/$id" params={{ id: order.id }} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 py-3">
-                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary"><Package size={19} /></div>
-                <div className="min-w-0"><p className="truncate text-sm font-bold">{order.items.map((item) => item.name).join(", ")}</p><p className="text-xs text-muted-foreground">#{order.order_number} · {new Date(order.created_at).toLocaleDateString()}</p></div>
-                <div className="text-right"><p className="text-sm font-bold">{formatGHC(order.subtotal)}</p><p className="text-[10px] font-bold uppercase text-primary">{order.status}</p></div>
-              </Link>
-            ))}
-            {orders.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">Your recent orders will appear here.</p>}
-          </div>
-        </section>
-
-        <section className="dashboard-panel">
-          <p className="text-xs font-bold text-primary">SHOP HEALTH</p>
-          <h2 className="font-display text-xl font-bold">Catalogue status</h2>
-          <div className="mt-5 space-y-4">
-            <HealthRow label="Live products" value={approved} total={products?.length ?? 0} />
-            <HealthRow label="Awaiting approval" value={pending} total={products?.length ?? 0} />
-            <HealthRow label="Stock units" value={products?.reduce((sum, product) => sum + (product.stock ?? 0), 0) ?? 0} total={Math.max(1, products?.reduce((sum, product) => sum + (product.stock ?? 0), 0) ?? 0)} />
-          </div>
-          <Link to="/seller/products" className="mt-5 flex items-center justify-center gap-2 rounded-lg border border-border py-3 text-sm font-bold">Manage catalogue <ArrowRight size={15} /></Link>
-        </section>
+      {/* Secondary shortcuts */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {[
+          { to: "/seller/products" as const, label: "Products", icon: Package },
+          { to: "/seller/pos" as const, label: "POS", icon: Store },
+          { to: "/seller/reviews" as const, label: "Reviews", icon: CheckCircle2 },
+          { to: "/seller/profile" as const, label: "Shop profile", icon: Store },
+        ].map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-sm font-semibold transition hover:bg-muted/40 active:scale-[0.98]"
+            >
+              <Icon className="h-4 w-4 text-muted-foreground" />
+              {item.label}
+            </Link>
+          );
+        })}
       </div>
-    </div>
-  );
-}
-
-function Stat({ label, value, icon: Icon, color }: { label: string; value: any; icon: any; color: string }) {
-  return (
-    <div className="dashboard-stat">
-      <div className="grid h-9 w-9 place-items-center rounded-lg bg-muted"><Icon size={18} className={color} /></div>
-      <p className="mt-4 font-display text-xl font-bold md:text-2xl">{value}</p>
-      <p className="text-xs text-muted-foreground">{label}</p>
-    </div>
-  );
-}
-
-function HealthRow({ label, value, total }: { label: string; value: number; total: number }) {
-  const width = total > 0 ? Math.min(100, Math.round((value / total) * 100)) : 0;
-  return (
-    <div>
-      <div className="mb-1 flex justify-between text-xs"><span className="text-muted-foreground">{label}</span><span className="font-bold">{value}</span></div>
-      <div className="h-2 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${width}%` }} /></div>
     </div>
   );
 }
@@ -554,4 +549,3 @@ function Row({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-

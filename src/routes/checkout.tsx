@@ -517,9 +517,9 @@ function Checkout() {
       </div>
 
       <div className="mx-auto max-w-5xl px-0 py-4 md:px-6 md:py-8">
-        <div className="grid gap-5 md:grid-cols-[1fr_340px] md:items-start lg:grid-cols-[1fr_380px]">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-[minmax(0,1fr)_340px] md:items-start lg:grid-cols-[minmax(0,1fr)_380px]">
           {/* ============ LEFT COLUMN – Form ============ */}
-          <div className="space-y-4">
+          <div className="min-w-0 space-y-4">
             {/* Delivery methods remain available before an address is saved. */}
             <section id="delivery-section" className={cn("border-y border-border bg-card", mobileStep !== "delivery" && "hidden md:block")}>
               <h2 className="px-4 pt-4 text-sm font-semibold">Delivery Method</h2>

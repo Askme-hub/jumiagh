@@ -35,10 +35,20 @@ import { toast } from "sonner";
 import { doorDeliveryFee, zoneForRegion, DELIVERY_ZONES } from "@/lib/delivery-zones";
 import { useDeliveryZones } from "@/lib/use-delivery-zones";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/checkout")({
   component: Checkout,
-  head: () => ({ meta: [{ title: "Checkout – Kivora Ghana" }] }),
+  head: () => ({ meta: [
+    { title: "Delivery & Payment – Kivora Ghana" },
+    { name: "description", content: "Choose your delivery address and payment method, then review your Kivora order." },
+    { property: "og:title", content: "Delivery & Payment – Kivora Ghana" },
+    { property: "og:description", content: "Review your delivery details and securely complete your Kivora order." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+    { name: "robots", content: "noindex" },
+  ] }),
   beforeLoad: async () => {
     if (typeof window === "undefined") return;
     const { data, error } = await supabase.auth.getUser();
@@ -137,6 +147,8 @@ function Checkout() {
   const [showForm, setShowForm] = useState(false);
   const [deliveryType, setDeliveryType] = useState<"door" | "pickup">("door");
   const [pickupStation, setPickupStation] = useState("");
+  const [mobileStep, setMobileStep] = useState<"delivery" | "payment">("delivery");
+  const [paymentChoicesOpen, setPaymentChoicesOpen] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState<"online" | "cod">("cod");
 
   const [form, setForm] = useState({
@@ -409,7 +421,7 @@ function Checkout() {
   const OrderSummaryContent = () => (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold tracking-tight">Order Summary</h2>
+        <h2 className="text-base font-semibold tracking-normal">Order Summary</h2>
         <Link
           to="/cart"
           className="text-xs font-medium text-primary hover:underline underline-offset-2"
@@ -475,7 +487,7 @@ function Checkout() {
 
       <div className="flex items-center justify-between">
         <span className="text-base font-semibold">Total</span>
-        <span className="text-xl font-bold tracking-tight">{formatGHC(grand)}</span>
+        <span className="text-xl font-bold tracking-normal">{formatGHC(grand)}</span>
       </div>
 
       <div className="flex items-start gap-2 rounded-lg bg-muted/60 px-3 py-2.5">
@@ -490,39 +502,59 @@ function Checkout() {
   );
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] pb-28 md:pb-10">
-      <PageHeader title="Checkout" />
+    <div className="min-h-[calc(100vh-4rem)] pb-56 md:pb-10">
+      <PageHeader title={mobileStep === "delivery" ? "Delivery" : "Payment"} />
 
       {/* Progress indicator */}
       <div className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-5xl items-center gap-2 px-4 py-3 md:px-6">
-          <StepBadge n={1} label="Delivery" active />
+          <Button variant="ghost" size="sm" onClick={() => setMobileStep("delivery")} aria-label="Edit delivery"><StepBadge n={1} label="Delivery" active={mobileStep === "delivery"} /></Button>
           <ChevronRight size={14} className="text-muted-foreground/60" />
-          <StepBadge n={2} label="Payment" active />
+          <StepBadge n={2} label="Payment" active={mobileStep === "payment"} />
           <ChevronRight size={14} className="text-muted-foreground/60" />
           <StepBadge n={3} label="Done" />
         </div>
       </div>
 
-      <div className="mx-auto max-w-5xl px-3 py-4 md:px-6 md:py-8">
+      <div className="mx-auto max-w-5xl px-0 py-4 md:px-6 md:py-8">
         <div className="grid gap-5 md:grid-cols-[1fr_340px] md:items-start lg:grid-cols-[1fr_380px]">
           {/* ============ LEFT COLUMN – Form ============ */}
           <div className="space-y-4">
+            {/* Delivery methods remain available before an address is saved. */}
+            <section id="delivery-section" className={cn("border-y border-border bg-card", mobileStep !== "delivery" && "hidden md:block")}>
+              <h2 className="px-4 pt-4 text-sm font-semibold">Delivery Method</h2>
+              <Tabs value={deliveryType} onValueChange={(value) => setDeliveryType(value as "door" | "pickup")} className="mt-3">
+                <TabsList className="grid h-12 w-full grid-cols-2 rounded-none bg-muted p-0">
+                  <TabsTrigger value="pickup" className="h-full rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary"><Store size={16} />Pickup Stations</TabsTrigger>
+                  <TabsTrigger value="door" className="h-full rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary"><Truck size={16} />Door Delivery</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <div className="p-4">
+                {deliveryType === "door" ? (
+                  <div className="flex gap-3 text-sm"><Truck className="shrink-0 text-primary" size={22} /><div><p className="font-semibold">Delivered to your address</p><p className="mt-1 text-xs text-muted-foreground">{zone.label} · {zone.eta}</p></div></div>
+                ) : stations.length === 0 ? (
+                  <div className="py-5 text-center"><Store size={48} strokeWidth={1.2} className="mx-auto text-muted-foreground" /><p className="mt-3 text-sm font-semibold">No pickup stations available</p><p className="mx-auto mt-2 max-w-xs text-xs text-muted-foreground">The shops in your cart do not currently offer a pickup station.</p><Button variant="outline" className="mt-4" onClick={() => setDeliveryType("door")}><Truck size={16} />Use Door Delivery</Button></div>
+                ) : (
+                  <div className="space-y-2">{stations.map((station) => <Button key={station.id} variant="outline" aria-pressed={pickupStation === station.label} onClick={() => setPickupStation(station.label)} className={cn("h-auto w-full justify-between whitespace-normal px-3 py-3 text-left", pickupStation === station.label && "border-primary bg-primary-soft")}><span className="min-w-0"><span className="block text-sm font-semibold">{station.label}</span><span className="block text-xs text-muted-foreground">{station.shop} · {station.region}</span></span><span className="shrink-0 text-sm">{formatGHC(station.fee)}</span></Button>)}</div>
+                )}
+              </div>
+            </section>
+
             {/* ---- Delivery Address ---- */}
             <section
               id="address-section"
-              className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
+              className={cn("border-y border-border bg-card", mobileStep !== "delivery" && "hidden md:block")}
             >
               <div className="flex items-center gap-3 border-b border-border px-4 py-3.5 md:px-5">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
                   <MapPin size={18} className="text-primary" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h2 className="text-sm font-semibold tracking-tight">Delivery Address</h2>
+                  <h2 className="text-sm font-semibold tracking-normal">Delivery Address</h2>
                   <p className="text-xs text-muted-foreground">Where should we send your order?</p>
                 </div>
                 {addresses.length > 0 && (
-                  <button
+                  <Button variant="ghost"
                     type="button"
                     onClick={() => setShowForm((s) => !s)}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/5"
@@ -536,7 +568,7 @@ function Checkout() {
                         <Plus size={14} /> Add new
                       </>
                     )}
-                  </button>
+                  </Button>
                 )}
               </div>
 
@@ -603,11 +635,12 @@ function Checkout() {
                     </div>
 
                     <Field
-                      label="Phone number"
+                      label="Ghana phone number (+233)"
                       value={form.phone}
                       onChange={(v) => set("phone", v)}
                       error={errors.phone}
-                      placeholder="024 XXX XXXX"
+                      placeholder="024 XXX XXXX or +233 24 XXX XXXX"
+                      type="tel"
                       inputMode="tel"
                     />
 
@@ -671,7 +704,7 @@ function Checkout() {
                       <span>Set as default address</span>
                     </label>
 
-                    <button
+                    <Button variant="ghost"
                       type="button"
                       onClick={submitNewAddress}
                       disabled={saveAddress.isPending}
@@ -684,124 +717,36 @@ function Checkout() {
                       ) : (
                         "Save address"
                       )}
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>
             </section>
 
-            {/* ---- Delivery Method ---- */}
-            {selected && (
-              <section
-                id="delivery-section"
-                className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
-              >
-                <div className="flex items-center gap-3 border-b border-border px-4 py-3.5 md:px-5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
-                    <Truck size={18} className="text-primary" />
-                  </div>
-                  <div>
-                    <h2 className="text-sm font-semibold tracking-tight">Delivery Method</h2>
-                    <p className="text-xs text-muted-foreground">How would you like to receive it?</p>
-                  </div>
-                </div>
-
-                <div className="p-4 md:p-5">
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <DeliveryOption
-                      selected={deliveryType === "door"}
-                      onClick={() => setDeliveryType("door")}
-                      icon={<Truck size={20} />}
-                      title="Door Delivery"
-                      subtitle={`3–7 business days · ${zone.eta}`}
-                    />
-                    <DeliveryOption
-                      selected={deliveryType === "pickup"}
-                      onClick={() => setDeliveryType("pickup")}
-                      icon={<Store size={20} />}
-                      title="Pickup Station"
-                      subtitle="Cheaper · Save on delivery"
-                      badge="Save ₵10"
-                    />
-                  </div>
-
-                  {deliveryType === "pickup" && (
-                    <div className="mt-4 space-y-2">
-                      {stations.length === 0 ? (
-                        <p className="rounded-xl bg-muted/60 px-3 py-3 text-sm text-muted-foreground">
-                          No pickup stations available for these items. Please use Door Delivery.
-                        </p>
-                      ) : (
-                        stations.map((s) => (
-                          <button
-                            key={s.id}
-                            type="button"
-                            onClick={() => setPickupStation(s.label)}
-                            className={cn(
-                              "flex w-full items-center justify-between gap-3 rounded-xl border-2 px-4 py-3 text-left transition",
-                              pickupStation === s.label
-                                ? "border-primary bg-primary/5"
-                                : "border-border hover:border-primary/40",
-                            )}
-                          >
-                            <div className="min-w-0">
-                              <p className="truncate text-sm font-semibold">{s.label}</p>
-                              <p className="truncate text-xs text-muted-foreground">
-                                {s.shop}
-                                {s.region ? ` · ${s.region}` : ""}
-                              </p>
-                            </div>
-                            <span className="shrink-0 rounded-lg bg-secondary px-2.5 py-1 text-xs font-bold">
-                              {formatGHC(s.fee)}
-                            </span>
-                          </button>
-                        ))
-                      )}
-                    </div>
-                  )}
-                </div>
-              </section>
-            )}
-
             {/* ---- Payment Method ---- */}
-            <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+            <section className={cn("border-y border-border bg-card", mobileStep !== "payment" && "hidden md:block")}>
               <div className="flex items-center gap-3 border-b border-border px-4 py-3.5 md:px-5">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
                   <CreditCard size={18} className="text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-semibold tracking-tight">Payment Method</h2>
+                  <h2 className="text-sm font-semibold tracking-normal">Payment Method</h2>
                   <p className="text-xs text-muted-foreground">Choose how you want to pay</p>
                 </div>
               </div>
 
               <div className="space-y-3 p-4 md:p-5">
-                {/* Online – coming soon */}
-                <button
-                  type="button"
-                  onClick={() =>
-                    toast.info("Online payment is coming soon. Please use Pay on Delivery for now.")
-                  }
-                  className="relative flex w-full items-start gap-3.5 rounded-xl border-2 border-border px-4 py-3.5 text-left opacity-60"
-                >
-                  <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted">
-                    <Smartphone size={20} className="text-muted-foreground" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold">Pay Online</p>
-                      <span className="rounded-md bg-secondary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-secondary-foreground">
-                        Coming soon
-                      </span>
-                    </div>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      Card · Mobile Money · Bank transfer
-                    </p>
-                  </div>
-                </button>
+                <Button variant="ghost" onClick={() => setPaymentChoicesOpen((open) => !open)} aria-expanded={paymentChoicesOpen} className="h-auto w-full justify-between whitespace-normal border-b border-border px-0 pb-3"><span>Pre-pay with card or Mobile Money</span><ChevronRight size={16} className={cn(paymentChoicesOpen && "rotate-90")} /></Button>
+                {paymentChoicesOpen && <div className="divide-y divide-border">
+                  {[
+                    { title: "Debit / Credit Card", detail: "Visa · Mastercard", icon: CreditCard },
+                    { title: "Mobile Money", detail: "MTN MoMo · Telecel Cash · AT Money", icon: Smartphone },
+                    { title: "Bank Transfer", detail: "Pay from your bank account", icon: Building2 },
+                  ].map((method) => <div key={method.title} aria-disabled="true" className="flex items-start gap-3 py-4"><method.icon size={22} className="mt-1 shrink-0 text-muted-foreground" /><div className="min-w-0 flex-1"><p className="text-sm font-semibold">{method.title}</p><p className="mt-1 text-xs text-muted-foreground">{method.detail}</p></div><span className="shrink-0 rounded bg-muted px-2 py-1 text-[10px] font-semibold text-muted-foreground">Coming soon</span></div>)}
+                </div>}
 
                 {/* COD */}
-                <button
+                <Button variant="ghost"
                   type="button"
                   onClick={() => {
                     if (!codAllowed) {
@@ -814,7 +759,7 @@ function Checkout() {
                   }}
                   disabled={!codAllowed}
                   className={cn(
-                    "relative flex w-full items-start gap-3.5 rounded-xl border-2 px-4 py-3.5 text-left transition",
+                    "relative flex h-auto w-full justify-start items-start gap-3.5 whitespace-normal rounded-lg border-2 px-4 py-3.5 text-left transition",
                     !codAllowed
                       ? "cursor-not-allowed border-border opacity-50"
                       : paymentMethod === "cod"
@@ -864,18 +809,18 @@ function Checkout() {
                       <Check size={12} className="text-primary-foreground" />
                     </div>
                   )}
-                </button>
+                </Button>
               </div>
             </section>
 
             {/* ---- Coupon ---- */}
-            <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+            <section className={cn("border-y border-border bg-card", mobileStep !== "payment" && "hidden md:block")}>
               <div className="flex items-center gap-3 border-b border-border px-4 py-3.5 md:px-5">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
                   <TicketPercent size={18} className="text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-semibold tracking-tight">Coupon Code</h2>
+                  <h2 className="text-sm font-semibold tracking-normal">Coupon Code</h2>
                   <p className="text-xs text-muted-foreground">Have a promo code? Apply it here</p>
                 </div>
               </div>
@@ -889,7 +834,7 @@ function Checkout() {
                         You save {formatGHC(appliedCoupon.discount)}
                       </p>
                     </div>
-                    <button
+                    <Button variant="ghost"
                       type="button"
                       onClick={() => {
                         setAppliedCoupon(null);
@@ -898,7 +843,7 @@ function Checkout() {
                       className="rounded-lg px-3 py-1.5 text-xs font-semibold text-success hover:bg-success/10"
                     >
                       Remove
-                    </button>
+                    </Button>
                   </div>
                 ) : (
                   <div className="flex gap-2">
@@ -908,7 +853,7 @@ function Checkout() {
                       placeholder="Enter code"
                       className="min-w-0 flex-1 rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm uppercase tracking-wide outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                     />
-                    <button
+                    <Button variant="ghost"
                       type="button"
                       onClick={applyCoupon}
                       disabled={checkingCoupon || !couponInput.trim()}
@@ -916,14 +861,14 @@ function Checkout() {
                     >
                       {checkingCoupon && <Loader2 size={14} className="animate-spin" />}
                       Apply
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>
             </section>
 
             {/* Mobile-only order summary (appears above sticky bar) */}
-            <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm md:hidden">
+            <section className={cn("border-y border-border bg-card md:hidden", mobileStep !== "payment" && "hidden")}>
               <div className="p-4">
                 <OrderSummaryContent />
               </div>
@@ -943,7 +888,7 @@ function Checkout() {
                 </div>
               )}
 
-              <button
+              <Button variant="ghost"
                 type="button"
                 onClick={pay}
                 disabled={paying || !!blocker}
@@ -964,7 +909,7 @@ function Checkout() {
                     {paymentMethod === "cod" ? "Place Order · Pay on Delivery" : "Pay Securely"}
                   </>
                 )}
-              </button>
+              </Button>
 
               <p className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
                 <ShieldCheck size={12} className="text-success" />
@@ -975,46 +920,23 @@ function Checkout() {
         </div>
       </div>
 
-      {/* ============ Mobile sticky bottom bar ============ */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-md md:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card pb-[env(safe-area-inset-bottom)] md:hidden">
         <div className="mx-auto max-w-md px-4 py-3">
-          {blocker && (
-            <p className="mb-2 rounded-lg bg-warning/10 px-3 py-2 text-xs font-medium text-warning">
-              {blocker}
-            </p>
-          )}
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Total to pay</span>
-            <span className="text-lg font-bold tracking-tight">{formatGHC(grand)}</span>
-          </div>
-          <button
-            type="button"
-            onClick={pay}
-            disabled={paying || !!blocker}
-            className={cn(
-              "flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold text-primary-foreground transition",
-              blocker
-                ? "cursor-not-allowed bg-primary/50"
-                : "bg-primary hover:bg-primary/90 active:scale-[0.98]",
-            )}
-          >
-            {paying ? (
-              <>
-                <Loader2 size={18} className="animate-spin" /> Processing…
-              </>
-            ) : (
-              <>
-                <Lock size={16} />
-                {paymentMethod === "cod" ? "Place Order" : "Pay Securely"}
-              </>
-            )}
-          </button>
+          <div className="mb-3 flex items-center justify-between"><span className="text-sm text-muted-foreground">Total ({itemCount} items)</span><span className="text-lg font-bold">{formatGHC(grand)}</span></div>
+          {mobileStep === "delivery" ? <Button className="h-12 w-full" disabled={paying || saveAddress.isPending} onClick={() => {
+            if (!selected || showForm) { toast.info("Save your delivery address to continue"); document.getElementById("address-section")?.scrollIntoView({ behavior: "smooth" }); return; }
+            if (deliveryType === "pickup" && !pickupStation) { toast.info("Choose a pickup station to continue"); document.getElementById("delivery-section")?.scrollIntoView({ behavior: "smooth" }); return; }
+            setMobileStep("payment"); window.scrollTo({ top: 0, behavior: "instant" });
+          }}>Continue to Payment<ChevronRight size={16} /></Button> : <>
+            {blocker && <p className="mb-2 text-xs text-danger-ink">{blocker}</p>}
+            <Button onClick={pay} disabled={paying || !!blocker} className="h-12 w-full">{paying ? <><Loader2 size={18} className="animate-spin" />Processing…</> : <><Lock size={16} />{paymentMethod === "cod" ? "Confirm Order · Pay on Delivery" : "Pay Securely"}</>}</Button>
+          </>}
         </div>
       </div>
 
       {/* OTP modal (kept from original) */}
       {otpPhone && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40 p-4 sm:items-center">
           <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-5 shadow-xl">
             <h3 className="text-base font-semibold">Verify your phone</h3>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -1025,10 +947,10 @@ function Checkout() {
               onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
               placeholder="6-digit code"
               inputMode="numeric"
-              className="mt-4 w-full rounded-xl border border-border bg-background px-3.5 py-3 text-center text-lg font-semibold tracking-[0.3em] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+              className="mt-4 w-full rounded-xl border border-border bg-background px-3.5 py-3 text-center text-lg font-semibold tracking-normal outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
             <div className="mt-4 flex gap-2">
-              <button
+              <Button variant="ghost"
                 type="button"
                 onClick={() => {
                   setOtpPhone(null);
@@ -1037,8 +959,8 @@ function Checkout() {
                 className="flex-1 rounded-xl border border-border py-2.5 text-sm font-semibold"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button variant="ghost"
                 type="button"
                 disabled={otpBusy || otpCode.length < 4}
                 onClick={async () => {
@@ -1059,9 +981,9 @@ function Checkout() {
                 className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
               >
                 {otpBusy ? <Loader2 size={16} className="animate-spin" /> : "Verify"}
-              </button>
+              </Button>
             </div>
-            <button
+            <Button variant="ghost"
               type="button"
               disabled={resendIn > 0 || otpSending}
               onClick={() => requestOtp(otpPhone)}
@@ -1072,7 +994,7 @@ function Checkout() {
                 : resendIn > 0
                   ? `Resend code in ${resendIn}s`
                   : "Resend code"}
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -1109,58 +1031,6 @@ function StepBadge({ n, label, active }: { n: number; label: string; active?: bo
   );
 }
 
-function DeliveryOption({
-  selected,
-  onClick,
-  icon,
-  title,
-  subtitle,
-  badge,
-}: {
-  selected: boolean;
-  onClick: () => void;
-  icon: React.ReactNode;
-  title: string;
-  subtitle: string;
-  badge?: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "relative flex flex-col items-start gap-2 rounded-xl border-2 p-4 text-left transition",
-        selected
-          ? "border-primary bg-primary/5 shadow-sm"
-          : "border-border hover:border-primary/40",
-      )}
-    >
-      <div
-        className={cn(
-          "flex h-10 w-10 items-center justify-center rounded-xl",
-          selected ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground",
-        )}
-      >
-        {icon}
-      </div>
-      <div>
-        <p className="text-sm font-semibold">{title}</p>
-        <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
-        {badge && (
-          <span className="mt-1.5 inline-block rounded-md bg-success/15 px-2 py-0.5 text-[10px] font-bold text-success">
-            {badge}
-          </span>
-        )}
-      </div>
-      {selected && (
-        <div className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
-          <Check size={12} className="text-primary-foreground" />
-        </div>
-      )}
-    </button>
-  );
-}
-
 function AddressCard({
   a,
   selected,
@@ -1181,7 +1051,7 @@ function AddressCard({
         selected ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/30",
       )}
     >
-      <button type="button" onClick={onSelect} className="flex w-full gap-3 p-3.5 text-left">
+      <Button variant="ghost" type="button" onClick={onSelect} className="flex h-auto w-full justify-start gap-3 whitespace-normal p-3.5 text-left">
         <div className="mt-0.5 shrink-0">
           <div
             className={cn(
@@ -1213,15 +1083,15 @@ function AddressCard({
             {a.city}, {a.region}
           </p>
         </div>
-      </button>
+      </Button>
       <div className="flex justify-end border-t border-border/60 px-3 py-1.5">
-        <button
+        <Button variant="ghost"
           type="button"
           onClick={onDelete}
           className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-destructive hover:bg-destructive/10"
         >
           <Trash2 size={12} /> Remove
-        </button>
+        </Button>
       </div>
     </div>
   );

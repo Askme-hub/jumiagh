@@ -11,9 +11,16 @@ export const Route = createFileRoute("/seller/orders/$id")({ component: SellerOr
 
 const STEPS = [
   { key: "processing", label: "Processing", icon: Clock },
-  { key: "shipped", label: "Mark as Shipped", icon: Truck },
-  { key: "delivered", label: "Mark as Delivered", icon: CheckCircle2 },
+  { key: "shipped", label: "Shipped", icon: Truck },
+  { key: "delivered", label: "Delivered", icon: CheckCircle2 },
 ] as const;
+
+const STATUS_RANK: Record<string, number> = {
+  pending: 0,
+  processing: 0,
+  shipped: 1,
+  delivered: 2,
+};
 
 function SellerOrderDetail() {
   const { id } = Route.useParams();
@@ -36,7 +43,9 @@ function SellerOrderDetail() {
         data: {
           itemIds: order.items.map((i) => i.id),
           status,
-          ...(status === "shipped" ? { rider_name: rider.name, rider_phone: rider.phone, tracking_note: rider.note } : {}),
+          ...(status === "shipped"
+            ? { rider_name: rider.name, rider_phone: rider.phone, tracking_note: rider.note }
+            : {}),
         },
       });
       toast.success(`Items marked as ${status}`);
@@ -55,7 +64,11 @@ function SellerOrderDetail() {
         <Link to="/seller/orders" className="flex items-center gap-1 text-sm text-muted-foreground">
           <ArrowLeft size={18} /> Back to orders
         </Link>
-        <Link to="/seller/orders/$id/slip" params={{ id }} className="flex items-center gap-1 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-sm font-bold">
+        <Link
+          to="/seller/orders/$id/slip"
+          params={{ id }}
+          className="flex items-center gap-1 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-sm font-bold"
+        >
           <Printer size={16} /> Parcel slip
         </Link>
       </div>
@@ -66,37 +79,57 @@ function SellerOrderDetail() {
             <h1 className="text-lg font-bold">Order #{order.order_number}</h1>
             <p className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleString()}</p>
           </div>
-          <span className={`text-xs font-bold px-2 py-1 rounded ${order.payment_status === "paid" ? "bg-success-soft text-success-ink" : "bg-secondary"}`}>
+          <span
+            className={`text-xs font-bold px-2 py-1 rounded ${
+              order.payment_status === "paid"
+                ? "bg-success-soft text-success-ink"
+                : "bg-secondary"
+            }`}
+          >
             {String(order.payment_status).toUpperCase()}
           </span>
         </div>
       </div>
 
-      {/* Customer */}
       <div className="bg-card border border-border rounded-xl p-4">
         <h2 className="font-bold text-sm mb-2">Customer & Delivery</h2>
         <dl className="text-sm space-y-1">
           <Row label="Name" value={order.customer_name} />
           <Row label="Phone" value={order.delivery_phone} />
           <Row label="Email" value={order.customer_email} />
-          <Row label="Method" value={order.delivery_type === "pickup" ? `Pickup — ${order.pickup_station ?? ""}` : "Door delivery"} />
-          <Row label="Address" value={[order.delivery_address, order.delivery_city, order.delivery_region].filter(Boolean).join(", ")} />
+          <Row
+            label="Method"
+            value={
+              order.delivery_type === "pickup"
+                ? `Pickup — ${order.pickup_station ?? ""}`
+                : "Door delivery"
+            }
+          />
+          <Row
+            label="Address"
+            value={[order.delivery_address, order.delivery_city, order.delivery_region]
+              .filter(Boolean)
+              .join(", ")}
+          />
           {order.delivery_notes && <Row label="Notes" value={order.delivery_notes} />}
         </dl>
       </div>
 
-      {/* Items */}
       <div className="bg-card border border-border rounded-xl p-4">
         <h2 className="font-bold text-sm mb-3">Your Items</h2>
         <div className="space-y-3">
           {order.items.map((i) => (
             <div key={i.id} className="flex gap-3 items-center">
               <div className="w-12 h-12 bg-muted rounded shrink-0">
-                {i.image_url && <img src={i.image_url} alt="" className="w-full h-full object-contain" />}
+                {i.image_url && (
+                  <img src={i.image_url} alt="" className="w-full h-full object-contain" />
+                )}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm line-clamp-1">{i.name}</p>
-                <p className="text-xs text-muted-foreground">{i.qty} × {formatGHC(i.price)}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold truncate">{i.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  Qty {i.qty} · {i.fulfillment_status}
+                </p>
               </div>
               <p className="font-bold text-sm">{formatGHC(i.price * i.qty)}</p>
             </div>
@@ -108,39 +141,93 @@ function SellerOrderDetail() {
         </div>
       </div>
 
-      {/* Fulfillment */}
+      {/* Fulfillment — forward only; shipped/delivered cannot be undone by seller */}
       <div className="bg-card border border-border rounded-xl p-4 print:hidden">
-        <h2 className="font-bold text-sm mb-3">Fulfillment status</h2>
+        <h2 className="font-bold text-sm mb-1">Fulfillment status</h2>
+        <p className="mb-3 text-[11px] text-muted-foreground">
+          Status only moves forward. Once marked shipped or delivered, it cannot be undone —
+          contact admin for corrections.
+        </p>
         {order.status === "cancelled" ? (
           <div className="rounded-lg bg-destructive/10 text-destructive p-3 text-sm">
             <p className="font-bold">This order was cancelled — do not ship it.</p>
-            <p className="text-xs mt-1">It's locked. If it was cancelled by mistake, contact Kivora admin to restore it.</p>
+            <p className="text-xs mt-1">
+              It's locked. If it was cancelled by mistake, contact Kivora admin to restore it.
+            </p>
           </div>
-        ) : (<>
-        {currentStatus === "processing" && (
-          <div className="mb-3 grid gap-2 sm:grid-cols-2">
-            <p className="sm:col-span-2 text-xs text-muted-foreground">Dispatch details (shared with the customer when you mark as shipped)</p>
-            <input value={rider.name} onChange={(e) => setRider({ ...rider, name: e.target.value })} placeholder="Rider / courier name" className="rounded-lg border border-border bg-background px-3 py-2 text-sm" />
-            <input value={rider.phone} onChange={(e) => setRider({ ...rider, phone: e.target.value })} placeholder="Rider phone e.g. 024…" inputMode="tel" className="rounded-lg border border-border bg-background px-3 py-2 text-sm" />
-            <input value={rider.note} onChange={(e) => setRider({ ...rider, note: e.target.value })} placeholder="Tracking note (e.g. VIP waybill no.)" className="sm:col-span-2 rounded-lg border border-border bg-background px-3 py-2 text-sm" />
-          </div>
+        ) : (
+          <>
+            {STATUS_RANK[currentStatus] === 0 && (
+              <div className="mb-3 grid gap-2 sm:grid-cols-2">
+                <p className="sm:col-span-2 text-xs text-muted-foreground">
+                  Dispatch details (shared with the customer when you mark as shipped)
+                </p>
+                <input
+                  value={rider.name}
+                  onChange={(e) => setRider({ ...rider, name: e.target.value })}
+                  placeholder="Rider / courier name"
+                  className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                />
+                <input
+                  value={rider.phone}
+                  onChange={(e) => setRider({ ...rider, phone: e.target.value })}
+                  placeholder="Rider phone e.g. 024…"
+                  inputMode="tel"
+                  className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                />
+                <input
+                  value={rider.note}
+                  onChange={(e) => setRider({ ...rider, note: e.target.value })}
+                  placeholder="Tracking note (e.g. VIP waybill no.)"
+                  className="sm:col-span-2 rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                />
+              </div>
+            )}
+            <div className="grid grid-cols-3 gap-2">
+              {STEPS.map(({ key, label, icon: Icon }) => {
+                const stepRank = STATUS_RANK[key] ?? 0;
+                const curRank = STATUS_RANK[currentStatus] ?? 0;
+                const isDone = stepRank < curRank || (stepRank === curRank && key === currentStatus);
+                const isCurrent = key === currentStatus || (curRank === 0 && key === "processing");
+                const isNext = stepRank === curRank + 1;
+                const locked = stepRank <= curRank;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    disabled={locked || order.status === "cancelled"}
+                    onClick={() => {
+                      if (!isNext) return;
+                      setStatus(key as "processing" | "shipped" | "delivered");
+                    }}
+                    className={`flex flex-col items-center gap-1 py-3 rounded-lg border text-xs font-semibold transition-colors ${
+                      isCurrent
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : isDone
+                          ? "border-success/40 bg-success/10 text-success-ink opacity-90"
+                          : isNext
+                            ? "border-border text-foreground hover:border-primary hover:bg-primary/5"
+                            : "border-border text-muted-foreground opacity-50 cursor-not-allowed"
+                    } disabled:cursor-not-allowed disabled:opacity-60`}
+                  >
+                    <Icon size={18} />
+                    {isDone && !isCurrent ? `✓ ${label}` : isNext ? `Mark ${label}` : label}
+                  </button>
+                );
+              })}
+            </div>
+            {currentStatus === "delivered" && (
+              <p className="mt-3 text-center text-xs text-muted-foreground">
+                Delivered — locked. Contact admin if this needs changing.
+              </p>
+            )}
+            {currentStatus === "shipped" && (
+              <p className="mt-3 text-center text-xs text-muted-foreground">
+                Shipped — you can still mark delivered. Shipping cannot be undone.
+              </p>
+            )}
+          </>
         )}
-        <div className="grid grid-cols-3 gap-2">
-          {STEPS.map(({ key, label, icon: Icon }) => (
-            <button
-              key={key}
-              onClick={() => setStatus(key)}
-              className={`flex flex-col items-center gap-1 py-3 rounded-lg border text-xs font-semibold transition-colors ${
-                currentStatus === key
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border text-muted-foreground hover:border-primary"
-              }`}
-            >
-              <Icon size={18} /> {label}
-            </button>
-          ))}
-        </div>
-        </>)}
       </div>
     </div>
   );
